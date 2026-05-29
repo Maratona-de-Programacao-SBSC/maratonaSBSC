@@ -1,0 +1,44 @@
+# Consulta de Notas Fiscais - Portal da Transparência
+
+API desenvolvida em FastAPI para consultar notas fiscais públicas do Portal da Transparência.
+
+## Funcionalidade
+
+A aplicação realiza:
+
+* consulta de notas fiscais por CNPJ
+* consumo da API pública do governo
+* armazenamento dos dados em arquivos JSON
+
+## Estrutura
+
+```txt
+dados/notas_portal/
+```
+
+## Execução
+
+Instalar dependências:
+
+```bash
+pip install -r requirements.txt
+```
+
+Executar servidor:
+
+```bash
+uvicorn main:app --reload
+```
+
+## Endpoint
+
+```txt
+GET /notas?cnpj=XXXXXXXXXXXXXX
+```
+
+## Fonte
+
+Portal da Transparência API
+
+
+Lembrem de gerar um venv
