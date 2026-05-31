@@ -3,11 +3,7 @@ from schemes.pagamento import Pagamento
 
 
 def portal_transparencia(pagamentos):
-
-    #fazer um generator usando list generator
-
     for pagamento in pagamentos:
-        
         pagamento_filtrado = Pagamento(
             codigo_pagamento=pagamento['Código Pagamento'],
             data_emissao=pagamento['Data Emissão'],
@@ -25,7 +21,7 @@ def portal_transparencia(pagamentos):
                 .replace(',', '.')
             )
         )
-
+        
         yield pagamento_filtrado
 
 
