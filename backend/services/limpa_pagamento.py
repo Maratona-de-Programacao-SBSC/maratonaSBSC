@@ -6,7 +6,7 @@ def portal_transparencia(pagamentos):
     for pagamento in pagamentos:
         pagamento_filtrado = Pagamento(
             codigo_pagamento=pagamento['Código Pagamento'],
-            data_emissao=pagamento['Data Emissão'],
+            data_emissao=formata_data(pagamento['Data Emissão']),
             codigo_favorecido=pagamento['Código Favorecido'],
             favorecido=pagamento['Favorecido'],
             processo=pagamento['Processo'],
@@ -21,8 +21,10 @@ def portal_transparencia(pagamentos):
                 .replace(',', '.')
             )
         )
-        
+
         yield pagamento_filtrado
 
 
 
+def formata_data(data):
+    return f"{data[6:10]}-{data[3:5]}-{data[0:2]}"
