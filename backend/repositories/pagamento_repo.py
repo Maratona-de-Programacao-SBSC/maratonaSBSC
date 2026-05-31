@@ -1,5 +1,6 @@
 from repositories.database import cursor, db
 from dataclasses import asdict
+from schemes.pagamento import Pagamento
 
 
 def salvar(pagamentos):
@@ -23,3 +24,18 @@ def salvar(pagamentos):
     
 
     db.commit()
+
+
+def busca_cnpj(cnpj):
+    query = """SELECT pagamentos.* FROM cnpj_codigos 
+            INNER JOIN pagamentos
+            ON cnpj_codigos.codigo = pagamentos.codigo_pagamento
+            WHERE cnpj_codigos.codigo_favorecido = %s AND cnpj_codigos.tipo = 'pagamento'"""
+    
+    cursor.execute(query, (cnpj,))
+
+    dados = cursor.fetchall()
+    for d in dados:
+        d['tipo_documento'] = 'pagamento'
+
+    return [Pagamento(**d) for d in dados]

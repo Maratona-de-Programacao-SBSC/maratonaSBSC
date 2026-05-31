@@ -16,3 +16,4 @@ db = mysql.connector.connect(
 )
 
 cursor = db.cursor()
+cursor = db.cursor(dictionary=True)

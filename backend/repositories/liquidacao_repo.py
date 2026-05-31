@@ -1,5 +1,6 @@
 from repositories.database import cursor, db
 from dataclasses import asdict
+from schemes.liquidacao import Liquidacao
 
 def salvar(liquidacoes):
 
@@ -21,3 +22,17 @@ def salvar(liquidacoes):
     cursor.executemany(query, dados)
 
     db.commit()
+
+def busca_cnpj(cnpj):
+    query = """SELECT liquidacoes.* FROM cnpj_codigos 
+            INNER JOIN liquidacoes
+            ON cnpj_codigos.codigo = liquidacoes.codigo_liquidacao
+            WHERE cnpj_codigos.codigo_favorecido = %s AND cnpj_codigos.tipo = 'liquidacao'"""
+    
+    cursor.execute(query, (cnpj,))
+
+    dados = cursor.fetchall()
+    for d in dados:
+        d['tipo_documento'] = 'liquidacao'
+
+    return [Liquidacao(**d) for d in dados]
