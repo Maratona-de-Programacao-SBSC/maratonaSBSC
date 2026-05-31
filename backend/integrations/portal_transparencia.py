@@ -66,19 +66,19 @@ def busca_despesas_periodo(data_inicio: str, data_fim: str):
 
         zip_arquivo = zipfile.ZipFile(io.BytesIO(response.content))
 
-        pagamento = []
-        empenho = []
-        liquidacao = []
-        pagamento_empenho = []
-        empenho_liquidacao = []
+        pagamentos = []
+        empenhos = []
+        liquidacoes = []
+        pagamentos_empenhos = []
+        empenhos_liquidacoes = []
 
 
         arquivos = {
-            "Despesas_Pagamento.csv": pagamento,
-            "Despesas_Empenho.csv": empenho,
-            "Despesas_Liquidacao.csv": liquidacao,
-            "Despesas_Pagamento_EmpenhosImpactados.csv": pagamento_empenho,
-            "Despesas_Liquidacao_EmpenhosImpactados.csv": empenho_liquidacao,
+            "Despesas_Pagamento.csv": pagamentos,
+            "Despesas_Empenho.csv": empenhos,
+            "Despesas_Liquidacao.csv": liquidacoes,
+            "Despesas_Pagamento_EmpenhosImpactados.csv": pagamentos_empenhos,
+            "Despesas_Liquidacao_EmpenhosImpactados.csv": empenhos_liquidacoes,
             }
 
 
@@ -103,6 +103,6 @@ def busca_despesas_periodo(data_inicio: str, data_fim: str):
                     dados.append(linha)
 
         
-        yield pagamento, empenho, liquidacao, pagamento_empenho, empenho_liquidacao
+        yield pagamentos, empenhos, liquidacoes, pagamentos_empenhos, empenhos_liquidacoes
 
         atual += timedelta(days=1)
