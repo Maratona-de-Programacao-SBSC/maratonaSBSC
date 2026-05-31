@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from services.notas_service import buscar_notas
+from integrations.portal_transparencia import buscar_notas
+
 
 router = APIRouter()
 

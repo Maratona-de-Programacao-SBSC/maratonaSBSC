@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
-from services.contratos_service import buscar_contratos
+from integrations.pnpc import buscar_contratos
 
 router = APIRouter(prefix="/contratos", tags=["Contratos"])
 
