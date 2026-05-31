@@ -1,8 +1,6 @@
 from schemes.pagamento import Pagamento
 from services import formata
 
-
-
 def portal_transparencia(pagamentos):
     for pagamento in pagamentos:
         pagamento_filtrado = Pagamento(
