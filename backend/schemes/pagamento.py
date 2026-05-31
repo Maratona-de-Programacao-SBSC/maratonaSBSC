@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass
@@ -8,9 +9,9 @@ class Pagamento:
     codigo_favorecido: str
     favorecido: str
     processo: str
-    codigo_unidade_gestora: int
+    codigo_unidade_gestora: Optional[int]  #pode ser Null
+    codigo_orgao: Optional[int] #pode ser Null
     unidade_gestora: str
-    codigo_orgao: int
     orgao: str
     observacao: str
     valor: float
