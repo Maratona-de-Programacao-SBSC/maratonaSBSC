@@ -15,3 +15,4 @@ class Pagamento:
     orgao: str
     observacao: str
     valor: float
+    tipo_documento: str

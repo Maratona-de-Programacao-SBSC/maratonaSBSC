@@ -18,7 +18,8 @@ def portal_transparencia(empenhos):
                 empenho['Valor do Empenho Convertido pra R$']
                 .replace('.', '')
                 .replace(',', '.')
-            )
+            ),
+            tipo_documento="empenho"
         )
         yield empenho_filtrado
 

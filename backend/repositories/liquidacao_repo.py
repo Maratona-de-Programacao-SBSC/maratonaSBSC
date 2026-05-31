@@ -14,4 +14,10 @@ def salvar(liquidacoes):
     
     cursor.executemany(query, dados)
 
+
+    query = """INSERT IGNORE INTO cnpj_codigos (codigo_favorecido, codigo, tipo)
+            VALUES (%(codigo_favorecido)s, %(codigo_liquidacao)s, %(tipo_documento)s)"""
+    
+    cursor.executemany(query, dados)
+
     db.commit()

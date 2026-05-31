@@ -2,6 +2,7 @@ from schemes.liquidacao import Liquidacao
 from services import formata
 
 def portal_transparencia(liquidacoes):
+    
     for liquidacao in liquidacoes:
         liquidacao_filtrada = Liquidacao(
             codigo_liquidacao=liquidacao['Código Liquidação'],
@@ -11,7 +12,8 @@ def portal_transparencia(liquidacoes):
             codigo_favorecido=liquidacao['Código Favorecido'],
             favorecido=liquidacao['Favorecido'],
             observacao=liquidacao['Observação'],
-            codigo_elemento_despesa=liquidacao['Código Elemento de Despesa']
+            codigo_elemento_despesa=liquidacao['Código Elemento de Despesa'],
+            tipo_documento="liquidacao"
         )
         
         yield liquidacao_filtrada
