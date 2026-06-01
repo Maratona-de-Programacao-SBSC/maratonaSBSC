@@ -22,6 +22,7 @@ def portal_transparencia(pagamentos):
             tipo_documento="pagamento"
         )
 
+
         yield pagamento_filtrado
 
 

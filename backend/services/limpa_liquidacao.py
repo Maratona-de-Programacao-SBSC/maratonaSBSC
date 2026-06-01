@@ -2,7 +2,6 @@ from schemes.liquidacao import Liquidacao
 from services import formata
 
 def portal_transparencia(liquidacoes):
-    
     for liquidacao in liquidacoes:
         liquidacao_filtrada = Liquidacao(
             codigo_liquidacao=liquidacao['Código Liquidação'],

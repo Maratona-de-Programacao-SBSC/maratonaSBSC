@@ -62,35 +62,27 @@ def busca_despesas_periodo(data_inicio: str, data_fim: str):
 
         zip_arquivo = zipfile.ZipFile(io.BytesIO(response.content))
 
-        pagamentos = []
-        empenhos = []
-        liquidacoes = []
-        pagamentos_empenhos = []
-        empenhos_liquidacoes = []
+        with zip_arquivo.open(f"{data_str}_Despesas_Pagamento.csv") as arquivo_csv:
+            conteudo = io.TextIOWrapper(arquivo_csv, encoding="latin1")
+            leitor = csv.DictReader(conteudo, delimiter=';')
+            pagamentos = [linha for linha in leitor]
 
-        arquivos = {
-            "Despesas_Pagamento.csv": pagamentos,
-            "Despesas_Empenho.csv": empenhos,
-            "Despesas_Liquidacao.csv": liquidacoes,
-            "Despesas_Pagamento_EmpenhosImpactados.csv": pagamentos_empenhos,
-            "Despesas_Liquidacao_EmpenhosImpactados.csv": empenhos_liquidacoes,
-        }
 
-        for nome_csv in zip_arquivo.namelist():
-            dados = None
-            for sufixo, lista in arquivos.items():
-                if nome_csv.endswith(sufixo):
-                    dados = lista
-                    break
-            if dados is None:
-                continue
-            print(nome_csv)
-            with zip_arquivo.open(nome_csv) as arquivo_csv:
-                conteudo = io.TextIOWrapper(arquivo_csv, encoding="latin1")
-                leitor = csv.DictReader(conteudo, delimiter=';')
-                for linha in leitor:
-                    dados.append(linha)
+        with zip_arquivo.open(f"{data_str}_Despesas_Empenho.csv") as arquivo_csv:
+            conteudo = io.TextIOWrapper(arquivo_csv, encoding="latin1")
+            leitor = csv.DictReader(conteudo, delimiter=';')
+            empenhos = [linha for linha in leitor]
+    
 
-        yield pagamentos, empenhos, liquidacoes, pagamentos_empenhos, empenhos_liquidacoes
+        with zip_arquivo.open(f"{data_str}_Despesas_Liquidacao.csv") as arquivo_csv:
+            conteudo = io.TextIOWrapper(arquivo_csv, encoding="latin1")
+            leitor = csv.DictReader(conteudo, delimiter=';')
+            liquidacoes = [linha for linha in leitor]
+
+
+        print(f"{data_str}_Despesas_Pagamento.csv\n{data_str}_Despesas_Empenho.csv\n{data_str}_Despesas_Liquidacao.csv")
+
+
+        yield pagamentos, empenhos, liquidacoes
 
         atual += timedelta(days=1)

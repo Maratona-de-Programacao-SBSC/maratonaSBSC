@@ -12,8 +12,8 @@ db = mysql.connector.connect(
     user=USER,
     passwd=PASSWORD,
     database=DATABASE_NAME,
-    autocommit=False
+    autocommit=False,
+    allow_local_infile=True
 )
 
-cursor = db.cursor()
 cursor = db.cursor(dictionary=True)

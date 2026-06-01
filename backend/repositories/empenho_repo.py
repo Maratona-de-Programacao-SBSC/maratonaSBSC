@@ -1,11 +1,26 @@
 from repositories.database import cursor, db
-from dataclasses import asdict
 from schemes.empenho import Empenho
+import tempfile
+import csv
+
 
 
 def salvar(empenhos):
 
-    dados = [asdict(e) for e in empenhos]
+    dados = [{
+        "id_empenho": e.id_empenho,
+        "codigo_empenho": e.codigo_empenho,
+        "data_emissao": e.data_emissao,
+        "tipo_empenho": e.tipo_empenho,
+        "codigo_orgao": e.codigo_orgao,
+        "codigo_unidade_gestora": e.codigo_unidade_gestora,
+        "codigo_favorecido": e.codigo_favorecido,
+        "favorecido": e.favorecido,
+        "observacao": e.observacao,
+        "elemento_despesa": e.elemento_despesa,
+        "valor": e.valor,
+        "tipo_documento": e.tipo_documento,
+    } for e in empenhos]
 
 
     query = """INSERT IGNORE INTO empenhos (id_empenho, codigo_empenho, data_emissao, tipo_empenho,
@@ -16,21 +31,46 @@ def salvar(empenhos):
                 %(observacao)s, %(elemento_despesa)s, %(valor)s)"""
     
     cursor.executemany(query, dados)
-
-
-
-    query = """INSERT IGNORE INTO cnpj_codigos (codigo_favorecido, codigo, tipo)
-            VALUES (%(codigo_favorecido)s, %(codigo_empenho)s, %(tipo_documento)s)"""
-    
-    cursor.executemany(query, dados)
-
     db.commit()
 
+def salvar_load_infile(empenhos):
+
+    dados = [{
+        "id_empenho": e.id_empenho,
+        "codigo_empenho": e.codigo_empenho,
+        "data_emissao": e.data_emissao,
+        "tipo_empenho": e.tipo_empenho,
+        "codigo_orgao": e.codigo_orgao,
+        "codigo_unidade_gestora": e.codigo_unidade_gestora,
+        "codigo_favorecido": e.codigo_favorecido,
+        "favorecido": e.favorecido,
+        "observacao": e.observacao,
+        "elemento_despesa": e.elemento_despesa,
+        "valor": e.valor,
+        "tipo_documento": e.tipo_documento,
+    } for e in empenhos]
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=True, encoding="UTF-8", newline="") as arquivo_csv:
+        caminho = arquivo_csv.name.replace("\\", "/")
+        escritor = csv.DictWriter(arquivo_csv, fieldnames=dados[0].keys())
+        escritor.writeheader()
+        escritor.writerows(dados)
+
+        query = f"""LOAD DATA LOCAL INFILE '{caminho}'
+                    INTO TABLE empenhos
+                    FIELDS TERMINATED BY ','
+                    ENCLOSED BY '"'
+                    LINES TERMINATED BY '\\n'
+                    IGNORE 1 ROWS
+                    (id_empenho, codigo_empenho, data_emissao, tipo_empenho,
+                    codigo_orgao, codigo_unidade_gestora, codigo_favorecido, favorecido,
+                    observacao, elemento_despesa, valor)"""
+
+        cursor.execute(query)
+        db.commit()
+
 def busca_cnpj(cnpj):
-    query = """SELECT empenhos.* FROM cnpj_codigos 
-            INNER JOIN empenhos
-            ON cnpj_codigos.codigo = empenhos.codigo_empenho
-            WHERE cnpj_codigos.codigo_favorecido = %s AND cnpj_codigos.tipo = 'empenho'"""
+    query = """SELECT * FROM empenhos WHERE codigo_favorecido = %s"""
     
     cursor.execute(query, (cnpj,))
 
@@ -40,3 +80,12 @@ def busca_cnpj(cnpj):
 
     return [Empenho(**d) for d in dados]
 
+
+def busca_cnpj_dado_especifico(cnpj, nome_dado):
+    query = f"""SELECT {nome_dado} FROM empenhos WHERE codigo_favorecido = %s"""
+    
+    cursor.execute(query, (cnpj,))
+
+    dados = [row[nome_dado] for row in cursor.fetchall()]
+
+    return dados;
