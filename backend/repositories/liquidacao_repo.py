@@ -14,8 +14,9 @@ def salvar(liquidacoes):
         "favorecido": l.favorecido,
         "observacao": l.observacao,
         "codigo_elemento_despesa": l.codigo_elemento_despesa,
-        "tipo_documento": l.tipo_documento,
     } for l in liquidacoes]
+
+    if not dados: return
 
     query = """INSERT IGNORE INTO liquidacoes (codigo_liquidacao, data_emissao, codigo_orgao,
                 codigo_unidade_gestora, codigo_favorecido, favorecido,
@@ -28,7 +29,7 @@ def salvar(liquidacoes):
     db.commit()
 
 
-def salvar_load_infile(liquidacoes):
+def salvar_varios(liquidacoes):
 
     dados = [{
         "codigo_liquidacao": l.codigo_liquidacao,
@@ -41,13 +42,23 @@ def salvar_load_infile(liquidacoes):
         "codigo_elemento_despesa": l.codigo_elemento_despesa,
     } for l in liquidacoes]
 
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=True, encoding="UTF-8", newline="") as arquivo_csv:
+    if not dados: return
+
+    with tempfile.NamedTemporaryFile(
+        mode="w", 
+        suffix=".csv", 
+        delete=True, 
+        encoding="UTF-8", 
+        newline="", 
+        dir="C:/ProgramData/MySQL/MySQL Server 8.0/Uploads"
+        ) as arquivo_csv:
+
         caminho = arquivo_csv.name.replace("\\", "/")
         escritor = csv.DictWriter(arquivo_csv, fieldnames=dados[0].keys())
         escritor.writeheader()
         escritor.writerows(dados)
 
-        query = f"""LOAD DATA LOCAL INFILE '{caminho}'
+        query = f"""LOAD DATA INFILE '{caminho}' IGNORE
                     INTO TABLE liquidacoes
                     FIELDS TERMINATED BY ','
                     ENCLOSED BY '"'

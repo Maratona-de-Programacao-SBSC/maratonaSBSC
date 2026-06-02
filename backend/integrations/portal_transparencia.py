@@ -45,9 +45,17 @@ def buscar_nota_por_chave(chave: str) -> dict:
     return response.json()
 
 
-def busca_despesas_periodo(data_inicio: str, data_fim: str):
+def busca_despesas_periodo(data_inicio: str, data_fim: str) -> Generator[list[dict], list[dict], list[dict]]:
     atual = datetime.strptime(data_inicio, "%Y%m%d").date()
     fim = datetime.strptime(data_fim, "%Y%m%d").date()
+
+
+    buffer_pagamentos = []
+    buffer_empenhos = []
+    buffer_liquidacoes = []
+
+    dias_acomulados = 0
+    DIAS_ESPERADOS = 7
 
     while atual <= fim:
         data_str = atual.strftime("%Y%m%d")
@@ -60,29 +68,41 @@ def busca_despesas_periodo(data_inicio: str, data_fim: str):
             atual += timedelta(days=1)
             continue
 
+
         zip_arquivo = zipfile.ZipFile(io.BytesIO(response.content))
+
 
         with zip_arquivo.open(f"{data_str}_Despesas_Pagamento.csv") as arquivo_csv:
             conteudo = io.TextIOWrapper(arquivo_csv, encoding="latin1")
             leitor = csv.DictReader(conteudo, delimiter=';')
-            pagamentos = [linha for linha in leitor]
+            buffer_pagamentos.extend(leitor)
 
 
         with zip_arquivo.open(f"{data_str}_Despesas_Empenho.csv") as arquivo_csv:
             conteudo = io.TextIOWrapper(arquivo_csv, encoding="latin1")
             leitor = csv.DictReader(conteudo, delimiter=';')
-            empenhos = [linha for linha in leitor]
+            buffer_empenhos.extend(leitor)
     
 
         with zip_arquivo.open(f"{data_str}_Despesas_Liquidacao.csv") as arquivo_csv:
             conteudo = io.TextIOWrapper(arquivo_csv, encoding="latin1")
             leitor = csv.DictReader(conteudo, delimiter=';')
-            liquidacoes = [linha for linha in leitor]
+            buffer_liquidacoes.extend(leitor)
 
 
         print(f"{data_str}_Despesas_Pagamento.csv\n{data_str}_Despesas_Empenho.csv\n{data_str}_Despesas_Liquidacao.csv")
 
+        dias_acomulados += 1
 
-        yield pagamentos, empenhos, liquidacoes
+        if dias_acomulados >= DIAS_ESPERADOS:
+            yield buffer_pagamentos, buffer_empenhos, buffer_liquidacoes
+            buffer_pagamentos = []
+            buffer_empenhos = []
+            buffer_liquidacoes = []
+            dias_acomulados = 0
+
 
         atual += timedelta(days=1)
+
+
+    yield buffer_pagamentos, buffer_empenhos, buffer_liquidacoes

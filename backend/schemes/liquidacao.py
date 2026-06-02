@@ -10,4 +10,3 @@ class Liquidacao:
     favorecido: str
     observacao: str
     codigo_elemento_despesa: str
-    tipo_documento: str

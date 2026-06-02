@@ -13,4 +13,3 @@ class Empenho:
     observacao: str
     elemento_despesa: str
     valor: float
-    tipo_documento: str

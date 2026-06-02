@@ -5,7 +5,6 @@ import tempfile
 
 
 def salvar(pagamentos):
-
     dados = [{
         "codigo_pagamento": p.codigo_pagamento,
         "data_emissao": p.data_emissao,
@@ -18,8 +17,9 @@ def salvar(pagamentos):
         "orgao": p.orgao,
         "observacao": p.observacao,
         "valor": p.valor,
-        "tipo_documento": p.tipo_documento,
     } for p in pagamentos]  
+
+    if not dados: return
 
     query = """INSERT IGNORE INTO pagamentos (codigo_pagamento, data_emissao, codigo_favorecido, favorecido,
                 processo, codigo_unidade_gestora, unidade_gestora, codigo_orgao, orgao,
@@ -32,8 +32,7 @@ def salvar(pagamentos):
     db.commit()
 
 
-def salvar_load_infile(pagamentos):
-
+def salvar_varios(pagamentos):
     dados = [{
         "codigo_pagamento": p.codigo_pagamento,
         "data_emissao": p.data_emissao,
@@ -46,16 +45,25 @@ def salvar_load_infile(pagamentos):
         "orgao": p.orgao,
         "observacao": p.observacao,
         "valor": p.valor,
-        "tipo_documento": p.tipo_documento,
-    } for p in pagamentos]  
+    } for p in pagamentos] 
 
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=True, encoding="UTF-8", newline="") as arquivo_csv:
+    if not dados: return
+
+    with tempfile.NamedTemporaryFile(
+        mode="w", 
+        suffix=".csv", 
+        delete=True, 
+        encoding="UTF-8", 
+        newline="", 
+        dir="C:/ProgramData/MySQL/MySQL Server 8.0/Uploads"
+        ) as arquivo_csv:
+                                     
         caminho = arquivo_csv.name.replace("\\", "/")
         escritor = csv.DictWriter(arquivo_csv, fieldnames=dados[0].keys())
         escritor.writeheader()
         escritor.writerows(dados)
 
-        query = f"""LOAD DATA LOCAL INFILE '{caminho}'
+        query = f"""LOAD DATA INFILE '{caminho}' IGNORE
                     INTO TABLE pagamentos
                     FIELDS TERMINATED BY ','
                     ENCLOSED BY '"'

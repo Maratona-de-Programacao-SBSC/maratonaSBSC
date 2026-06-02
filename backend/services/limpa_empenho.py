@@ -3,7 +3,7 @@ from services import formata
 
 def portal_transparencia(empenhos):
     for empenho in empenhos:
-        empenho_filtrado = Empenho(
+        yield Empenho(
             id_empenho=int(empenho['Id Empenho']),
             codigo_empenho=empenho['Código Empenho'],
             data_emissao=formata.data(empenho['Data Emissão']),
@@ -18,10 +18,5 @@ def portal_transparencia(empenhos):
                 empenho['Valor do Empenho Convertido pra R$']
                 .replace('.', '')
                 .replace(',', '.')
-            ),
-            tipo_documento="empenho"
+            )
         )
-        yield empenho_filtrado
-
-def formata_data(data):
-    return f"{data[6:10]}-{data[3:5]}-{data[0:2]}"

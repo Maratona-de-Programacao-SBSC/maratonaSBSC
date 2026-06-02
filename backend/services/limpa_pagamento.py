@@ -18,9 +18,9 @@ def portal_transparencia(pagamentos):
                 pagamento['Valor do Pagamento Convertido pra R$']
                 .replace('.', '')
                 .replace(',', '.')
-            ),
-            tipo_documento="pagamento"
+            )
         )
+
 
 
         yield pagamento_filtrado

@@ -19,9 +19,9 @@ def salvar(empenhos):
         "observacao": e.observacao,
         "elemento_despesa": e.elemento_despesa,
         "valor": e.valor,
-        "tipo_documento": e.tipo_documento,
     } for e in empenhos]
 
+    if not dados: return
 
     query = """INSERT IGNORE INTO empenhos (id_empenho, codigo_empenho, data_emissao, tipo_empenho,
                 codigo_orgao, codigo_unidade_gestora, codigo_favorecido, favorecido,
@@ -33,7 +33,7 @@ def salvar(empenhos):
     cursor.executemany(query, dados)
     db.commit()
 
-def salvar_load_infile(empenhos):
+def salvar_varios(empenhos):
 
     dados = [{
         "id_empenho": e.id_empenho,
@@ -47,16 +47,25 @@ def salvar_load_infile(empenhos):
         "observacao": e.observacao,
         "elemento_despesa": e.elemento_despesa,
         "valor": e.valor,
-        "tipo_documento": e.tipo_documento,
     } for e in empenhos]
 
-    with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=True, encoding="UTF-8", newline="") as arquivo_csv:
+    if not dados: return
+
+    with tempfile.NamedTemporaryFile(
+        mode="w", 
+        suffix=".csv", 
+        delete=True, 
+        encoding="UTF-8", 
+        newline="", 
+        dir="C:/ProgramData/MySQL/MySQL Server 8.0/Uploads"
+        ) as arquivo_csv:
+
         caminho = arquivo_csv.name.replace("\\", "/")
         escritor = csv.DictWriter(arquivo_csv, fieldnames=dados[0].keys())
         escritor.writeheader()
         escritor.writerows(dados)
 
-        query = f"""LOAD DATA LOCAL INFILE '{caminho}'
+        query = f"""LOAD DATA INFILE '{caminho}' IGNORE
                     INTO TABLE empenhos
                     FIELDS TERMINATED BY ','
                     ENCLOSED BY '"'
