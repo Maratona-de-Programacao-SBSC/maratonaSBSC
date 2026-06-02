@@ -30,7 +30,7 @@ def buscar_data_abertura_cnpj(cnpj: str):
         return CACHE_LOCAL[cnpj_limpo]
 
     url = f"https://brasilapi.com.br/api/cnpj/v1/{cnpj_limpo}"
-    print(f"   🌐 [GATEKEEPER] Consultando CNPJ na BrasilAPI: {cnpj_limpo}...")
+    print(f"[GATEKEEPER] Consultando CNPJ na BrasilAPI: {cnpj_limpo}...")
 
     headers = {"User-Agent": "Projeto_Transparencia/1.0 (Auditoria de Notas Fiscais)"}
 
@@ -46,19 +46,19 @@ def buscar_data_abertura_cnpj(cnpj: str):
             return data_abertura
 
         elif response.status_code == 429:
-            print("   ⚠️ [GATEKEEPER] Rate limit atingido.")
+            print("[GATEKEEPER] Rate limit atingido.")
             CACHE_LOCAL[cnpj_limpo] = "1900-01-01"
             salvar_cache(CACHE_LOCAL)
             return "1900-01-01"
 
         else:
-            print(f"   ⚠️ [GATEKEEPER] CNPJ não encontrado (Erro {response.status_code}).")
+            print(f"[GATEKEEPER] CNPJ não encontrado (Erro {response.status_code}).")
             CACHE_LOCAL[cnpj_limpo] = "1900-01-01"
             salvar_cache(CACHE_LOCAL)
             return "1900-01-01"
 
     except requests.exceptions.RequestException:
-        print("   ❌ [GATEKEEPER] Erro de conexão com BrasilAPI.")
+        print("[GATEKEEPER] Erro de conexão com BrasilAPI.")
 
     return "1900-01-01"
 
@@ -75,7 +75,7 @@ def executar_gatekeeper(nota: dict) -> str:
     nome = nota.get("nomeFornecedor", "desconhecido")
 
     if not cnpj or not data_emissao_str:
-        print(f"   ⚠️ [GATEKEEPER] Nota sem CNPJ ou data de emissão. Descartando.")
+        print(f"[GATEKEEPER] Nota sem CNPJ ou data de emissão. Descartando.")
         return "invalida"
 
     data_abertura_str = buscar_data_abertura_cnpj(cnpj)
@@ -85,17 +85,17 @@ def executar_gatekeeper(nota: dict) -> str:
         data_abertura_dt = datetime.strptime(data_abertura_str, "%Y-%m-%d")
 
         if data_emissao_dt < data_abertura_dt:
-            print(f"🚨 [GATEKEEPER] INVÁLIDA: Nota de '{nome}' emitida antes da empresa existir!")
-            print(f"   Emissão: {data_emissao_str} | Abertura: {data_abertura_str}")
+            print(f"[GATEKEEPER] INVÁLIDA: Nota de '{nome}' emitida antes da empresa existir!")
+            print(f"Emissão: {data_emissao_str} | Abertura: {data_abertura_str}")
             return "invalida"
 
         if data_emissao_dt < data_abertura_dt + relativedelta(months=3):
-            print(f"⚠️  [GATEKEEPER] SUSPEITA: Nota de '{nome}' emitida nos primeiros 3 meses da empresa.")
-            print(f"   Emissão: {data_emissao_str} | Abertura: {data_abertura_str}")
+            print(f"[GATEKEEPER] SUSPEITA: Nota de '{nome}' emitida nos primeiros 3 meses da empresa.")
+            print(f"Emissão: {data_emissao_str} | Abertura: {data_abertura_str}")
             return "suspeita"
 
         return "valida"
 
     except ValueError as e:
-        print(f"   ⚠️ [GATEKEEPER] Erro ao comparar datas para '{nome}': {e}")
+        print(f"[GATEKEEPER] Erro ao comparar datas para '{nome}': {e}")
         return "invalida"
