@@ -1,6 +1,6 @@
 from fastapi import APIRouter, BackgroundTasks
+from services import limpar_liquidacao, limpar_pagamento, limpar_empenho
 from integrations import portal_transparencia
-from services import limpa_pagamento, limpa_empenho, limpa_liquidacao
 from repositories import empenho_repo, liquidacao_repo, pagamento_repo
 
 router = APIRouter(prefix="/despesas", tags=["Despesas"])
@@ -9,13 +9,13 @@ router = APIRouter(prefix="/despesas", tags=["Despesas"])
 def _processar_despesas(data_inicio: str, data_fim: str):
     for pagamentos, empenhos, liquidacoes, _, _ in portal_transparencia.busca_despesas_periodo(data_inicio, data_fim):
 
-        dados = [p for p in limpa_pagamento.portal_transparencia(pagamentos)]
+        dados = [p for p in limpar_pagamento.portal_transparencia(pagamentos)]
         pagamento_repo.salvar(dados)
 
-        dados = [p for p in limpa_empenho.portal_transparencia(empenhos)]
+        dados = [p for p in limpar_empenho.portal_transparencia(empenhos)]
         empenho_repo.salvar(dados)
 
-        dados = [p for p in limpa_liquidacao.portal_transparencia(liquidacoes)]
+        dados = [p for p in limpar_liquidacao.portal_transparencia(liquidacoes)]
         liquidacao_repo.salvar(dados)
 
 

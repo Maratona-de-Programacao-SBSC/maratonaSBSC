@@ -32,50 +32,6 @@ def salvar(pagamentos):
     db.commit()
 
 
-def salvar_varios(pagamentos):
-    dados = [{
-        "codigo_pagamento": p.codigo_pagamento,
-        "data_emissao": p.data_emissao,
-        "codigo_favorecido": p.codigo_favorecido,
-        "favorecido": p.favorecido,
-        "processo": p.processo,
-        "codigo_unidade_gestora": p.codigo_unidade_gestora,
-        "unidade_gestora": p.unidade_gestora,
-        "codigo_orgao": p.codigo_orgao,
-        "orgao": p.orgao,
-        "observacao": p.observacao,
-        "valor": p.valor,
-    } for p in pagamentos] 
-
-    if not dados: return
-
-    with tempfile.NamedTemporaryFile(
-        mode="w", 
-        suffix=".csv", 
-        delete=True, 
-        encoding="UTF-8", 
-        newline="", 
-        dir="C:/ProgramData/MySQL/MySQL Server 8.0/Uploads"
-        ) as arquivo_csv:
-                                     
-        caminho = arquivo_csv.name.replace("\\", "/")
-        escritor = csv.DictWriter(arquivo_csv, fieldnames=dados[0].keys())
-        escritor.writeheader()
-        escritor.writerows(dados)
-
-        query = f"""LOAD DATA INFILE '{caminho}' IGNORE
-                    INTO TABLE pagamentos
-                    FIELDS TERMINATED BY ','
-                    ENCLOSED BY '"'
-                    LINES TERMINATED BY '\\n'
-                    IGNORE 1 ROWS
-                    (codigo_pagamento, data_emissao, codigo_favorecido, favorecido,
-                    processo, codigo_unidade_gestora, unidade_gestora, codigo_orgao,
-                    orgao, observacao, valor)"""
-        
-        cursor.execute(query)
-        db.commit()
-
 
 
 def busca_cnpj(cnpj):
@@ -90,7 +46,7 @@ def busca_cnpj(cnpj):
     return [Pagamento(**d) for d in dados]
 
 
-def busca_cnpj_dado_especifico(cnpj, nome_dado):
+def busca_cnpj_dado(cnpj, nome_dado):
     query = f"""SELECT {nome_dado} FROM pagamentos WHERE codigo_favorecido = %s"""
     
     cursor.execute(query, (cnpj,))
