@@ -11,6 +11,15 @@ from services import limpar_liquidacao, limpar_pagamento, limpar_empenho
 
 app = FastAPI()
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(notas_route)
 app.include_router(contratos_route)
 app.include_router(despesas_route)

@@ -95,7 +95,7 @@ def buscar_despesas_periodo(data_inicio: str, data_fim: str):
         dias_acomulados += 1
 
         if dias_acomulados >= DIAS_ESPERADOS:
-            yield buffer_pagamentos, buffer_empenhos, buffer_liquidacoes
+            yield buffer_pagamentos, buffer_empenhos, buffer_liquidacoes, [], []
             buffer_pagamentos = []
             buffer_empenhos = []
             buffer_liquidacoes = []
@@ -105,4 +105,4 @@ def buscar_despesas_periodo(data_inicio: str, data_fim: str):
         atual += timedelta(days=1)
 
 
-    yield buffer_pagamentos, buffer_empenhos, buffer_liquidacoes
+    yield buffer_pagamentos, buffer_empenhos, buffer_liquidacoes, [], []

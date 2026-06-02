@@ -7,7 +7,7 @@ router = APIRouter(prefix="/despesas", tags=["Despesas"])
 
 
 def _processar_despesas(data_inicio: str, data_fim: str):
-    for pagamentos, empenhos, liquidacoes, _, _ in portal_transparencia.busca_despesas_periodo(data_inicio, data_fim):
+    for pagamentos, empenhos, liquidacoes, _, _ in portal_transparencia.buscar_despesas_periodo(data_inicio, data_fim):
 
         dados = [p for p in limpar_pagamento.portal_transparencia(pagamentos)]
         pagamento_repo.salvar(dados)
