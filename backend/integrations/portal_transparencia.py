@@ -45,7 +45,7 @@ def buscar_nota_por_chave(chave: str) -> dict:
     return response.json()
 
 
-def busca_despesas_periodo(data_inicio: str, data_fim: str) -> Generator[list[dict], list[dict], list[dict]]:
+def busca_despesas_periodo(data_inicio: str, data_fim: str):
     atual = datetime.strptime(data_inicio, "%Y%m%d").date()
     fim = datetime.strptime(data_fim, "%Y%m%d").date()
 
