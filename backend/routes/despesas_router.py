@@ -5,9 +5,9 @@ from repositories import empenho_repo, liquidacao_repo, pagamento_repo
 
 router = APIRouter(prefix="/despesas", tags=["Despesas"])
 
-
 def _processar_despesas(data_inicio: str, data_fim: str):
-    for pagamentos, empenhos, liquidacoes, _, _ in portal_transparencia.busca_despesas_periodo(data_inicio, data_fim):
+    # CORREÇÃO: Desempacotando apenas as 3 variáveis reais que o gerador envia
+    for pagamentos, empenhos, liquidacoes in portal_transparencia.buscar_despesas_periodo(data_inicio, data_fim):
 
         dados = [p for p in limpar_pagamento.portal_transparencia(pagamentos)]
         pagamento_repo.salvar(dados)
@@ -18,14 +18,11 @@ def _processar_despesas(data_inicio: str, data_fim: str):
         dados = [p for p in limpar_liquidacao.portal_transparencia(liquidacoes)]
         liquidacao_repo.salvar(dados)
 
-
 @router.post("/importar")
 def importar_despesas(data_inicio: str, data_fim: str, background_tasks: BackgroundTasks):
     """
     Dispara a importação de despesas (empenhos, liquidações e pagamentos)
     para o período informado. Roda em background para não travar a requisição.
-
-    Exemplo: POST /despesas/importar?data_inicio=20250102&data_fim=20250202
     """
     background_tasks.add_task(_processar_despesas, data_inicio, data_fim)
     return {
