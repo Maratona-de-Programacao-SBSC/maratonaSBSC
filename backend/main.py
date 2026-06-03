@@ -1,19 +1,7 @@
 import os
 from dotenv import load_dotenv
 
-print("\n🔍 === DIAGNÓSTICO DO AMBIENTE ===")
-print("1. Pasta onde o Python está rodando:", os.getcwd())
-print("2. Arquivos reais que ele está vendo nesta pasta:", os.listdir('.'))
-
-# Tenta carregar e guarda o resultado (True se achou o arquivo, False se não achou)
-foi_carregado = load_dotenv()
-
-print(f"3. O python-dotenv encontrou o arquivo '.env'? {foi_carregado}")
-print("4. Valor lido para DATABASE_HOST:", os.getenv("DATABASE_HOST"))
-print("==================================\n")
-
-from fastapi import FastAPI
-# ... resto dos seus imports ...
+load_dotenv()
 
 from fastapi import FastAPI
 
