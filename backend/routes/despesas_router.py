@@ -6,8 +6,9 @@ from repositories import empenho_repo, liquidacao_repo, pagamento_repo
 router = APIRouter(prefix="/despesas", tags=["Despesas"])
 
 def _processar_despesas(data_inicio: str, data_fim: str):
-    # CORREÇÃO: Desempacotando apenas as 3 variáveis reais que o gerador envia
-    for pagamentos, empenhos, liquidacoes in portal_transparencia.buscar_despesas_periodo(data_inicio, data_fim):
+
+    for pagamentos, empenhos, liquidacoes, _, _ in portal_transparencia.buscar_despesas_periodo(data_inicio, data_fim):
+
 
         dados = [p for p in limpar_pagamento.portal_transparencia(pagamentos)]
         pagamento_repo.salvar(dados)
