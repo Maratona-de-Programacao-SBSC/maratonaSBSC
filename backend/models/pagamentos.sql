@@ -9,5 +9,7 @@ CREATE TABLE IF NOT EXISTS pagamentos (
     codigo_orgao INTEGER,
     orgao VARCHAR(200),
     observacao TEXT,
-    valor NUMERIC(15, 2)
+    valor NUMERIC(15, 2),
+
+    INDEX idx_codigo_favorecido (codigo_favorecido)
 );

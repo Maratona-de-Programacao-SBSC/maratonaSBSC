@@ -9,5 +9,7 @@ CREATE TABLE IF NOT EXISTS empenhos (
     favorecido VARCHAR(200),
     observacao TEXT,
     elemento_despesa VARCHAR(20),
-    valor NUMERIC(15, 2)
+    valor NUMERIC(15, 2),
+
+    INDEX idx_codigo_favorecido (codigo_favorecido)
 );

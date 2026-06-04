@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
 from schemes.documento import Documento
 from typing import Generator
-import curl_cffi
+
 
 load_dotenv()
 
@@ -60,36 +60,64 @@ def baixar_csv_path(data_inicio: str, data_fim: str, tipo: Documento) -> Generat
         data_str = atual.strftime("%Y%m%d")
         mes_str = atual.strftime("%Y%m")
 
+
+        if tipo in [Documento.NOTA_FISCAL, Documento.ITEM_NOTA_FISCAL]:
+            incremento = relativedelta(months=1)
+        else:
+            incremento = relativedelta(days=1)
+
+
         if tipo == Documento.NOTA_FISCAL:
             url = f"https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/nfe/{mes_str}_NFe.zip"
             nome_csv = f"{mes_str}_NFe_NotaFiscal.csv"
-            incremento = relativedelta(months=1)
         elif tipo == Documento.ITEM_NOTA_FISCAL:
             url = f"https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/nfe/{mes_str}_NFe.zip"
             nome_csv = f"{mes_str}_NFe_NotaFiscalItem.csv"
-            incremento = relativedelta(months=1) 
         else:
             url = f"https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/despesas/{data_str}_Despesas.zip"
             nome_csv = f"{data_str}_Despesas_{tipo.value}.csv"
-            incremento += relativedelta(days=1)
-
 
         response = requests.get(url)
         pasta = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/"
 
         if response.status_code != 200:
-            print(f"⚠️  Erro ao baixar despesas de {data_str}: {response.status_code}. Pulando.")
+            print(f"⚠️  Erro ao baixar {data_str}: {response.status_code}. Pulando.")
             atual += incremento
             continue
-
         
+
         zip_arquivo = zipfile.ZipFile(io.BytesIO(response.content))
-
         path = f"{pasta}{nome_csv}"
-
         zip_arquivo.extract(nome_csv, pasta)
 
-        print(f"{data_str}Documento {tipo} baixado e extraido com sucesso")
-        atual += incremento
+        print(f"{data_str} Documento {tipo} baixado e extraído com sucesso")
+        
 
+        atual += incremento
         yield path
+
+
+def baixar_csv_cnpj():
+    ano_mes_atual = datetime.now()
+    ano_mes_atual -= relativedelta(months=1)
+    ano_mes_atual = ano_mes_atual.strftime("%Y%m")
+
+    url = f"https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/favorecidos-pj/{ano_mes_atual}_FavorecidosPJ.zip"
+    nome_csv = f"{ano_mes_atual}_CNPJ.csv"
+
+    response = requests.get(url)
+    pasta = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/"
+
+    if response.status_code != 200:
+        print(f"⚠️  Erro ao baixar {ano_mes_atual}: {response.status_code}. Pulando.")
+        return
+    
+
+    zip_arquivo = zipfile.ZipFile(io.BytesIO(response.content))
+    path = f"{pasta}{nome_csv}"
+    zip_arquivo.extract(nome_csv, pasta)
+
+    print(f"{ano_mes_atual} Documento INFORMACOES_CNPJ baixado e extraído com sucesso")
+    
+
+    return path

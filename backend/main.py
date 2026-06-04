@@ -35,16 +35,23 @@ app.add_middleware(
 
 
 
-from services import importacoes
-from services.decorators import tempo_execucao
-
-#importacoes.importar_notas_fiscais_csv("20240501","20260101", multithreading=True)
-
-
-importacoes.importar_itens_notas_fiscais_csv("20240501","20250601", multithreading=True)
+from services.importacoes import portal_transparencia
 
 
 
-database.fechar_esteira()
+portal_transparencia.importar_informacoes_cnpj_csv(multithreading=False)
+
+portal_transparencia.importar_empenhos_csv("20250101", "20250201", multithreading=True)
+
+portal_transparencia.importar_liquidacoes_csv("20250101", "20250201", multithreading=True)
+
+portal_transparencia.importar_pagamentos_csv("20250101", "20250201", multithreading=True)
+
+portal_transparencia.importar_itens_notas_fiscais_csv("20250101", "20250201", multithreading=True)
+
+portal_transparencia.importar_notas_fiscais_csv("20250101", "20250201", multithreading=True)
+
+
+database.fechar_threads()
 
 

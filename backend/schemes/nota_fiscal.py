@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -27,7 +26,7 @@ PORTAL_TRANSPARENCIA_NOTA_FISCAL_SCHEMA = {
     "mapa": {
         0:  {"coluna": "chave_acesso",              "tipo": "direto"}, 
         5:  {"coluna": "data_emissao",              "tipo": "data"},   
-        8:  {"coluna": "cpf_cnpj_emitente",         "tipo": "direto"},
+        8:  {"coluna": "codigo_favorecido",         "tipo": "direto"},
         9:  {"coluna": "razao_social_emitente",    "tipo": "direto"},
         11: {"coluna": "uf_emitente",               "tipo": "direto"}, 
         12: {"coluna": "municipio_emitente",        "tipo": "direto"},

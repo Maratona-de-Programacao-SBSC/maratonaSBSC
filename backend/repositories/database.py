@@ -1,6 +1,8 @@
 import MySQLdb
 import os
 from concurrent.futures import ThreadPoolExecutor
+import sys
+
 
 HOST = os.getenv("DATABASE_HOST")
 USER = os.getenv("DATABASE_USER")
@@ -84,7 +86,7 @@ def salvar_dict(table_nome: str, registros) -> None:
     db.commit()
 
     
-def busca_cnpj(cnpj: str, table_nome: str, dataclass) -> None:
+def busca_cnpj(cnpj: str, table_nome: str, dataclass) -> dict:
     query = f"""SELECT * FROM {table_nome} WHERE codigo_favorecido = %s"""
     
     cursor.execute(query, (cnpj,))
@@ -94,7 +96,7 @@ def busca_cnpj(cnpj: str, table_nome: str, dataclass) -> None:
     return [dataclass(**d) for d in dados]
 
 
-def busca_cnpj_dado(cnpj: str, table_nome: str, nome_dado: str) -> None:
+def busca_cnpj_dado(cnpj: str, table_nome: str, nome_dado: str) -> dict:
     query = f"""SELECT {nome_dado} FROM {table_nome} WHERE codigo_favorecido = %s"""
     
     cursor.execute(query, (cnpj,))
@@ -104,5 +106,19 @@ def busca_cnpj_dado(cnpj: str, table_nome: str, nome_dado: str) -> None:
     return dados;
 
 
-def fechar_esteira() -> None:
-    _executor_banco.shutdown(wait=True)
+def busca_item_nota() -> dict:
+    pass
+
+
+
+def fechar_threads() -> None:
+
+    _executor_banco.shutdown(wait=False, cancel_futures=True)
+    
+    if 'db' in globals():
+        try:
+            cursor.close()
+            db.close()
+        except:
+            pass
+    print("Esteira e conexão fechadas. Saindo...")
