@@ -9,17 +9,19 @@ from repositories.nota_fiscal_repo import _salvar_nota
 PASTA_BRUTA = "dados_brutos" 
 
 def processar_lote_notas():
-    print("🚀 [BACKGROUND] Iniciando processamento do ZIP em lote...")
+    print("[BACKGROUND] Iniciando processamento do ZIP em lote...")
 
     arquivos = [f for f in os.listdir(PASTA_BRUTA) if f.endswith('.zip')]
     if not arquivos:
-        print(f"❌ [BACKGROUND] Nenhum arquivo ZIP encontrado na pasta '{PASTA_BRUTA}'.")
+        print(f"[BACKGROUND] Nenhum arquivo ZIP encontrado na pasta '{PASTA_BRUTA}'.")
         return
 
     caminho_zip = os.path.join(PASTA_BRUTA, arquivos[0])
     
     # O nosso famoso Filtro de Ouro!
     chaves_aprovadas = set()
+
+    contador = 0
 
     with zipfile.ZipFile(caminho_zip, 'r') as z:
         arquivos_zip = z.namelist()
@@ -29,18 +31,20 @@ def processar_lote_notas():
         arq_itens = next((f for f in arquivos_zip if "NotaFiscalItem.csv" in f), None)
 
         if not arq_notas or not arq_itens:
-            print("❌ [BACKGROUND] Arquivos CSV ausentes dentro do ZIP.")
+            print("[BACKGROUND] Arquivos CSV ausentes dentro do ZIP.")
             return
 
         # ==========================================================
         # PASSO 1: PROCESSAR CABEÇALHOS (NOTAS FISCAIS)
         # ==========================================================
-        print(f"📦 [BACKGROUND] Analisando Cabeçalhos: {arq_notas}")
+        print(f"[BACKGROUND] Analisando Cabeçalhos: {arq_notas}")
         with z.open(arq_notas, 'r') as f:
             linhas = (linha.decode('iso-8859-1') for linha in f)
             leitor = csv.DictReader(linhas, delimiter=';')
 
             for linha in leitor:
+
+                contador+=1
                 # O Gatekeeper novo espera a data em DD/MM/YYYY
                 # O CSV original traz "DD/MM/YYYY HH:MM:SS", então cortamos os primeiros 10 chars
                 data_limpa = linha.get("DATA EMISSÃO", "")[:10]
@@ -66,15 +70,18 @@ def processar_lote_notas():
                         _salvar_nota(nota_dto, status)
                         chaves_aprovadas.add(nota_dto["chaveNotaFiscal"])
                     except Exception as e:
-                        print(f"⚠️ Erro ao salvar a nota {nota_dto['chaveNotaFiscal']}: {e}")
+                        print(f"Erro ao salvar a nota {nota_dto['chaveNotaFiscal']}: {e}")
+
+                if contador >=30: #CONTADOR PARA LIMITAR POR ENQUANTO A BUSCA
+                    break;
 
             db.commit()
-            print(f"✅ Cabeçalhos finalizados. {len(chaves_aprovadas)} notas prontas para receber itens.")
+            print(f"Cabeçalhos finalizados. {len(chaves_aprovadas)} notas prontas para receber itens.")
 
         # ==========================================================
         # PASSO 2: PROCESSAR ITENS COM FILTRO DE CHAVES
         # ==========================================================
-        print(f"📦 [BACKGROUND] Processando Itens de forma otimizada: {arq_itens}")
+        print(f"[BACKGROUND] Processando Itens de forma otimizada: {arq_itens}")
         with z.open(arq_itens, 'r') as f:
             linhas = (linha.decode('iso-8859-1') for linha in f)
             leitor = csv.DictReader(linhas, delimiter=';')
@@ -129,4 +136,4 @@ def processar_lote_notas():
 
             db.commit()
 
-    print("🏁 [BACKGROUND] Processamento completo! Notas e Itens salvos com sucesso no MySQL.")
+    print("[BACKGROUND] Processamento completo! Notas e Itens salvos com sucesso no MySQL.")

@@ -36,7 +36,7 @@ def buscar_data_abertura_cnpj(cnpj: str):
 
     try:
         response = requests.get(url, headers=headers, timeout=10)
-        time.sleep(2)
+        #time.sleep(2)
 
         if response.status_code == 200:
             dados = response.json()
