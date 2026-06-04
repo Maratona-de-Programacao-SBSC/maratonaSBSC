@@ -10,6 +10,9 @@ CREATE TABLE IF NOT EXISTS auditoria_cnpjs (
     teste_pagamento_fim_de_semana TINYINT(1) DEFAULT 0
     teste_pagamento_sem_empenho TINYINT(1) DEFAULT 0
     teste_fracionamento_empenho TINYINT(1) DEFAULT 0
+    teste_saldo_empenho TINYINT(1) DEFAULT 0
+    teste_sazonalidade_dezembro TINYINT(1) DEFAULT 0
+    teste_sede_fantasma TINYINT(1) DEFAULT 0
     
     -- ==========================================
     -- SISTEMA DE PONTUAÇÃO (Score)
