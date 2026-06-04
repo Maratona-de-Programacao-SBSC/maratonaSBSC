@@ -1,4 +1,4 @@
-CREATE TABLE itens_notas_fiscais (
+CREATE TABLE IF NOT EXISTS itens_notas_fiscais (
     id INT AUTO_INCREMENT PRIMARY KEY,
     chave_nota VARCHAR(44),
     numero_produto VARCHAR(10),

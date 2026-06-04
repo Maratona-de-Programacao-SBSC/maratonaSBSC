@@ -78,7 +78,10 @@ def baixar_csv_path(data_inicio: str, data_fim: str, tipo: Documento) -> Generat
             nome_csv = f"{data_str}_Despesas_{tipo.value}.csv"
 
         response = requests.get(url)
-        pasta = "D:/ProgramData/MySQL/MySQL Server 9.5/Uploads/"
+        pasta = os.getenv("PASTA_UPLOAD_MYSQL")
+
+        if not pasta:
+            raise ValueError("A variável PASTA_UPLOAD_MYSQL não foi encontrada no arquivo .env!")
 
         if response.status_code != 200:
             print(f"⚠️  Erro ao baixar {data_str}: {response.status_code}. Pulando.")
@@ -106,7 +109,10 @@ def baixar_csv_cnpj():
     nome_csv = f"{ano_mes_atual}_CNPJ.csv"
 
     response = requests.get(url)
-    pasta = "D:/ProgramData/MySQL/MySQL Server 9.5/Uploads/"
+    pasta = os.getenv("PASTA_UPLOAD_MYSQL")
+
+    if not pasta:
+        raise ValueError("A variável PASTA_UPLOAD_MYSQL não foi encontrada no arquivo .env!")
 
     if response.status_code != 200:
         print(f"⚠️  Erro ao baixar {ano_mes_atual}: {response.status_code}. Pulando.")
