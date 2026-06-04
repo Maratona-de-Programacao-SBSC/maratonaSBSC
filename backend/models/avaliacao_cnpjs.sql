@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS auditoria_cnpjs (
     -- teste_valores_incompativeis TINYINT(1) DEFAULT 0, (Adicionaremos no futuro)
     -- teste_pagamento_sem_empenho TINYINT(1) DEFAULT 0, (Adicionaremos no futuro)
     teste_pagamento_fim_de_semana TINYINT(1) DEFAULT 0
+    teste_pagamento_sem_empenho TINYINT(1) DEFAULT 0
+    teste_fracionamento_empenho TINYINT(1) DEFAULT 0
     
     -- ==========================================
     -- SISTEMA DE PONTUAÇÃO (Score)
