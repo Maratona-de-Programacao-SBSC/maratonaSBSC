@@ -78,7 +78,7 @@ def baixar_csv_path(data_inicio: str, data_fim: str, tipo: Documento) -> Generat
             nome_csv = f"{data_str}_Despesas_{tipo.value}.csv"
 
         response = requests.get(url)
-        pasta = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/"
+        pasta = "D:/ProgramData/MySQL/MySQL Server 9.5/Uploads/"
 
         if response.status_code != 200:
             print(f"⚠️  Erro ao baixar {data_str}: {response.status_code}. Pulando.")
@@ -106,7 +106,7 @@ def baixar_csv_cnpj():
     nome_csv = f"{ano_mes_atual}_CNPJ.csv"
 
     response = requests.get(url)
-    pasta = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/"
+    pasta = "D:/ProgramData/MySQL/MySQL Server 9.5/Uploads/"
 
     if response.status_code != 200:
         print(f"⚠️  Erro ao baixar {ano_mes_atual}: {response.status_code}. Pulando.")
