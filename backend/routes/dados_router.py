@@ -4,10 +4,6 @@ from repositories.database import cursor
 router = APIRouter(prefix="/dados", tags=["dados"])
 
 
-# =========================
-# NOTAS FISCAIS
-# =========================
-
 @router.get("/notas-fiscais")
 def listar_notas(limit: int = 100):
     cursor.execute("SELECT * FROM notas_fiscais LIMIT %s", (limit,))
@@ -22,10 +18,6 @@ def nota_por_chave(chave: str):
     )
     return cursor.fetchone()
 
-
-# =========================
-# ITENS NOTAS
-# =========================
 
 @router.get("/itens-notas")
 def listar_itens(limit: int = 100):
@@ -42,10 +34,6 @@ def itens_por_nota(chave: str):
     return cursor.fetchall()
 
 
-# =========================
-# PAGAMENTOS
-# =========================
-
 @router.get("/pagamentos")
 def listar_pagamentos(limit: int = 100):
     cursor.execute("SELECT * FROM pagamentos LIMIT %s", (limit,))
@@ -60,10 +48,6 @@ def pagamento_por_codigo(codigo: str):
     )
     return cursor.fetchone()
 
-
-# =========================
-# EMPENHOS
-# =========================
 
 @router.get("/empenhos")
 def listar_empenhos(limit: int = 100):
@@ -80,10 +64,6 @@ def empenho_por_codigo(codigo: str):
     return cursor.fetchone()
 
 
-# =========================
-# LIQUIDAÇÕES
-# =========================
-
 @router.get("/liquidacoes")
 def listar_liquidacoes(limit: int = 100):
     cursor.execute("SELECT * FROM liquidacoes LIMIT %s", (limit,))
@@ -99,10 +79,6 @@ def liquidacao_por_codigo(codigo: str):
     return cursor.fetchone()
 
 
-# =========================
-# EMPRESAS
-# =========================
-
 @router.get("/empresas")
 def listar_empresas(limit: int = 100):
     cursor.execute("SELECT * FROM empresas LIMIT %s", (limit,))
@@ -117,27 +93,41 @@ def empresa_por_cnpj(cnpj: str):
     )
     return cursor.fetchone()
 
-# =========================
-# INFORMAÇÕES CNPJ
-# =========================
 
-@router.get("/informacoes-cnpj")
-def listar_informacoes_cnpj(limit: int = 100):
+@router.get("/cnpj/{cnpj}")
+def buscar_cnpj(cnpj: str):
+    resultado = {}
+
     cursor.execute(
-        "SELECT * FROM informacoes_cnpj LIMIT %s",
-        (limit,)
-    )
-    return cursor.fetchall()
-
-
-@router.get("/informacoes-cnpj/{cnpj}")
-def informacao_cnpj(cnpj: str):
-    cursor.execute(
-        """
-        SELECT *
-        FROM informacoes_cnpj
-        WHERE codigo_favorecido = %s
-        """,
+        "SELECT * FROM informacoes_cnpj WHERE codigo_favorecido = %s",
         (cnpj,)
     )
-    return cursor.fetchone()
+    resultado["empresa"] = cursor.fetchone()
+
+    cursor.execute(
+        "SELECT * FROM empenhos WHERE codigo_favorecido = %s LIMIT 100",
+        (cnpj,)
+    )
+    resultado["empenhos"] = cursor.fetchall()
+
+    cursor.execute(
+        "SELECT * FROM liquidacoes WHERE codigo_favorecido = %s LIMIT 100",
+        (cnpj,)
+    )
+    resultado["liquidacoes"] = cursor.fetchall()
+
+    cursor.execute(
+        "SELECT * FROM pagamentos WHERE codigo_favorecido = %s LIMIT 100",
+        (cnpj,)
+    )
+    resultado["pagamentos"] = cursor.fetchall()
+
+    total_empenhado = sum(e.get("valor", 0) or 0 for e in resultado["empenhos"])
+    total_pago = sum(p.get("valor", 0) or 0 for p in resultado["pagamentos"])
+
+    resultado["resumo"] = {
+        "total_empenhado": total_empenhado,
+        "total_pago": total_pago
+    }
+
+    return resultado
