@@ -11,6 +11,10 @@ def salvar(detalhes: dict, status: str = "valida"):
     db.commit()
 
 
+# AVISO DO VICTOR, ESSE MONTE DE SALVAR SEPARADO N É BACANA
+# NÃO APAGUEI POR MEDO, USAR AS FUNÇOES DO DATABASE.PY
+
+
 def _salvar_nota(nota: dict, status: str):
     query = """
         INSERT IGNORE INTO notas_fiscais (

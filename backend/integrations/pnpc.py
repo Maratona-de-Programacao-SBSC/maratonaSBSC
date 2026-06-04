@@ -4,7 +4,7 @@ import os
 
 URL = "https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao"
 
-def buscar_contratos(data_inicial: str, data_final: str, modalidade: int = 5, pagina: int = 1, tamanho: int = 10):
+def buscar_contratos(data_inicial: str, data_final: str, modalidade: int = 5, pagina: int = 1, tamanho: int = 10) -> dict:
     params = {
         "dataInicial": data_inicial,
         "dataFinal": data_final,

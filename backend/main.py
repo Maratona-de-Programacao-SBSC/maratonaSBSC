@@ -10,9 +10,7 @@ from routes.contratos_router import router as contratos_route
 from routes.despesas_router import router as despesas_route
 from routes.database_router import router as database_router
 
-from integrations import pnpc, portal_transparencia
-from repositories import empenho_repo, liquidacao_repo, pagamento_repo
-from services import limpar_liquidacao, limpar_pagamento, limpar_empenho
+from repositories import database
 
 app = FastAPI(
     title="Gammes 33 API",
@@ -34,9 +32,7 @@ app.include_router(despesas_route)
 app.include_router(database_router)
 
 
-from integrations import portal_transparencia
-from services import limpar_pagamento, limpar_empenho, limpar_liquidacao
-from repositories import pagamento_repo, empenho_repo, liquidacao_repo
+
 import time
 
 
@@ -62,13 +58,19 @@ print(f"Tempo: {fim - inicio:.2f} segundos")
 
 inicio = time.time()
 
+from services import importacoes
+from repositories import pagamento_repo
 
-for path_pagamentos, path_empenhos, path_liquidacoes in portal_transparencia.baixar_csv_path("20250102", "20250202"):
-    pagamento_repo.salvar_csv(path_pagamentos)
-    empenho_repo.salvar_csv(path_empenhos)
-    liquidacao_repo.salvar_csv(path_liquidacoes)
+#importacoes.importar_liquidacoes("20250201","20250301",multithreading=True)
+
+
 
 fim = time.time()
+
+print(pagamento_repo.busca_cnpj("00681882000106"))
+
+
+database.fechar_esteira()
 
 print(f"Tempo: {fim - inicio:.2f} segundos")
 
