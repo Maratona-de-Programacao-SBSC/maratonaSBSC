@@ -3,9 +3,11 @@ import os
 import zipfile
 import io
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
-from services.importacoes import documento
+from schemes.documento import Documento
 from typing import Generator
+import curl_cffi
 
 load_dotenv()
 
@@ -47,34 +49,47 @@ def buscar_nota_por_chave(chave: str) -> dict:
 
 
 
-def baixar_csv_path(data_inicio: str, data_fim: str, tipo: documento) -> Generator[str, None, None]:
+def baixar_csv_path(data_inicio: str, data_fim: str, tipo: Documento) -> Generator[str, None, None]:
+
+
     atual = datetime.strptime(data_inicio, "%Y%m%d").date()
     fim = datetime.strptime(data_fim, "%Y%m%d").date()
 
 
     while atual <= fim:
         data_str = atual.strftime("%Y%m%d")
-        url = f"https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/despesas/{data_str}_Despesas.zip"
+        mes_str = atual.strftime("%Y%m")
+
+        if tipo == Documento.NOTA_FISCAL:
+            url = f"https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/nfe/{mes_str}_NFe.zip"
+            nome_csv = f"{mes_str}_NFe_NotaFiscal.csv"
+            incremento = relativedelta(months=1)
+        elif tipo == Documento.ITEM_NOTA_FISCAL:
+            url = f"https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/nfe/{mes_str}_NFe.zip"
+            nome_csv = f"{mes_str}_NFe_NotaFiscalItem.csv"
+            incremento = relativedelta(months=1) 
+        else:
+            url = f"https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/despesas/{data_str}_Despesas.zip"
+            nome_csv = f"{data_str}_Despesas_{tipo.value}.csv"
+            incremento += relativedelta(days=1)
+
 
         response = requests.get(url)
         pasta = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/"
 
         if response.status_code != 200:
             print(f"⚠️  Erro ao baixar despesas de {data_str}: {response.status_code}. Pulando.")
-            atual += timedelta(days=1)
+            atual += incremento
             continue
 
         
         zip_arquivo = zipfile.ZipFile(io.BytesIO(response.content))
 
-        nome_csv = f"{data_str}_Despesas_{tipo.value}.csv"
-
         path = f"{pasta}{nome_csv}"
 
         zip_arquivo.extract(nome_csv, pasta)
 
-        print(f"{data_str}Despesas baixadas e extraidas com sucesso")
-
-        atual += timedelta(days=1)
+        print(f"{data_str}Documento {tipo} baixado e extraido com sucesso")
+        atual += incremento
 
         yield path

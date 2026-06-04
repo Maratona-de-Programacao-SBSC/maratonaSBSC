@@ -8,7 +8,6 @@ CREATE TABLE itens_notas_fiscais (
     cfop VARCHAR(10),
     quantidade NUMERIC(15,4),
     unidade VARCHAR(10),
-    valor_unitario NUMERIC(15,4),
-    valor NUMERIC(15,2),
-    FOREIGN KEY (chave_nota) REFERENCES notas_fiscais(chave_acesso)
+    valor_unitario DECIMAL(15,4),
+    valor DECIMAL(15,2)
 );
