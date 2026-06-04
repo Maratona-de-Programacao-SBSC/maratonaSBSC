@@ -3,7 +3,7 @@ from services import formata
 
 def portal_transparencia(pagamentos):
     for pagamento in pagamentos:
-        pagamento_filtrado = Pagamento(
+        yield Pagamento(
             codigo_pagamento=pagamento['Código Pagamento'],
             data_emissao=formata.data(pagamento['Data Emissão']),
             codigo_favorecido=pagamento['Código Favorecido'],
@@ -20,9 +20,5 @@ def portal_transparencia(pagamentos):
                 .replace(',', '.')
             )
         )
-
-
-
-        yield pagamento_filtrado
 
 

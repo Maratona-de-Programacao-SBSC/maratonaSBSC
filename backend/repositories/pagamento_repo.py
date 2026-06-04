@@ -1,8 +1,6 @@
 from repositories.database import cursor, db
 from schemes.pagamento import Pagamento
-import csv
-import tempfile
-
+import os
 
 def salvar(pagamentos):
     dados = [{
@@ -31,6 +29,70 @@ def salvar(pagamentos):
     cursor.executemany(query, dados)
     db.commit()
 
+
+def salvar_csv(path):
+    query = f"""
+    LOAD DATA INFILE '{path}' IGNORE
+    INTO TABLE pagamentos
+    CHARACTER SET latin1
+    FIELDS TERMINATED BY ';'
+    OPTIONALLY ENCLOSED BY '"'
+    LINES TERMINATED BY '\n'
+    IGNORE 1 LINES
+    (
+        codigo_pagamento,
+        @lixo1,
+        @data_emissao,
+        @lixo2,
+        @lixo3,
+        @lixo4,
+        @lixo5,
+        @lixo6,
+        @lixo7,
+        codigo_orgao,
+        orgao,
+        codigo_unidade_gestora,
+        unidade_gestora,
+        @lixo8,
+        @lixo9,
+        codigo_favorecido,
+        favorecido,
+        observacao,
+        processo,
+        @lixo10,
+        @lixo11,
+        @lixo12,
+        @lixo13,
+        @lixo14,
+        @lixo15,
+        @lixo16,
+        @lixo17,
+        @lixo18,
+        @lixo19,
+        @lixo20,
+        @lixo21,
+        @lixo22,
+        @valor,
+        @lixo23
+    )
+    SET
+        data_emissao = STR_TO_DATE(
+            @data_emissao,
+            '%d/%m/%Y'
+        ),
+
+        valor = CAST(
+            REPLACE(
+                REPLACE(@valor, '.', ''),
+                ',', '.'
+            ) AS DECIMAL(15,2)
+        )
+    """
+
+    cursor.execute(query)
+    db.commit()
+
+    os.remove(path)
 
 
 

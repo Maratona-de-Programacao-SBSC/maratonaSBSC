@@ -95,7 +95,7 @@ def buscar_despesas_periodo(data_inicio: str, data_fim: str):
         dias_acomulados += 1
 
         if dias_acomulados >= DIAS_ESPERADOS:
-            yield buffer_pagamentos, buffer_empenhos, buffer_liquidacoes, [], []
+            yield buffer_pagamentos, buffer_empenhos, buffer_liquidacoes
             buffer_pagamentos = []
             buffer_empenhos = []
             buffer_liquidacoes = []
@@ -105,4 +105,43 @@ def buscar_despesas_periodo(data_inicio: str, data_fim: str):
         atual += timedelta(days=1)
 
 
-    yield buffer_pagamentos, buffer_empenhos, buffer_liquidacoes, [], []
+    yield buffer_pagamentos, buffer_empenhos, buffer_liquidacoes
+
+
+def baixar_csv_path(data_inicio: str, data_fim: str):
+    atual = datetime.strptime(data_inicio, "%Y%m%d").date()
+    fim = datetime.strptime(data_fim, "%Y%m%d").date()
+
+
+    while atual <= fim:
+        data_str = atual.strftime("%Y%m%d")
+        url = f"https://dadosabertos-download.cgu.gov.br/PortalDaTransparencia/saida/despesas/{data_str}_Despesas.zip"
+
+        response = requests.get(url)
+        pasta = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/"
+
+        if response.status_code != 200:
+            print(f"⚠️  Erro ao baixar despesas de {data_str}: {response.status_code}. Pulando.")
+            atual += timedelta(days=1)
+            continue
+
+        
+        zip_arquivo = zipfile.ZipFile(io.BytesIO(response.content))
+
+        nome_csv_pagamentos = f"{data_str}_Despesas_Pagamento.csv"
+        nome_csv_liquidacoes = f"{data_str}_Despesas_Liquidacao.csv"
+        nome_csv_empenhos = f"{data_str}_Despesas_Empenho.csv"
+
+        path_pagamentos = f"{pasta}{nome_csv_pagamentos}"
+        path_empenhos = f"{pasta}{nome_csv_empenhos}"
+        path_liquidacoes = f"{pasta}{nome_csv_liquidacoes}"
+
+        zip_arquivo.extract(nome_csv_pagamentos, pasta)
+        zip_arquivo.extract(nome_csv_empenhos, pasta)
+        zip_arquivo.extract(nome_csv_liquidacoes, pasta)
+
+        print(f"{data_str}Despesas baixadas e extraidas com sucesso")
+
+        atual += timedelta(days=1)
+
+        yield path_pagamentos, path_empenhos, path_liquidacoes

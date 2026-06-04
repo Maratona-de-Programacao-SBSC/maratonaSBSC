@@ -1,6 +1,5 @@
 from schemes.empenho import Empenho
 from services import formata
-from collections.abc import Iterator
 
 def portal_transparencia(empenhos):
     for empenho in empenhos:
@@ -21,3 +20,4 @@ def portal_transparencia(empenhos):
                 .replace(',', '.')
             )
         )
+

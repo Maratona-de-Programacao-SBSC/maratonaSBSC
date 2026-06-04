@@ -1,7 +1,6 @@
 from repositories.database import cursor, db
 from schemes.liquidacao import Liquidacao
-import tempfile
-import csv
+import os
 
 def salvar(liquidacoes):
 
@@ -27,7 +26,55 @@ def salvar(liquidacoes):
     
     cursor.executemany(query, dados)
     db.commit()
+    
+def salvar_csv(path):
 
+    query = f"""
+        LOAD DATA INFILE '{path}' IGNORE
+        INTO TABLE liquidacoes
+        CHARACTER SET latin1
+        FIELDS TERMINATED BY ';'
+        OPTIONALLY ENCLOSED BY '"'
+        LINES TERMINATED BY '\\n'
+        IGNORE 1 LINES
+        (
+            codigo_liquidacao,
+            @lixo1,
+            @data_emissao,
+            @lixo2,
+            @lixo3,
+            @lixo4,
+            @lixo5,
+            codigo_orgao,
+            @lixo6,
+            codigo_unidade_gestora,
+            @lixo7,
+            @lixo8,
+            @lixo9,
+            codigo_favorecido,
+            favorecido,
+            observacao,
+            @lixo10,
+            @lixo11,
+            @lixo12,
+            @lixo13,
+            @lixo14,
+            @lixo15,
+            codigo_elemento_despesa,
+            @lixo16,
+            @lixo17,
+            @lixo18,
+            @lixo19,
+            @lixo20
+        )
+        SET
+            data_emissao = STR_TO_DATE(@data_emissao, '%d/%m/%Y')
+        """
+
+    cursor.execute(query)
+    db.commit()
+
+    os.remove(path)
 
 def busca_cnpj(cnpj):
     query = """SELECT * FROM liquidacoes WHERE codigo_favorecido = %s"""

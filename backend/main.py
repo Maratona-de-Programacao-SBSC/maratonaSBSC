@@ -1,4 +1,4 @@
-import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -32,4 +32,43 @@ app.include_router(notas_route)
 app.include_router(contratos_route)
 app.include_router(despesas_route)
 app.include_router(database_router)
+
+
+from integrations import portal_transparencia
+from services import limpar_pagamento, limpar_empenho, limpar_liquidacao
+from repositories import pagamento_repo, empenho_repo, liquidacao_repo
+import time
+
+
+import time
+
+"""
+inicio = time.time()
+
+
+for pagamentos, empenhos, liquidacoes in portal_transparencia.buscar_despesas_periodo("20250102", "20250202"):
+    pagamento_repo.salvar(limpar_pagamento.portal_transparencia(pagamentos))
+
+
+    empenho_repo.salvar(limpar_empenho.portal_transparencia(empenhos))
+
+    liquidacao_repo.salvar(limpar_liquidacao.portal_transparencia(liquidacoes))
+
+
+fim = time.time()
+
+print(f"Tempo: {fim - inicio:.2f} segundos")
+"""
+
+inicio = time.time()
+
+
+for path_pagamentos, path_empenhos, path_liquidacoes in portal_transparencia.baixar_csv_path("20250102", "20250202"):
+    pagamento_repo.salvar_csv(path_pagamentos)
+    empenho_repo.salvar_csv(path_empenhos)
+    liquidacao_repo.salvar_csv(path_liquidacoes)
+
+fim = time.time()
+
+print(f"Tempo: {fim - inicio:.2f} segundos")
 

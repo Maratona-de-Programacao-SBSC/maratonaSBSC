@@ -13,3 +13,4 @@ def portal_transparencia(liquidacoes):
             observacao=liquidacao['Observação'],
             codigo_elemento_despesa=liquidacao['Código Elemento de Despesa'],
         )
+
