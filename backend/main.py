@@ -45,11 +45,10 @@ def shutdown_event():
 """
 
 
-from services.testes_fraude import teste_pag_fim_de_semana
 from services.importacoes import portal_transparencia
 
 
-teste_pag_fim_de_semana.executar_teste()
+portal_transparencia.importar_empenhos_csv("20250305","20250405", multithreading=True)
 
 
 database.fechar_threads()

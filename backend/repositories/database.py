@@ -48,20 +48,25 @@ def busca_sql_um(query, params=None):
 # ── Funções de escrita (mantém cursor global) ─────────────────────────────────
 def salvar_csv(path: str, table_nome: str, campos: str, sets: str, multithreading: bool = False):
     def executar_insert():
-        query = f"""
-        LOAD DATA INFILE '{path}' IGNORE
-        INTO TABLE {table_nome}
-        CHARACTER SET latin1
-        FIELDS TERMINATED BY ';'
-        OPTIONALLY ENCLOSED BY '"'
-        LINES TERMINATED BY '\\n'
-        IGNORE 1 LINES
-        ({campos})
-        {sets}
-        """
-        cursor.execute(query)
-        db.commit()
-        os.remove(path)
+        conn = _nova_conexao()
+        try:
+            with conn.cursor() as cur:
+                query = f"""
+                LOAD DATA INFILE '{path}' IGNORE
+                INTO TABLE {table_nome}
+                CHARACTER SET latin1
+                FIELDS TERMINATED BY ';'
+                OPTIONALLY ENCLOSED BY '"'
+                LINES TERMINATED BY '\\n'
+                IGNORE 1 LINES
+                ({campos})
+                {sets}
+                """
+                cur.execute(query)
+                conn.commit()
+        finally:
+            conn.close()
+            os.remove(path)
 
     if multithreading:
         _executor_banco.submit(executar_insert)
@@ -109,6 +114,7 @@ def atualizar_campos_via_csv(path, table_nome, chave_primaria, chave_primaria_cs
             reader = csv.DictReader(f, delimiter=';')
             for linha in reader:
                 valor_chave = linha.get(chave_primaria_csv)
+                
                 if valor_chave:
                     valores = []
                     for coluna in colunas_csv:
@@ -121,14 +127,19 @@ def atualizar_campos_via_csv(path, table_nome, chave_primaria, chave_primaria_cs
                     dados_para_atualizar.append(tuple(valores + [valor_chave]))
 
         if dados_para_atualizar:
-            cursor.executemany(query, dados_para_atualizar)
-            db.commit()
+            conn = _nova_conexao()
+            try:
+                with conn.cursor() as cur:
+                    cur.executemany(query, dados_para_atualizar)
+                    conn.commit()
+            finally:
+                conn.close()
+                os.remove(path)
 
     if multithreading:
         _executor_banco.submit(executar_insert)
     else:
         executar_insert()
-
 
 def busca_cnpj(cnpj: str, table_nome: str, dataclass) -> list:
     rows = busca_sql(f"SELECT * FROM {table_nome} WHERE codigo_favorecido = %s", (cnpj,))
@@ -141,7 +152,7 @@ def busca_cnpj_dado(cnpj: str, table_nome: str, nome_dado: str) -> list:
 
 
 def fechar_threads() -> None:
-    _executor_banco.shutdown(wait=False, cancel_futures=True)
+    _executor_banco.shutdown(wait=True)
     if 'db' in globals():
         try:
             cursor.close()

@@ -101,7 +101,6 @@ def importar_informacoes_cnpj_csv(multithreading: bool) -> None:
     table_nome = PORTA_TRANSPARENCIA_INFORMACOES_CNPJ_SCHEMA["tabela"]
 
 
-
     path = portal_transparencia.baixar_csv_cnpj()
     database.salvar_csv(path, 
                         table_nome,
