@@ -8,6 +8,8 @@ from fastapi import FastAPI
 from routes.dados_router import router as dados_router
 from routes.importacao_router import router as importacao_router
 
+from routes.auditoria_router import router as auditoria_router
+
 from fastapi.middleware.cors import CORSMiddleware
 
 from repositories import database
@@ -27,6 +29,8 @@ app.add_middleware(
 
 app.include_router(importacao_router)
 app.include_router(dados_router)
+
+app.include_router(auditoria_router, prefix="/auditoria", tags=["Testes de Fraude"])
 
 @app.on_event("shutdown")
 def shutdown_event():
