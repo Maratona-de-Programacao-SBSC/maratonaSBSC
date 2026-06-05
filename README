@@ -17,4 +17,4 @@ O processo inteiro pode levar alguns minutos dependendo da quantidade;
 
 
 uvicorn main:app --reload
-Para facilitar o processo de consumo dos endpoints, use http://localhost:8000/docs#/Despesas/importar_despesas_despesas_importar_post;
+Para facilitar o processo de consumo dos endpoints, Usem http://localhost:8000/docs#

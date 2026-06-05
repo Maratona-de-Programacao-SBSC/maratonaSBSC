@@ -1,22 +1,39 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
-import { Dashboard } from './dashboard';
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.scss'
+})
+export class DashboardComponent {
+  cnpj = '';
 
-describe('Dashboard', () => {
-  let component: Dashboard;
-  let fixture: ComponentFixture<Dashboard>;
+  empresa: any = null;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [Dashboard],
-    }).compileComponents();
+  empenhos: any[] = [];
+  liquidacoes: any[] = [];
+  pagamentos: any[] = [];
 
-    fixture = TestBed.createComponent(Dashboard);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
+  resumo: any = null;
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+  constructor(private http: HttpClient) {}
+
+  pesquisar() {
+    this.http
+      .get<any>(`http://localhost:8000/dados/cnpj/${this.cnpj}`)
+      .subscribe(res => {
+        this.empresa = res.empresa;
+
+        this.empenhos = res.empenhos || [];
+        this.liquidacoes = res.liquidacoes || [];
+        this.pagamentos = res.pagamentos || [];
+
+        this.resumo = res.resumo;
+      });
+  }
+}
