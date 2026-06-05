@@ -48,7 +48,7 @@ def shutdown_event():
 from services.importacoes import portal_transparencia
 
 
-portal_transparencia.importar_empenhos_csv("20250305","20250405", multithreading=True)
+
 
 
 database.fechar_threads()

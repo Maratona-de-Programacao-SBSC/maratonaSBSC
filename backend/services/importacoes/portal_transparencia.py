@@ -25,6 +25,7 @@ def importar_pagamentos_csv(data_inicio: str, data_fim: str, multithreading: boo
                             set,
                             multithreading)
         
+    if multithreading: database.aguardar_executor()
 
 def importar_liquidacoes_csv(data_inicio: str, data_fim: str, multithreading: bool) -> None:
 
@@ -44,6 +45,8 @@ def importar_liquidacoes_csv(data_inicio: str, data_fim: str, multithreading: bo
 
     table_nome = PORTAL_TRANSPARENCIA_LIQUIDACAO_EMPENHOS_SCHEMA["tabela"]
 
+    if multithreading: database.aguardar_executor()
+
     for path in portal_transparencia.baixar_csv_path(data_inicio, data_fim, Documento.LIQUIDACAO_EMPENHOS):
             database.atualizar_campos_via_csv(
                                         path,
@@ -53,6 +56,9 @@ def importar_liquidacoes_csv(data_inicio: str, data_fim: str, multithreading: bo
                                         multithreading=True,
                                         valor="Valor Liquidado (R$)"
                                     )
+            
+    if multithreading: database.aguardar_executor()
+    
 def importar_empenhos_csv(data_inicio: str, data_fim: str, multithreading: bool) -> None:
 
     campos = gerar_campos(PORTAL_TRANSPARENCIA_EMPENHOS_SCHEMA)
@@ -68,6 +74,9 @@ def importar_empenhos_csv(data_inicio: str, data_fim: str, multithreading: bool)
                             multithreading)
         
 
+    if multithreading: database.aguardar_executor()
+        
+
 def importar_notas_fiscais_csv(data_inicio: str, data_fim: str, multithreading: bool) -> None:
     campos = gerar_campos(PORTAL_TRANSPARENCIA_NOTA_FISCAL_SCHEMA)
     set = gerar_set(PORTAL_TRANSPARENCIA_NOTA_FISCAL_SCHEMA)
@@ -81,6 +90,7 @@ def importar_notas_fiscais_csv(data_inicio: str, data_fim: str, multithreading: 
                             set,
                             multithreading)
         
+    if multithreading: database.aguardar_executor()   
 
 def importar_itens_notas_fiscais_csv(data_inicio: str, data_fim: str, multithreading: bool) -> None:
     campos = gerar_campos(PORTAL_TRANSPARENCIA_ITEM_NOTA_FISCAL_SCHEMA)
@@ -93,6 +103,8 @@ def importar_itens_notas_fiscais_csv(data_inicio: str, data_fim: str, multithrea
                             campos, 
                             set,
                             multithreading)
+        
+    if multithreading: database.aguardar_executor()
         
 
 def importar_informacoes_cnpj_csv(multithreading: bool) -> None:
@@ -107,6 +119,8 @@ def importar_informacoes_cnpj_csv(multithreading: bool) -> None:
                         campos, 
                         set,
                         multithreading)
+    
+    if multithreading: database.aguardar_executor()
         
 
 def gerar_campos(schema: dict) -> str:
