@@ -24,7 +24,7 @@ def busca_sedes_compartilhadas() -> list:
             GROUP BY cep, numero
             HAVING COUNT(codigo_favorecido) > 1
         ) shared ON c.cep = shared.cep AND c.numero = shared.numero
-        LEFT JOIN auditoria_cnpjs a ON c.codigo_favorecido = a.cnpj
+        LEFT JOIN avaliacao_cnpjs a ON c.codigo_favorecido = a.cnpj
         WHERE (a.teste_sede_fantasma IS NULL OR a.teste_sede_fantasma = 0)
     """
     cursor.execute(query)
@@ -35,7 +35,7 @@ def salva_falha(cnpj: str):
     Insere o CNPJ na tabela de auditoria ou atualiza o score se ele já existir.
     """
     query = """
-        INSERT INTO auditoria_cnpjs (
+        INSERT INTO avaliacao_cnpjs (
             cnpj, teste_sede_fantasma, score_automatico, score_total, data_ultima_auditoria
         ) VALUES (
             %(cnpj)s, 1, 1, 1, CURRENT_DATE()

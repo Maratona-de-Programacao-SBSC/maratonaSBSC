@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from services.testes_fraude import teste_pagamento_sem_empenho
 from services.testes_fraude import teste_pag_fim_de_semana
+from services.testes_fraude import teste_sede_fantasma
 
 router = APIRouter()
 
@@ -23,3 +24,13 @@ def rodar_teste_pagamento_fim_de_semana():
     teste_pag_fim_de_semana.executar_teste()
     
     return {"status": "sucesso", "mensagem": "Teste de Pagamentos em Fim de Semana concluído com sucesso!"}
+
+
+@router.post("/sede-fantasma")
+def rodar_teste_sede_fantasma():
+    """
+    Dispara a varredura buscando múltiplas empresas registradas no mesmo CEP e Número.
+    """
+    teste_sede_fantasma.executar_teste()
+    
+    return {"status": "sucesso", "mensagem": "Teste de Sede Fantasma concluído com sucesso!"}

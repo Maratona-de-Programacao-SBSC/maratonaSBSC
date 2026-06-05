@@ -1,4 +1,4 @@
-from repositories import teste_sede_fantasma_repo
+from repositories.testes_fraude import teste_sede_fantasma_repo
 
 def executar_teste():
     """
