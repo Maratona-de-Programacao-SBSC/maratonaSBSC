@@ -1,0 +1,68 @@
+<div class="cards">
+
+  <div class="card">
+    <h3>Empenhado</h3>
+    <span>R$ {{ totalEmpenhado }}</span>
+  </div>
+
+  <div class="card">
+    <h3>Pago</h3>
+    <span>R$ {{ totalPago }}</span>
+  </div>
+
+</div>
+
+<h2>Empenhos</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Código</th>
+      <th>Valor</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (e of resultado?.empenhos; track e.codigo_empenho) {
+      <tr>
+        <td>{{ e.codigo_empenho }}</td>
+        <td>R$ {{ e.valor }}</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<h2>Liquidações</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Código</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (l of resultado?.liquidacoes; track l.codigo_liquidacao) {
+      <tr>
+        <td>{{ l.codigo_liquidacao }}</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<h2>Pagamentos</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Código</th>
+      <th>Valor</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (p of resultado?.pagamentos; track p.codigo_pagamento) {
+      <tr>
+        <td>{{ p.codigo_pagamento }}</td>
+        <td>R$ {{ p.valor }}</td>
+      </tr>
+    }
+  </tbody>
+</table>
