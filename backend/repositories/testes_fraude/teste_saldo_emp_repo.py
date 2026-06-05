@@ -2,8 +2,7 @@ from repositories.database import cursor, db
 
 def busca_cnpjs_com_saldo_estourado() -> list:
     """
-    Busca CNPJs onde o somatório de todos os pagamentos recebidos
-    é maior do que o somatório de todos os empenhos emitidos para ele.
+    Busca CNPJs onde o somatório de pagamentos supera o total empenhado.
     """
     query = """
         SELECT 
@@ -11,21 +10,19 @@ def busca_cnpjs_com_saldo_estourado() -> list:
             p_total.total_pago,
             e_total.total_empenhado
         FROM (
-            -- Subconsulta: Total pago por CNPJ
             SELECT codigo_favorecido AS cnpj, SUM(valor) AS total_pago
             FROM pagamentos
             WHERE codigo_favorecido IS NOT NULL
+              AND codigo_favorecido REGEXP '^[0-9]+$'
             GROUP BY codigo_favorecido
         ) p_total
         INNER JOIN (
-            -- Subconsulta: Total empenhado por CNPJ
             SELECT codigo_favorecido AS cnpj, SUM(valor) AS total_empenhado
             FROM empenhos
             WHERE codigo_favorecido IS NOT NULL
             GROUP BY codigo_favorecido
         ) e_total ON p_total.cnpj = e_total.cnpj
-        LEFT JOIN auditoria_cnpjs a ON p_total.cnpj = a.cnpj
-        -- O Filtro implacável: Recebeu mais do que tinha de direito empenhado
+        LEFT JOIN avaliacao_cnpjs a ON p_total.cnpj = a.cnpj
         WHERE p_total.total_pago > e_total.total_empenhado
           AND (a.teste_saldo_empenho IS NULL OR a.teste_saldo_empenho = 0)
     """
@@ -34,10 +31,10 @@ def busca_cnpjs_com_saldo_estourado() -> list:
 
 def salva_falha(cnpj: str):
     """
-    Insere o CNPJ na tabela de auditoria ou atualiza o score se ele já existir.
+    Atualiza o score na tabela de avaliacao_cnpjs.
     """
     query = """
-        INSERT INTO auditoria_cnpjs (
+        INSERT INTO avaliacao_cnpjs (
             cnpj, teste_saldo_empenho, score_automatico, score_total, data_ultima_auditoria
         ) VALUES (
             %(cnpj)s, 1, 1, 1, CURRENT_DATE()
