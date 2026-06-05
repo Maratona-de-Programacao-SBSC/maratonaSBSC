@@ -43,3 +43,13 @@ def shutdown_event():
 
 
 """
+
+
+from services.testes_fraude import teste_saldo_empenho
+from services.importacoes import portal_transparencia
+
+
+teste_saldo_empenho.executar_teste()
+
+
+database.fechar_threads()

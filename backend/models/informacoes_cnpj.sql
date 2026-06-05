@@ -11,5 +11,8 @@ CREATE TABLE IF NOT EXISTS informacoes_cnpj (
     cep VARCHAR(8),
     bairro VARCHAR(100),
     municipio VARCHAR(100),
-    uf CHAR(2)
+    uf CHAR(2),
+
+    INDEX idx_endereco (municipio, cep, numero),
+    INDEX idx_cnae (cod_cnae)
 );

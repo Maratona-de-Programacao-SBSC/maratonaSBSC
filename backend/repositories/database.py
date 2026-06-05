@@ -95,7 +95,6 @@ def salvar_dict(table_nome: str, registros) -> None:
 def atualizar_campos_via_csv(path, table_nome, chave_primaria, chave_primaria_csv, multithreading=False, **kwargs):
 
 
-
     def executar_insert():
         colunas_bd = list(kwargs.keys())
         colunas_csv = list(kwargs.values())
@@ -164,7 +163,7 @@ def busca_item_nota() -> dict:
 
 def fechar_threads() -> None:
 
-    _executor_banco.shutdown(wait=False, cancel_futures=True)
+    _executor_banco.shutdown(wait=True)  # ✅ aguarda todas as tasks terminarem
     
     if 'db' in globals():
         try:

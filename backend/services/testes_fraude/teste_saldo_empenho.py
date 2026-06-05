@@ -13,23 +13,11 @@ def executar_teste():
     print(f"[TESTE SALDO GLOBAL] {len(alvos)} CNPJs com inconsistência de saldo encontrados.")
 
     for alvo in alvos:
-        cnpj = alvo["cnpj"]
-        total_pago = alvo["total_pago"]
-        total_empenhado = alvo["total_empenhado"]
+        cnpj = alvo["codigo_favorecido"]
         
         # Penaliza no banco
         teste_saldo_emp_repo.salva_falha(cnpj)
         
-        # Formatação visual de moeda para o terminal
-        moeda_pago = f"R$ {total_pago:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        moeda_emp = f"R$ {total_empenhado:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        
-        print(f"[TESTE SALDO GLOBAL] EXCESSO DE PAGAMENTO: O CNPJ {cnpj} recebeu um total de {moeda_pago}, "
-              f"mas só tinha {moeda_emp} autorizados em empenhos!")
-        
-        counter+=1
 
-        if counter>=10:
-            break
 
     print(f"[TESTE SALDO GLOBAL] Concluído. {len(alvos)} CNPJs classificados como suspeitos.")

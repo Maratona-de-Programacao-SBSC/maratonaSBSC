@@ -2,29 +2,18 @@ from repositories.database import cursor, db
 
 def busca_cnpjs_com_saldo_estourado() -> list:
     """
-    Busca CNPJs onde o somatório de pagamentos supera o total empenhado.
+    Verifica se existe alugum empenho em 6 meses que possua valor maior igual a pagamento
     """
     query = """
-        SELECT 
-            p_total.cnpj,
-            p_total.total_pago,
-            e_total.total_empenhado
-        FROM (
-            SELECT codigo_favorecido AS cnpj, SUM(valor) AS total_pago
-            FROM pagamentos
-            WHERE codigo_favorecido IS NOT NULL
-              AND codigo_favorecido REGEXP '^[0-9]+$'
-            GROUP BY codigo_favorecido
-        ) p_total
-        INNER JOIN (
-            SELECT codigo_favorecido AS cnpj, SUM(valor) AS total_empenhado
-            FROM empenhos
-            WHERE codigo_favorecido IS NOT NULL
-            GROUP BY codigo_favorecido
-        ) e_total ON p_total.cnpj = e_total.cnpj
-        LEFT JOIN avaliacao_cnpjs a ON p_total.cnpj = a.cnpj
-        WHERE p_total.total_pago > e_total.total_empenhado
-          AND (a.teste_saldo_empenho IS NULL OR a.teste_saldo_empenho = 0)
+        SELECT DISTINCT
+            p.codigo_favorecido
+        FROM pagamentos p
+        JOIN empenhos e 
+            ON p.codigo_favorecido = e.codigo_favorecido
+            AND e.data_emissao BETWEEN DATE_SUB(p.data_emissao, INTERVAL 6 MONTH) AND p.data_emissao
+        WHERE p.valor > 0
+        GROUP BY p.codigo_pagamento, p.codigo_favorecido, p.data_emissao, p.valor
+        HAVING p.valor > SUM(e.valor);
     """
     cursor.execute(query)
     return cursor.fetchall()
