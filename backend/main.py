@@ -45,11 +45,11 @@ def shutdown_event():
 """
 
 
-from services.testes_fraude import teste_saldo_empenho
+from services.testes_fraude import teste_pag_fim_de_semana
 from services.importacoes import portal_transparencia
 
 
-teste_saldo_empenho.executar_teste()
+teste_pag_fim_de_semana.executar_teste()
 
 
 database.fechar_threads()
