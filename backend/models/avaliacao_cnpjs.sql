@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS auditoria_cnpjs (
+CREATE TABLE IF NOT EXISTS avaliacao_cnpjs (
     cnpj VARCHAR(14) PRIMARY KEY,
     
     -- ==========================================

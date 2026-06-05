@@ -1,19 +1,27 @@
-from repositories import teste_pag_fim_de_semana_repo
+from repositories.testes_fraude import teste_pag_fim_de_semana_repo
 
 def executar_teste():
     """
-    Motor do teste: Pega os suspeitos no banco que receberam em finais de semana e salva as falhas.
+    Motor do teste: Encontra pagamentos realizados em Sábados ou Domingos e penaliza.
     """
-    print("[TESTE FDS] Iniciando varredura de pagamentos em dias não úteis...")
+    print("[TESTE FIM DE SEMANA] Iniciando varredura de pagamentos fora de dias úteis...")
+
+    contador = 0
     
     alvos = teste_pag_fim_de_semana_repo.busca_pagamentos_fim_de_semana()
-    print(f"[TESTE FDS] {len(alvos)} transações suspeitas encontradas.")
+    total = len(alvos)
+    print(f"[TESTE FIM DE SEMANA] {total} CNPJs/CPFs suspeitos encontrados.")
 
     for alvo in alvos:
         cnpj = alvo["cnpj"]
         
-        # Como o SQL já fez 100% do filtro, só precisamos penalizar o CNPJ
+        # Penaliza no banco
         teste_pag_fim_de_semana_repo.salva_falha(cnpj)
-        print(f"[TESTE FDS] ANOMALIA: CNPJ {cnpj} recebeu pagamento em um final de semana!")
+        print(f"[TESTE FIM DE SEMANA] GRAVE: {cnpj} recebeu pagamento no fim de semana!")
 
-    print(f"[TESTE FDS] Concluído. {len(alvos)} CNPJs classificados como suspeitos.")
+        contador+=1
+
+        if contador >=10:
+            break
+
+    print(f"[TESTE FIM DE SEMANA] Concluído. {total} CNPJs penalizados no banco.")
