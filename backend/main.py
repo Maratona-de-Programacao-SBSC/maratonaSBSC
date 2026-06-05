@@ -31,6 +31,8 @@ app.add_middleware(
 app.include_router(importacao_router)
 app.include_router(dados_router)
 
+"""
+
 #VERSÃO DE TESTES
 app.include_router(auditoria_router, prefix="/auditoria", tags=["Testes de Fraude"])
 
@@ -38,3 +40,6 @@ app.include_router(auditoria_router, prefix="/auditoria", tags=["Testes de Fraud
 def shutdown_event():
     database.fechar_threads()
 
+
+
+"""

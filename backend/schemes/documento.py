@@ -7,3 +7,4 @@ class Documento(Enum):
     NOTA_FISCAL = "NotaFiscal"
     ITEM_NOTA_FISCAL = "NotaFiscalItem"
     INFORMACOES_CNPJ = "Cnpj"
+    LIQUIDACAO_EMPENHOS = "Liquidacao_EmpenhosImpactados"

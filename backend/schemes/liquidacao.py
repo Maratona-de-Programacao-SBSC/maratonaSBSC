@@ -26,3 +26,12 @@ PORTAL_TRANSPARENCIA_LIQUIDACOES_SCHEMA = {
         22: {"coluna": "codigo_elemento_despesa", "tipo": "direto"}  # "Código Elemento de Despesa"
     }
 }
+
+PORTAL_TRANSPARENCIA_LIQUIDACAO_EMPENHOS_SCHEMA = {
+    "tabela": "liquidacoes",
+    "total_colunas": 8,
+    "mapa": {
+        0: {"coluna": "codigo_liquidacao",             "tipo": "substitui"}, # "Código Liquidação"
+        4: {"coluna": "valor_liquidado",               "tipo": "valor"},  # "Valor Liquidado (R$)"
+    }
+}

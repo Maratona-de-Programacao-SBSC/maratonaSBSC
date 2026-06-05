@@ -13,3 +13,7 @@ def tempo_execucao(func):
     return wraper
 
 
+def fundir_csv(path1:str , path2: str):
+    pass
+
+

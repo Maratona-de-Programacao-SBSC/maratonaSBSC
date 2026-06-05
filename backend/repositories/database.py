@@ -1,7 +1,8 @@
 import MySQLdb
 import os
 from concurrent.futures import ThreadPoolExecutor
-import sys
+import csv
+from decimal import Decimal, InvalidOperation
 
 
 HOST = os.getenv("DATABASE_HOST")
@@ -54,6 +55,8 @@ def salvar_csv(path: str, table_nome: str, campos: str, sets: str, multithreadin
         executar_insert()
 
 
+
+
 def salvar_dict(table_nome: str, registros) -> None:
     if not registros:
         return
@@ -85,7 +88,55 @@ def salvar_dict(table_nome: str, registros) -> None:
     cursor.executemany(query, dados)
     db.commit()
 
-    
+
+
+
+
+def atualizar_campos_via_csv(path, table_nome, chave_primaria, chave_primaria_csv, multithreading=False, **kwargs):
+
+
+
+    def executar_insert():
+        colunas_bd = list(kwargs.keys())
+        colunas_csv = list(kwargs.values())
+
+        set_clause = ", ".join([f"{col} = %s" for col in colunas_bd])
+        null_clause_list = [f"({col} IS NULL OR {col} = 0)" for col in colunas_bd]
+        null_clause = " AND ".join(null_clause_list)
+        query = f"UPDATE {table_nome} SET {set_clause} WHERE {chave_primaria} = %s AND {null_clause}"
+
+        dados_para_atualizar = []
+
+        with open(path, mode='r', encoding='latin1') as f:
+            reader = csv.DictReader(f, delimiter=';')
+
+            for linha in reader:
+                valor_chave = linha.get(chave_primaria_csv)
+                if valor_chave:
+                    valores = []
+                    for coluna in colunas_csv:
+                        valor = linha.get(coluna)
+                        try:
+                            valor = Decimal(valor.replace('.', '').replace(',', '.'))
+                        except (InvalidOperation, AttributeError):
+                            pass  # mantém o valor original se não for decimal
+
+
+                        valores.append(valor)
+
+                    dados_para_atualizar.append(tuple(valores + [valor_chave]))
+
+        if dados_para_atualizar:
+            cursor.executemany(query, dados_para_atualizar)
+            db.commit()
+
+    if multithreading:
+        _executor_banco.submit(executar_insert)
+    else:
+        executar_insert()
+
+
+
 def busca_cnpj(cnpj: str, table_nome: str, dataclass) -> dict:
     query = f"""SELECT * FROM {table_nome} WHERE codigo_favorecido = %s"""
     

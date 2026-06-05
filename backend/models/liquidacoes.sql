@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS liquidacoes (
     favorecido VARCHAR(200),
     observacao VARCHAR(200),
     codigo_elemento_despesa VARCHAR(10),
+    valor DECIMAL(15,2),
 
     INDEX idx_codigo_favorecido (codigo_favorecido)
 );
