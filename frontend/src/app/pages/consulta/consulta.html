@@ -1,0 +1,42 @@
+<div class="container">
+  <h1>Consulta Pública</h1>
+
+  <div class="busca">
+    <input
+      #inputCnpj
+      [value]="cnpj"
+      (input)="cnpj = inputCnpj.value"
+      placeholder="Digite o CNPJ"
+      (keyup.enter)="pesquisar()"
+    />
+    <button (click)="pesquisar()">Pesquisar</button>
+  </div>
+
+  @if (loading) {
+    <div class="loading">Carregando...</div>
+  }
+
+  <div [style.display]="resultado ? 'block' : 'none'">
+
+    <div class="tabs">
+      <button (click)="aba = 'despesas'">Despesas</button>
+      <button (click)="aba = 'notas'">Notas</button>
+      <button (click)="aba = 'outros'">Outros</button>
+    </div>
+
+    <app-despesas
+      [resultado]="resultado"
+      [style.display]="aba === 'despesas' ? 'block' : 'none'">
+    </app-despesas>
+
+    <app-notas
+      [cnpj]="cnpj"
+      [style.display]="aba === 'notas' ? 'block' : 'none'">
+    </app-notas>
+
+    <div [style.display]="aba === 'outros' ? 'block' : 'none'">
+      <p>Outros dados aqui</p>
+    </div>
+
+  </div>
+</div>
