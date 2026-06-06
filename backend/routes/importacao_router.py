@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Query
 from services.importacoes import portal_transparencia
 from repositories import database
+from datetime import date
 
 router = APIRouter(prefix="/importacao", tags=["importacao"])
 
@@ -36,17 +37,21 @@ def importar_despesas(
 
 # NOTAS + ITENS (fluxo separado)
 @router.post("/notas")
-def importar_notas():
+def importar_notas(data_inicio: date, data_fim: date):
     portal_transparencia.importar_notas_fiscais_csv(
-        "20250101", "20250201", multithreading=True
+        data_inicio.strftime("%Y%m%d"),
+        data_fim.strftime("%Y%m%d"),
+        multithreading=False
     )
     return {"status": "ok"}
 
 
 @router.post("/itens-notas")
-def importar_itens():
+def importar_itens(data_inicio: date, data_fim: date):
     portal_transparencia.importar_itens_notas_fiscais_csv(
-        "20250101", "20250201", multithreading=True
+        data_inicio.strftime("%Y%m%d"),
+        data_fim.strftime("%Y%m%d"),
+        multithreading=True
     )
     return {"status": "ok"}
 

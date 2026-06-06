@@ -1,49 +1,62 @@
-<h2>Notas Fiscais ({{ notas.length }})</h2>
+<div class="notas-header">
+  <h2>Notas Fiscais ({{ notas.length }})</h2>
+</div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Chave</th>
-      <th>Data</th>
-      <th>Valor</th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (n of notas; track n.nota.chave_acesso) {
-      <tr (click)="abrirNota(n)" class="linha">
-        <td>{{ n.nota.chave_acesso }}</td>
-        <td>{{ n.nota.data_emissao }}</td>
-        <td>R$ {{ n.nota.valor }}</td>
-      </tr>
-    }
-  </tbody>
-</table>
+<div class="tabela-wrap">
+  @if (notas.length) {
+    <table>
+      <thead>
+        <tr>
+          <th>Chave</th>
+          <th>Data</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (n of notas; track n.nota.chave_acesso) {
+          <tr (click)="abrirNota(n)" class="linha">
+            <td>{{ n.nota.chave_acesso }}</td>
+            <td>{{ n.nota.data_emissao }}</td>
+            <td>R$ {{ n.nota.valor }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  } @else {
+    <p class="vazio">Nenhuma nota fiscal encontrada</p>
+  }
+</div>
 
 @if (modalAberto) {
   <div class="modal-backdrop" (click)="fechar()">
     <div class="modal" (click)="$event.stopPropagation()">
-
-      <h3>Produtos da Nota</h3>
+      <h3>Itens da Nota</h3>
       <p><b>Chave:</b> {{ notaSelecionada?.chave_acesso }}</p>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Descrição</th>
-            <th>Qtd</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (i of itens; track i.id) {
-            <tr>
-              <td>{{ i.descricao }}</td>
-              <td>{{ i.quantidade }}</td>
-              <td>R$ {{ i.valor }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+      <div class="tabela-wrap">
+        @if (itens.length) {
+          <table>
+            <thead>
+              <tr>
+                <th>Descrição</th>
+                <th>Qtd</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of itens; track i.id) {
+                <tr>
+                  <td>{{ i.descricao }}</td>
+                  <td>{{ i.quantidade }}</td>
+                  <td>R$ {{ i.valor }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <p class="vazio">Nenhum item encontrado</p>
+        }
+      </div>
 
       <button (click)="fechar()">Fechar</button>
     </div>

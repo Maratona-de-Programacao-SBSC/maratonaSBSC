@@ -1,68 +1,92 @@
 <div class="cards">
-
   <div class="card">
     <h3>Empenhado</h3>
-    <span>R$ {{ totalEmpenhado }}</span>
+    <span>R$ {{ totalEmpenhado | number:'1.2-2' }}</span>
   </div>
-
   <div class="card">
     <h3>Pago</h3>
-    <span>R$ {{ totalPago }}</span>
+    <span>R$ {{ totalPago | number:'1.2-2' }}</span>
   </div>
-
 </div>
 
-<h2>Empenhos</h2>
-
-<table>
-  <thead>
-    <tr>
-      <th>Código</th>
-      <th>Valor</th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (e of resultado?.empenhos; track e.codigo_empenho) {
-      <tr>
-        <td>{{ e.codigo_empenho }}</td>
-        <td>R$ {{ e.valor }}</td>
-      </tr>
+<div class="secao">
+  <h2>Empenhos</h2>
+  <div class="tabela-wrap">
+    @if (resultado?.empenhos?.length) {
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Data</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of resultado.empenhos; track e.codigo_empenho) {
+            <tr>
+              <td>{{ e.codigo_empenho }}</td>
+              <td>{{ e.data_emissao }}</td>
+              <td>R$ {{ e.valor | number:'1.2-2' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="vazio">Nenhum empenho encontrado</p>
     }
-  </tbody>
-</table>
+  </div>
+</div>
 
-<h2>Liquidações</h2>
-
-<table>
-  <thead>
-    <tr>
-      <th>Código</th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (l of resultado?.liquidacoes; track l.codigo_liquidacao) {
-      <tr>
-        <td>{{ l.codigo_liquidacao }}</td>
-      </tr>
+<div class="secao">
+  <h2>Liquidações</h2>
+  <div class="tabela-wrap">
+    @if (resultado?.liquidacoes?.length) {
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (l of resultado.liquidacoes; track l.codigo_liquidacao) {
+            <tr>
+              <td>{{ l.codigo_liquidacao }}</td>
+              <td>{{ l.data_emissao }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="vazio">Nenhuma liquidação encontrada</p>
     }
-  </tbody>
-</table>
+  </div>
+</div>
 
-<h2>Pagamentos</h2>
-
-<table>
-  <thead>
-    <tr>
-      <th>Código</th>
-      <th>Valor</th>
-    </tr>
-  </thead>
-  <tbody>
-    @for (p of resultado?.pagamentos; track p.codigo_pagamento) {
-      <tr>
-        <td>{{ p.codigo_pagamento }}</td>
-        <td>R$ {{ p.valor }}</td>
-      </tr>
+<div class="secao">
+  <h2>Pagamentos</h2>
+  <div class="tabela-wrap">
+    @if (resultado?.pagamentos?.length) {
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Data</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of resultado.pagamentos; track p.codigo_pagamento) {
+            <tr>
+              <td>{{ p.codigo_pagamento }}</td>
+              <td>{{ p.data_emissao }}</td>
+              <td>R$ {{ p.valor | number:'1.2-2' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } @else {
+      <p class="vazio">Nenhum pagamento encontrado</p>
     }
-  </tbody>
-</table>
+  </div>
+</div>

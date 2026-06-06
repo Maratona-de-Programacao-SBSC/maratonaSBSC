@@ -43,7 +43,7 @@ def consultar_despesas(cnpj: str):
 def consultar_notas(cnpj: str):
     try:
         notas = busca_sql(
-            "SELECT * FROM notas_fiscais WHERE cpf_cnpj_emitente = %s ORDER BY data_emissao DESC",
+            "SELECT * FROM notas_fiscais WHERE codigo_favorecido = %s ORDER BY data_emissao DESC",
             (cnpj,)
         )
 

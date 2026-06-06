@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -10,8 +12,8 @@ html, body {
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
-  background: #f5f5f5;
+  font-family: 'Inter', Arial, sans-serif;
+  background: #f0f2f5;
   color: #111;
 }
 
@@ -38,63 +40,27 @@ main, router-outlet + * {
   flex: 1;
 }
 
-// ── Variáveis globais ─────────────────────────────────────────────────────────
-
 :root {
-  --color-bg:        #f5f5f5;
-  --color-surface:   #ffffff;
-  --color-border:    #e0e0e0;
-  --color-primary:   #1a56db;
-  --color-primary-hover: #1241b0;
-  --color-text:      #111111;
-  --color-text-muted: #666666;
-  --color-success:   #16a34a;
-  --color-danger:    #dc2626;
+  --color-bg:           #f0f2f5;
+  --color-surface:      #ffffff;
+  --color-border:       #e4e7ec;
+  --color-primary:      #1a56db;
+  --color-primary-hover:#1241b0;
+  --color-text:         #101828;
+  --color-text-muted:   #667085;
+  --color-success:      #16a34a;
+  --color-danger:       #dc2626;
 
-  --radius:   6px;
-  --shadow:   0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --radius-sm: 6px;
+  --radius:    8px;
+  --radius-lg: 12px;
+  --shadow:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
 
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 16px;
   --space-lg: 24px;
   --space-xl: 32px;
-}
-
-// ── Tabela base (reutilizada em todos os componentes) ─────────────────────────
-
-.table-base {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-
-  thead tr {
-    background: #f9fafb;
-    border-bottom: 2px solid var(--color-border);
-  }
-
-  th {
-    padding: var(--space-sm) var(--space-md);
-    text-align: left;
-    font-weight: 600;
-    color: var(--color-text-muted);
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-  }
-
-  td {
-    padding: var(--space-sm) var(--space-md);
-    border-bottom: 1px solid var(--color-border);
-    color: var(--color-text);
-  }
-
-  tbody tr:last-child td {
-    border-bottom: none;
-  }
-
-  tbody tr:hover {
-    background: #f0f4ff;
-  }
+  --space-2xl: 48px;
 }
