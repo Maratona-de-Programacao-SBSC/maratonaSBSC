@@ -45,10 +45,6 @@ def shutdown_event():
 """
 
 
-from services.importacoes import portal_transparencia
-
-
-
-
-
-database.fechar_threads()
+@app.on_event("shutdown")
+def shutdown_event():
+    database.fechar_threads()

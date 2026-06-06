@@ -45,30 +45,6 @@ def busca_sql_um(query, params=None):
         conn.close()
 
 
-# ── Funções de escrita (mantém cursor global) ─────────────────────────────────
-def salvar_csv(path: str, table_nome: str, campos: str, sets: str, multithreading: bool = False):
-    def executar_insert():
-        query = f"""
-        LOAD DATA INFILE '{path}' IGNORE
-        INTO TABLE {table_nome}
-        CHARACTER SET latin1
-        FIELDS TERMINATED BY ';'
-        OPTIONALLY ENCLOSED BY '"'
-        LINES TERMINATED BY '\\n'
-        IGNORE 1 LINES
-        ({campos})
-        {sets}
-        """
-        cursor.execute(query)
-        db.commit()
-        os.remove(path)
-
-    if multithreading:
-        _executor_banco.submit(executar_insert)
-    else:
-        executar_insert()
-
-
 def salvar_csv(path: str, table_nome: str, campos: str, sets: str, multithreading: bool = False):
     def executar_insert():
         conn = _nova_conexao()
