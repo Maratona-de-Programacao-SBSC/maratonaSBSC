@@ -1,4 +1,4 @@
-from repositories.testes_fraude import teste_saldo_emp_repo
+from repositories.testes_fraude import teste_saldo_emp_repo, salvar_teste
 
 def executar_teste():
     """
@@ -8,15 +8,10 @@ def executar_teste():
     print("[TESTE SALDO GLOBAL] Iniciando análise de teto orçamentário por fornecedor...")
 
     
-    alvos = teste_saldo_emp_repo.busca_cnpjs_com_saldo_estourado()
-    print(f"[TESTE SALDO GLOBAL] {len(alvos)} CNPJs com inconsistência de saldo encontrados.")
+    cnpjs = teste_saldo_emp_repo.busca_cnpjs_com_saldo_estourado()
+    print(f"[TESTE SALDO GLOBAL] {len(cnpjs)} CNPJs com inconsistência de saldo encontrados.")
 
-    for alvo in alvos:
-        cnpj = alvo["codigo_favorecido"]
-        
-        # Penaliza no banco
-        teste_saldo_emp_repo.salva_falha(cnpj)
-        
+    salvar_teste.salvar_falha(cnpjs, "teste_saldo_empenho")
 
 
-    print(f"[TESTE SALDO GLOBAL] Concluído. {len(alvos)} CNPJs classificados como suspeitos.")
+    print(f"[TESTE SALDO GLOBAL] Concluído. {len(cnpjs)} CNPJs classificados como suspeitos.")

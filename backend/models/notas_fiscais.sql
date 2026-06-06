@@ -16,3 +16,7 @@ CREATE TABLE IF NOT EXISTS notas_fiscais (
 
     INDEX idx_codigo_favorecido (codigo_favorecido)
 );
+
+ALTER TABLE notas_fiscais 
+ADD CONSTRAINT check_cnpj_nao_vazio 
+CHECK (LENGTH(TRIM(codigo_favorecido)) > 0 AND codigo_favorecido NOT LIKE '%*%');

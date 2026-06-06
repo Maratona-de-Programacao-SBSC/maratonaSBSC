@@ -11,5 +11,10 @@ CREATE TABLE IF NOT EXISTS empenhos (
     elemento_despesa VARCHAR(20),
     valor NUMERIC(15, 2),
 
-    INDEX idx_codigo_favorecido (codigo_favorecido)
+    INDEX idx_codigo_favorecido (codigo_favorecido, data_emissao, valor)
 );
+
+
+ALTER TABLE empenhos 
+ADD CONSTRAINT check_cnpj_nao_vazio 
+CHECK (LENGTH(TRIM(codigo_favorecido)) > 0 AND codigo_favorecido NOT LIKE '%*%');

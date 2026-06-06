@@ -186,7 +186,7 @@ def gerar_campos(schema: dict) -> str:
     for i in range(total):
         if i in mapa:
             info = mapa[i]
-            if info["tipo"] in ["data", "valor", "substitui"]:
+            if info["tipo"] in ["data", "valor", "substitui", "cnpj"]:
                 campos.append(f"@{info['coluna']}")
             else:
                 campos.append(info["coluna"])
@@ -211,13 +211,24 @@ def gerar_set(schema: dict) -> str:
             sets.append(
                 f"{col} = CAST(REPLACE(REPLACE(@{col}, '.', ''), ',', '.') AS DECIMAL(15,2))"
             )
-
         elif tipo == "cnpj":
-            sets.append(
-                f"{col} = CASE WHEN @{col} LIKE '%*%' OR CAST(@{col} AS SIGNED) < 0 THEN NULL ELSE @{col} END"
-            )
+                    # 1. Limpeza de caracteres especiais
+                    limpeza = f"REPLACE(REPLACE(REPLACE(@{col}, '.', ''), '-', ''), '/', '')"
+                    # 2. Padronização com 14 dígitos e zeros à esquerda
+                    padronizado = f"LPAD({limpeza}, 14, '0')"
+                    
+                    # 3. Lógica de descarte: se tem asterisco ou é vazio, retorna NULL
+                    # Como a coluna aceita NULL (ou o trigger barrou antes), o banco entende o formato
+                    sets.append(
+                        f"{col} = CASE "
+                        f"WHEN @{col} LIKE '%*%' OR TRIM(@{col}) = '' THEN NULL "
+                        f"ELSE {padronizado} "
+                        f"END"
+                    )
 
     if not sets: return ""
 
-    return "SET " + ", ".join(sets)
+    result = "SET " + ", ".join(sets)
+    print(result)
+    return result
 
