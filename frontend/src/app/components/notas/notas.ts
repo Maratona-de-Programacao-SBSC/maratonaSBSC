@@ -1,5 +1,4 @@
-import { Component, Input } from '@angular/core';
-
+import { Component, Input, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
 import { ApiService } from '../../services/api';
 
 @Component({
@@ -9,27 +8,44 @@ import { ApiService } from '../../services/api';
   templateUrl: './notas.html',
   styleUrl: './notas.scss'
 })
-export class NotasComponent {
+export class NotasComponent implements OnChanges {
 
   private _cnpj = '';
 
-  @Input() set cnpj(value: string) {
-    if (!value) return;
-    this._cnpj = value;
-    this.carregarNotas();
-  }
+  @Input() cnpj = '';
 
   notas: any[] = [];
   modalAberto = false;
   itens: any[] = [];
   notaSelecionada: any = null;
 
-  constructor(private api: ApiService) {}
+  constructor(
+    private api: ApiService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['cnpj']) {
+      const novo = changes['cnpj'].currentValue;
+      if (novo && novo !== this._cnpj) {
+        this._cnpj = novo;
+        this.notas = [];
+        this.fechar();
+        this.carregarNotas();
+      } else if (!novo) {
+        // cnpj virou '' — limpa sem recarregar
+        this.notas = [];
+        this.fechar();
+        this.cdr.detectChanges();
+      }
+    }
+  }
 
   carregarNotas() {
     this.api.buscarNotas(this._cnpj)
       .subscribe((res: any) => {
         this.notas = res;
+        this.cdr.detectChanges();
       });
   }
 
@@ -37,11 +53,13 @@ export class NotasComponent {
     this.notaSelecionada = registro.nota;
     this.itens = registro.itens;
     this.modalAberto = true;
+    this.cdr.detectChanges();
   }
 
   fechar() {
     this.modalAberto = false;
     this.itens = [];
     this.notaSelecionada = null;
+    this.cdr.detectChanges();
   }
 }

@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -19,26 +19,49 @@ export class ConsultasComponent {
 
   cnpj = '';
   resultado: any = null;
-  loading = false;
+  empresa: any = null; 
+  loadingDespesas = false;
   aba: 'despesas' | 'notas' | 'outros' = 'despesas';
 
-  constructor(private api: ApiService) {}
+  constructor(
+    private api: ApiService,
+    private zone: NgZone,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   pesquisar() {
     this.cnpj = this.inputCnpj.nativeElement.value.trim();
     if (!this.cnpj) return;
 
-    this.loading = true;
     this.aba = 'despesas';
+    this.resultado = null;
+    this.empresa = null;
+    this.loadingDespesas = true;
+    this.cdr.detectChanges();
 
     this.api.buscarDespesas(this.cnpj).subscribe({
       next: (res) => {
-        this.resultado = res;
-        this.loading = false;
+        this.zone.run(() => {
+          this.resultado = res;
+          this.loadingDespesas = false;
+          this.cdr.detectChanges();
+        });
       },
       error: (err) => {
-        console.error('ERRO', err);
-        this.loading = false;
+        this.zone.run(() => {
+          console.error('ERRO', err);
+          this.loadingDespesas = false;
+          this.cdr.detectChanges();
+        });
+      }
+    });
+
+    this.api.buscarInformacoes(this.cnpj).subscribe({
+      next: (res) => {
+        this.zone.run(() => {
+          this.empresa = res;
+          this.cdr.detectChanges();
+        });
       }
     });
   }

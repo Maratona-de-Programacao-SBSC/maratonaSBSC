@@ -111,3 +111,25 @@
     }
   }
 }
+.empresa-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+
+  .empresa-nome {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .empresa-cnpj {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+}

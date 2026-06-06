@@ -12,11 +12,18 @@
     <button (click)="pesquisar()">Pesquisar</button>
   </div>
 
-  @if (loading) {
+  @if (loadingDespesas) {
     <div class="loading">Carregando...</div>
   }
 
-  <div [style.display]="resultado ? 'block' : 'none'">
+  @if (!loadingDespesas && resultado) {
+
+    @if (empresa) {
+      <div class="empresa-header">
+        <span class="empresa-nome">{{ empresa.razao_social }}</span>
+        <span class="empresa-cnpj">{{ cnpj }}</span>
+      </div>
+    }
 
     <div class="tabs">
       <button (click)="aba = 'despesas'">Despesas</button>
@@ -30,7 +37,7 @@
     </app-despesas>
 
     <app-notas
-      [cnpj]="cnpj"
+      [cnpj]="aba === 'notas' ? cnpj : ''"
       [style.display]="aba === 'notas' ? 'block' : 'none'">
     </app-notas>
 
@@ -38,5 +45,5 @@
       <p>Outros dados aqui</p>
     </div>
 
-  </div>
+  }
 </div>
