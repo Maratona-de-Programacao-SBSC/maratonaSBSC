@@ -26,6 +26,7 @@ def _nova_conexao():
         cursorclass=MySQLdb.cursors.DictCursor
     )
 
+
 def busca_sql(query, params=None):
     conn = _nova_conexao()
     try:
@@ -117,6 +118,7 @@ def atualizar_campos_via_csv(path, table_nome, chave_primaria, chave_primaria_cs
                         pass
                     valores.append(valor)
                 dados_para_atualizar.append(tuple(valores + [valor_chave]))
+
 
     if dados_para_atualizar:
         cursor.executemany(query, dados_para_atualizar)

@@ -44,22 +44,7 @@ def shutdown_event():
 
 """
 
-
-<<<<<<< HEAD
-from services.importacoes import portal_transparencia
+from services.testes_fraude import teste_sede_fantasma
 
 
-
-portal_transparencia.importar_pagamentos_csv("20250305","20250608", multithreading=True)
-portal_transparencia.importar_liquidacoes_csv("20250305","20250608", multithreading=True)
-portal_transparencia.importar_empenhos_csv("20250305","20250608", multithreading=True)
-portal_transparencia.importar_notas_fiscais_csv("20250305","20250608", multithreading=True)
-portal_transparencia.importar_itens_notas_fiscais_csv("20250305","20250608", multithreading=True)
-portal_transparencia.importar_informacoes_cnpj_csv(multithreading=True)
-
-
-=======
-@app.on_event("shutdown")
-def shutdown_event():
-    database.fechar_threads()
->>>>>>> 1a39e5aafc8d52670c9d5fc1519b04992978fc58
+teste_sede_fantasma.executar_teste()

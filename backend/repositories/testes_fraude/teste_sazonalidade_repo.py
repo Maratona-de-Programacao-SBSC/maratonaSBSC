@@ -21,18 +21,3 @@ def busca_sazonalidade_suspeita() -> list:
     cursor.execute(query)
     return cursor.fetchall()
 
-def salva_falha(cnpj: str):
-    query = """
-        INSERT INTO avaliacao_cnpjs (
-            cnpj, teste_sazonalidade_dezembro, score_automatico, score_total, data_ultima_auditoria
-        ) VALUES (
-            %(cnpj)s, 1, 1, 1, CURRENT_DATE()
-        )
-        ON DUPLICATE KEY UPDATE
-            teste_sazonalidade_dezembro = 1,
-            score_automatico = score_automatico + 1,
-            score_total = score_total + 1,
-            data_ultima_auditoria = CURRENT_DATE()
-    """
-    cursor.execute(query, {"cnpj": cnpj})
-    db.commit()

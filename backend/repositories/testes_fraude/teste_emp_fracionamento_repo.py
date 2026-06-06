@@ -28,18 +28,3 @@ def busca_empenhos_fracionados(ano: int) -> list:
     cursor.execute(query, {'ano': ano})
     return cursor.fetchall()
 
-def salva_falha(cnpj: str):
-    query = """
-        INSERT INTO avaliacao_cnpjs (
-            cnpj, teste_fracionamento_empenho, score_automatico, score_total, data_ultima_auditoria
-        ) VALUES (
-            %(cnpj)s, 1, 1, 1, CURRENT_DATE()
-        )
-        ON DUPLICATE KEY UPDATE
-            teste_fracionamento_empenho = 1,
-            score_automatico = score_automatico + 1,
-            score_total = score_total + 1,
-            data_ultima_auditoria = CURRENT_DATE()
-    """
-    cursor.execute(query, {"cnpj": cnpj})
-    db.commit()

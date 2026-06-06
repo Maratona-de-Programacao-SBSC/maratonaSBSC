@@ -1,4 +1,4 @@
-from repositories.testes_fraude import teste_sede_fantasma_repo
+from repositories.testes_fraude import teste_sede_fantasma_repo, salvar_teste
 
 def executar_teste():
     """
@@ -7,15 +7,12 @@ def executar_teste():
     """
     print("[TESTE SEDE FANTASMA] Mapeando cruzamento de endereços físicos...")
     
-    alvos = teste_sede_fantasma_repo.busca_sedes_compartilhadas()
-    print(f"[TESTE SEDE FANTASMA] {len(alvos)} CNPJs operando em endereços aglomerados.")
+    cnpjs = teste_sede_fantasma_repo.busca_sedes_compartilhadas()
+    print(f"[TESTE SEDE FANTASMA] {len(cnpjs)} CNPJs operando em endereços aglomerados.")
 
-    for alvo in alvos:
-        cnpj = alvo["codigo_favorecido"]
 
-        
-        # Penaliza no banco
-        teste_sede_fantasma_repo.salva_falha(cnpj)
+    print(cnpjs[0])
+    salvar_teste.salvar_falha(cnpjs, "teste_sede_fantasma")
         
 
-    print(f"[TESTE SEDE FANTASMA] Concluído. {len(alvos)} CNPJs classificados como suspeitos.")
+    print(f"[TESTE SEDE FANTASMA] Concluído. {len(cnpjs)} CNPJs classificados como suspeitos.")

@@ -7,11 +7,9 @@ CREATE TABLE IF NOT EXISTS avaliacao_cnpjs (
     teste_idade_empresa TINYINT(1) DEFAULT 0,  -- Antigo Gatekeeper
     -- teste_valores_incompativeis TINYINT(1) DEFAULT 0, (Adicionaremos no futuro)
     -- teste_pagamento_sem_empenho TINYINT(1) DEFAULT 0, (Adicionaremos no futuro)
-    teste_pagamento_fim_de_semana TINYINT(1) DEFAULT 0,
-    teste_pagamento_sem_empenho TINYINT(1) DEFAULT 0,
     teste_fracionamento_empenho TINYINT(1) DEFAULT 0,
     teste_saldo_empenho TINYINT(1) DEFAULT 0,
-    teste_sazonalidade_dezembro TINYINT(1) DEFAULT 0,
+    teste_sazonalidade TINYINT(1) DEFAULT 0,
     teste_sede_fantasma TINYINT(1) DEFAULT 0,
     
     -- ==========================================
@@ -22,7 +20,6 @@ CREATE TABLE IF NOT EXISTS avaliacao_cnpjs (
     score_total INT DEFAULT 0,      -- (score_automatico + votos_cidadaos)
     
     -- ==========================================
-    -- CONTROLE
-    -- ==========================================
+    -- CONTROLEs=================
     data_ultima_auditoria DATE
 );

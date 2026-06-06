@@ -17,23 +17,3 @@ def busca_cnpjs_para_teste() -> list:
     """
     cursor.execute(query)
     return cursor.fetchall()
-
-def salva_falha(cnpj: str):
-    """
-    Salva O CNPJ na tabela de auditoria apenas se ele falhou.
-    Se ele já existir lá (por ter falhado em outro teste), apenas atualiza o score.
-    """
-    query = """
-        INSERT INTO auditoria_cnpjs (
-            cnpj, teste_idade_empresa, score_automatico, score_total, data_ultima_auditoria
-        ) VALUES (
-            %(cnpj)s, 1, 1, 1, CURRENT_DATE()
-        )
-        ON DUPLICATE KEY UPDATE
-            teste_idade_empresa = 1,
-            score_automatico = score_automatico + 1,
-            score_total = score_total + 1,
-            data_ultima_auditoria = CURRENT_DATE()
-    """
-    cursor.execute(query, {"cnpj": cnpj})
-    db.commit()
