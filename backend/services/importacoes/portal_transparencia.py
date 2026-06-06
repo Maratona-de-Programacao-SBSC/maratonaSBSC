@@ -205,30 +205,23 @@ def gerar_set(schema: dict) -> str:
         tipo = info["tipo"]
 
         if tipo == "data":
-            sets.append(f"{col} = STR_TO_DATE(@{col}, '%d/%m/%Y')")
+            sets.append(
+                f"{col} = STR_TO_DATE(@{col}, '%d/%m/%Y')"
+            )
 
         elif tipo == "valor":
             sets.append(
                 f"{col} = CAST(REPLACE(REPLACE(@{col}, '.', ''), ',', '.') AS DECIMAL(15,2))"
             )
         elif tipo == "cnpj":
-                    # 1. Limpeza de caracteres especiais
-                    limpeza = f"REPLACE(REPLACE(REPLACE(@{col}, '.', ''), '-', ''), '/', '')"
-                    # 2. Padronização com 14 dígitos e zeros à esquerda
-                    padronizado = f"LPAD({limpeza}, 14, '0')"
-                    
-                    # 3. Lógica de descarte: se tem asterisco ou é vazio, retorna NULL
-                    # Como a coluna aceita NULL (ou o trigger barrou antes), o banco entende o formato
-                    sets.append(
-                        f"{col} = CASE "
-                        f"WHEN @{col} LIKE '%*%' OR TRIM(@{col}) = '' THEN NULL "
-                        f"ELSE {padronizado} "
-                        f"END"
-                    )
+            limpeza = f"REPLACE(REPLACE(REPLACE(@{col}, '.', ''), '-', ''), '/', '')"
+            sets.append(
+                f"{col} = {limpeza}"
+            )
+        
 
     if not sets: return ""
 
     result = "SET " + ", ".join(sets)
-    print(result)
     return result
 

@@ -14,4 +14,6 @@ CREATE TABLE IF NOT EXISTS liquidacoes (
 
 ALTER TABLE liquidacoes 
 ADD CONSTRAINT check_liquidacoes_cnpj_nao_vazio
-CHECK (LENGTH(TRIM(codigo_favorecido)) > 0 AND codigo_favorecido NOT LIKE '%*%');
+CHECK (LENGTH(TRIM(codigo_favorecido)) > 0 
+        AND codigo_favorecido NOT LIKE '%*%'
+        AND codigo_favorecido REGEXP '^[0-9]{14}$');
