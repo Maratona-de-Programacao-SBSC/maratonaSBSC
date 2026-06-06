@@ -7,7 +7,6 @@ def executar_teste():
     """
     print("[TESTE SALDO GLOBAL] Iniciando análise de teto orçamentário por fornecedor...")
 
-    counter=0
     
     alvos = teste_saldo_emp_repo.busca_cnpjs_com_saldo_estourado()
     print(f"[TESTE SALDO GLOBAL] {len(alvos)} CNPJs com inconsistência de saldo encontrados.")

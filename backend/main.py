@@ -44,7 +44,7 @@ def shutdown_event():
 
 """
 
-from services.testes_fraude import teste_sede_fantasma
+from services.testes_fraude import teste_saldo_empenho
 
 
-teste_sede_fantasma.executar_teste()
+teste_saldo_empenho.executar_teste()
