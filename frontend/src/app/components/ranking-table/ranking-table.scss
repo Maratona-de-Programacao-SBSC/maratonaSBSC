@@ -1,0 +1,93 @@
+.ranking-section {
+  padding: 4rem 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: inherit; /* Vai herdar a fonte principal do Ágoradit (provavelmente Inter ou Roboto) */
+
+  .cabecalho {
+    margin-bottom: 2.5rem;
+    text-align: center;
+    
+    h2 {
+      color: #0f172a; /* Azul escuro igual ao 'Sistema de Transparência...' */
+      margin-bottom: 0.75rem;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    
+    p { 
+      color: #475569; 
+      font-size: 1.1rem;
+    }
+  }
+
+  .card-tabela {
+    background: #ffffff;
+    border-radius: 8px; /* Arredondamento idêntico aos cards dos prints */
+    border: 1px solid #e2e8f0; /* Borda fininha e sutil */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+
+      th, td {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: middle;
+      }
+
+      th {
+        background-color: #f8fafc;
+        color: #334155;
+        font-weight: 600;
+        font-size: 0.95rem;
+        
+        &.center { text-align: center; }
+      }
+
+      tbody tr:hover {
+        background-color: #f1f5f9;
+      }
+
+      .col-posicao {
+        font-weight: 700;
+        color: #0f172a;
+        font-size: 1.2rem;
+        text-align: center;
+        width: 80px;
+      }
+
+      .cnpj {
+        font-family: monospace;
+        color: #64748b;
+        font-size: 0.9rem;
+      }
+
+      .badge {
+        display: inline-block;
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        border-radius: 6px; /* Ajustado para conversar com o visual do site */
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        
+        /* Novas faixas de cores para os níveis 5, 10 e 20 */
+        &.critico { background-color: #fee2e2; color: #991b1b; } /* >= 20 */
+        &.alto { background-color: #ffedd5; color: #9a3412; }    /* 10 a 19 */
+        &.medio { background-color: #fef3c7; color: #92400e; }   /* 5 a 9 */
+        &.baixo { background-color: #f1f5f9; color: #475569; }   /* < 5 */
+      }
+
+      .col-votos {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #0f172a;
+        text-align: center;
+      }
+    }
+  }
+}
