@@ -1,1 +1,113 @@
-<p>infos works!</p>
+@if (loading) {
+  <div class="infos-loading">Buscando dados da empresa...</div>
+}
+
+@if (erro) {
+  <div class="infos-erro">Não foi possível carregar os dados da empresa.</div>
+}
+
+@if (dados) {
+  <div class="infos-card">
+
+    <div class="infos-topo">
+      <div>
+        <h2 class="infos-nome">{{ dados.razao_social }}</h2>
+        @if (dados.nome_fantasia) {
+          <span class="infos-alias">{{ dados.nome_fantasia }}</span>
+        }
+      </div>
+      <div class="infos-badges">
+        <span class="badge" [class.ativa]="dados.descricao_situacao_cadastral === 'ATIVA'">
+          {{ dados.descricao_situacao_cadastral }}
+        </span>
+        @if (dados.opcao_pelo_simples) {
+          <span class="badge simples">Simples Nacional</span>
+        }
+        @if (dados.opcao_pelo_mei) {
+          <span class="badge simples">MEI</span>
+        }
+      </div>
+    </div>
+
+    <div class="infos-grid">
+
+      <div class="infos-item">
+        <label>CNPJ</label>
+        <span>{{ dados.cnpj }}</span>
+      </div>
+
+      <div class="infos-item">
+        <label>Natureza Jurídica</label>
+        <span>{{ dados.natureza_juridica }}</span>
+      </div>
+
+      <div class="infos-item">
+        <label>Porte</label>
+        <span>{{ dados.porte }}</span>
+      </div>
+
+      <div class="infos-item">
+        <label>Fundação</label>
+        <span>{{ dados.data_inicio_atividade }}</span>
+      </div>
+
+      <div class="infos-item">
+        <label>Atividade Principal</label>
+        <span>{{ dados.cnae_fiscal_descricao }}</span>
+      </div>
+
+      <div class="infos-item">
+        <label>Município</label>
+        <span>{{ dados.municipio }} / {{ dados.uf }}</span>
+      </div>
+
+        <div class="infos-item infos-item--full">
+        <label>Endereço</label>
+        <span>
+            {{ dados.descricao_tipo_de_logradouro }} {{ dados.logradouro }}, {{ dados.numero }}
+            @if (dados.complemento) { — {{ dados.complemento }} }
+            — {{ dados.bairro }} — {{ dados.municipio }} / {{ dados.uf }}
+        </span>
+        <iframe
+            class="maps-iframe"
+            [src]="mapUrl"
+            width="100%"
+            height="200"
+            style="border:0;"
+            allowfullscreen
+            loading="lazy">
+        </iframe>
+        </div>
+
+      @if (dados.ddd_telefone_1) {
+        <div class="infos-item">
+          <label>Telefone</label>
+          <span>{{ dados.ddd_telefone_1 }}</span>
+        </div>
+      }
+
+      @if (dados.email) {
+        <div class="infos-item">
+          <label>E-mail</label>
+          <span>{{ dados.email }}</span>
+        </div>
+      }
+
+    </div>
+
+    @if (dados.qsa?.length) {
+      <div class="infos-socios">
+        <h3>Sócios / Diretores</h3>
+        <div class="socios-lista">
+          @for (s of dados.qsa; track s.cnpj_cpf_do_socio) {
+            <div class="socio">
+              <span class="socio-nome">{{ s.nome_socio }}</span>
+              <span class="socio-cargo">{{ s.qualificacao_socio }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+  </div>
+}

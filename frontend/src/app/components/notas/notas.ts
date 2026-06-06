@@ -27,17 +27,14 @@ export class NotasComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['cnpj']) {
       const novo = changes['cnpj'].currentValue;
+
       if (novo && novo !== this._cnpj) {
         this._cnpj = novo;
         this.notas = [];
         this.fechar();
         this.carregarNotas();
-      } else if (!novo) {
-        // cnpj virou '' — limpa sem recarregar
-        this.notas = [];
-        this.fechar();
-        this.cdr.detectChanges();
       }
+      // se vier '' (saiu da aba) — não faz nada, mantém os dados
     }
   }
 

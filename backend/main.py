@@ -7,6 +7,7 @@ from fastapi import FastAPI
 
 from routes.dados_router import router as dados_router
 from routes.importacao_router import router as importacao_router
+from routes.avaliacao_router import router as avaliacao_router
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -26,6 +27,7 @@ app.add_middleware(
 
 app.include_router(importacao_router)
 app.include_router(dados_router)
+app.include_router(avaliacao_router)
 
 """
 

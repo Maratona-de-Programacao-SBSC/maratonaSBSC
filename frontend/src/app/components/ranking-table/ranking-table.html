@@ -1,8 +1,12 @@
 <div class="ranking-section">
   <div class="cabecalho">
-    <h2>Top 10 Alertas da Comunidade</h2>
+    <h2>Top 5 Alertas da Comunidade</h2>
     <p>Os CNPJs com maior número de apontamentos de irregularidades pela população.</p>
   </div>
+
+  @if (loading) {
+    <div class="loading">Carregando...</div>
+  }
 
   <div class="card-tabela">
     <table>
@@ -15,33 +19,29 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let item of top10; let i = index">
-          <td class="col-posicao">
-            {{ i + 1 }}º
-          </td>
-          <td>
-            <strong>{{ item.razao_social }}</strong><br>
-            <span class="cnpj">{{ item.cnpj }}</span>
-          </td>
-          <td>
-            <span class="badge" 
-                  [ngClass]="{
-                    'critico': item.votos_cidadaos >= 20, 
-                    'alto': item.votos_cidadaos >= 10 && item.votos_cidadaos < 20, 
-                    'medio': item.votos_cidadaos >= 5 && item.votos_cidadaos < 10, 
-                    'baixo': item.votos_cidadaos < 5
-                  }">
-              {{ 
-                item.votos_cidadaos >= 20 ? 'Crítico' : 
-                (item.votos_cidadaos >= 10 ? 'Alto' : 
-                (item.votos_cidadaos >= 5 ? 'Atenção' : 'Observação')) 
-              }}
-            </span>
-          </td>
-          <td class="col-votos">
-            {{ item.votos_cidadaos }}
-          </td>
-        </tr>
+        @for (item of top5; track item.cnpj; let i = $index) {
+          <tr class="linha" (click)="irParaDashboard(item.cnpj)">
+            <td class="col-posicao">{{ i + 1 }}º</td>
+            <td>
+              <strong>{{ item.razao_social }}</strong><br>
+              <span class="cnpj">{{ item.cnpj }}</span>
+            </td>
+            <td>
+              <span class="badge"
+                [class.critico]="item.votos_cidadaos >= 20"
+                [class.alto]="item.votos_cidadaos >= 10 && item.votos_cidadaos < 20"
+                [class.medio]="item.votos_cidadaos >= 5 && item.votos_cidadaos < 10"
+                [class.baixo]="item.votos_cidadaos < 5">
+                {{
+                  item.votos_cidadaos >= 20 ? 'Crítico' :
+                  (item.votos_cidadaos >= 10 ? 'Alto' :
+                  (item.votos_cidadaos >= 5 ? 'Atenção' : 'Observação'))
+                }}
+              </span>
+            </td>
+            <td class="col-votos">{{ item.votos_cidadaos }}</td>
+          </tr>
+        }
       </tbody>
     </table>
   </div>

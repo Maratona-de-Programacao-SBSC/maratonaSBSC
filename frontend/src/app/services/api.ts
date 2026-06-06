@@ -1,5 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -7,25 +9,74 @@ import { HttpClient } from '@angular/common/http';
 export class ApiService {
 
   private http = inject(HttpClient);
-
   private readonly api = 'http://localhost:8000';
 
-  buscarInformacoes(cnpj: string) {
-    return this.http.get(
-      `${this.api}/cnpj/informacoes/${cnpj}`
+  private cacheDespesas  = new Map<string, any>();
+  private cacheNotas     = new Map<string, any>();
+  private cacheEmpresas  = new Map<string, any>();
+
+  buscarInformacoes(cnpj: string): Observable<any> {
+    if (this.cacheEmpresas.has(cnpj)) {
+      return of(this.cacheEmpresas.get(cnpj));
+    }
+    return this.http.get(`${this.api}/cnpj/informacoes/${cnpj}`).pipe(
+      tap(res => this.cacheEmpresas.set(cnpj, res))
     );
   }
 
-  buscarDespesas(cnpj: string) {
-    return this.http.get(
-      `${this.api}/cnpj/despesas/${cnpj}`
+  buscarDespesas(cnpj: string): Observable<any> {
+    if (this.cacheDespesas.has(cnpj)) {
+      return of(this.cacheDespesas.get(cnpj));
+    }
+    return this.http.get(`${this.api}/cnpj/despesas/${cnpj}`).pipe(
+      tap(res => this.cacheDespesas.set(cnpj, res))
     );
   }
 
-  buscarNotas(cnpj: string) {
-    return this.http.get(
-      `${this.api}/cnpj/notas/${cnpj}`
+  buscarNotas(cnpj: string): Observable<any> {
+    if (this.cacheNotas.has(cnpj)) {
+      return of(this.cacheNotas.get(cnpj));
+    }
+    return this.http.get(`${this.api}/cnpj/notas/${cnpj}`).pipe(
+      tap(res => this.cacheNotas.set(cnpj, res))
     );
   }
 
+  buscarInfosExternas(cnpj: string): Observable<any> {
+    const salvo = localStorage.getItem(`brasilapi_${cnpj}`);
+    if (salvo) {
+      return of(JSON.parse(salvo));
+    }
+    return this.http.get(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`).pipe(
+      tap(res => localStorage.setItem(`brasilapi_${cnpj}`, JSON.stringify(res)))
+    );
+  }
+
+  temInfosExternas(cnpj: string): boolean {
+    return localStorage.getItem(`brasilapi_${cnpj}`) !== null;
+  }
+
+  getNomeCache(cnpj: string): string | null {
+    const salvo = localStorage.getItem(`brasilapi_${cnpj}`);
+    if (!salvo) return null;
+    return JSON.parse(salvo)?.razao_social ?? null;
+  }
+
+  buscarAvaliacao(cnpj: string): Observable<any> {
+    return this.http.get(`${this.api}/avaliacao/${cnpj}`);
+  }
+
+  votar(cnpj: string): Observable<any> {
+    return this.http.post(`${this.api}/avaliacao/${cnpj}/votar`, {});
+  }
+
+  buscarRanking(): Observable<any> {
+    return this.http.get(`${this.api}/avaliacao/ranking?limit=10`);
+  }
+
+  limparCache() {
+    this.cacheDespesas.clear();
+    this.cacheNotas.clear();
+    this.cacheEmpresas.clear();
+  }
 }

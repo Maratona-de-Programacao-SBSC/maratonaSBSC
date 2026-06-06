@@ -1,0 +1,18 @@
+<div class="voto-card">
+  <span class="voto-label">Denúncias de suspeita</span>
+  <span class="voto-count">{{ votos }}</span>
+
+  <button
+    class="voto-btn"
+    [class.votado]="jaVotou"
+    [disabled]="jaVotou || loading"
+    (click)="votar()">
+    @if (loading) {
+      Enviando...
+    } @else if (jaVotou) {
+      ✓ Denunciado
+    } @else {
+      ⚑ Denunciar
+    }
+  </button>
+</div>

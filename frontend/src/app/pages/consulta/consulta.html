@@ -18,17 +18,13 @@
 
   @if (!loadingDespesas && resultado) {
 
-    @if (empresa) {
-      <div class="empresa-header">
-        <span class="empresa-nome">{{ empresa.razao_social }}</span>
-        <span class="empresa-cnpj">{{ cnpj }}</span>
-      </div>
-    }
-
+    <div class="infos-voto-row">
+      <app-infos [cnpj]="cnpj" />
+      <app-voto  [cnpj]="cnpj" />
+    </div>
     <div class="tabs">
       <button (click)="aba = 'despesas'">Despesas</button>
       <button (click)="aba = 'notas'">Notas</button>
-      <button (click)="aba = 'outros'">Outros</button>
     </div>
 
     <app-despesas

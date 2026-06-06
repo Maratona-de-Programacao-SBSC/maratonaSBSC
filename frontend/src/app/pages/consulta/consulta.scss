@@ -133,3 +133,21 @@
     color: var(--color-text-muted);
   }
 }
+.infos-voto-row {
+  display: flex;
+  gap: var(--space-md);
+  align-items: stretch;
+  margin-bottom: var(--space-lg);
+
+  app-infos {
+    flex: 1;
+    min-width: 0;
+    display: block;
+  }
+
+  app-voto {
+    display: flex;
+    flex-shrink: 0;
+    width: 160px;
+  }
+}
