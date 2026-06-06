@@ -98,32 +98,59 @@ def atualizar_campos_via_csv(path, table_nome, chave_primaria, chave_primaria_cs
     colunas_bd  = list(kwargs.keys())
     colunas_csv = list(kwargs.values())
 
-    set_clause        = ", ".join([f"{col} = %s" for col in colunas_bd])
-    null_clause_list  = [f"({col} IS NULL OR {col} = 0)" for col in colunas_bd]
-    null_clause       = " AND ".join(null_clause_list)
-    query = f"UPDATE {table_nome} SET {set_clause} WHERE {chave_primaria} = %s AND {null_clause}"
-
-    dados_para_atualizar = []
+    dados = []
     with open(path, mode='r', encoding='latin1') as f:
         reader = csv.DictReader(f, delimiter=';')
         for linha in reader:
             valor_chave = linha.get(chave_primaria_csv)
-            if valor_chave:
-                valores = []
-                for coluna in colunas_csv:
-                    valor = linha.get(coluna)
-                    try:
-                        valor = Decimal(valor.replace('.', '').replace(',', '.'))
-                    except (InvalidOperation, AttributeError):
-                        pass
-                    valores.append(valor)
-                dados_para_atualizar.append(tuple(valores + [valor_chave]))
+            if not valor_chave:
+                continue
+            valores = [valor_chave]
+            for coluna in colunas_csv:
+                valor = linha.get(coluna)
+                try:
+                    valor = Decimal(valor.replace('.', '').replace(',', '.'))
+                except (InvalidOperation, AttributeError):
+                    pass
+                valores.append(valor)
+            dados.append(tuple(valores))
 
-
-    if dados_para_atualizar:
-        cursor.executemany(query, dados_para_atualizar)
-        db.commit()
+    if not dados:
         os.remove(path)
+        return
+
+    todas_colunas = [chave_primaria] + colunas_bd
+    placeholders  = ", ".join(["%s"] * len(todas_colunas))
+    set_clause    = ", ".join([f"t.{col} = tmp.{col}" for col in colunas_bd])
+    null_clause   = " AND ".join([f"(t.{col} IS NULL OR t.{col} = 0)" for col in colunas_bd])
+
+    cursor.execute("DROP TEMPORARY TABLE IF EXISTS tmp_update")
+    cursor.execute(f"""
+        CREATE TEMPORARY TABLE tmp_update (
+            {chave_primaria} VARCHAR(64) NOT NULL,
+            {", ".join([f"{col} DECIMAL(15,2)" for col in colunas_bd])}
+        )
+    """)
+
+    insert_sql = f"INSERT INTO tmp_update ({', '.join(todas_colunas)}) VALUES ({placeholders})"
+    try:
+        cursor.executemany(insert_sql, dados)
+    except MySQLdb.OperationalError:
+        for i in range(0, len(dados), 1000):
+            cursor.executemany(insert_sql, dados[i:i + 1000])
+
+    cursor.execute(f"ALTER TABLE tmp_update ADD INDEX idx_chave ({chave_primaria})")
+
+    cursor.execute(f"""
+        UPDATE {table_nome} t
+        JOIN tmp_update tmp ON t.{chave_primaria} = tmp.{chave_primaria}
+        SET {set_clause}
+        WHERE {null_clause}
+    """)
+
+    db.commit()
+    os.remove(path)
+
 
 
 

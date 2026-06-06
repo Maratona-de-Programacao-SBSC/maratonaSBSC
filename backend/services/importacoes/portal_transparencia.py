@@ -31,11 +31,27 @@ def gerar_datas(data_inicio, data_fim):
 def gerar_meses(data_inicio, data_fim):
     atual = datetime.strptime(data_inicio, "%Y%m%d").date()
     fim   = datetime.strptime(data_fim,    "%Y%m%d").date()
-    meses = []
     while atual <= fim:
-        meses.append(atual.strftime("%Y%m%d"))
+        yield atual.strftime("%Y%m%d")
         atual += relativedelta(months=1)
-    return meses
+
+
+def gerar_anos_intervalos(data_inicio, data_fim):
+    atual = datetime.strptime(data_inicio, "%Y%m%d").date()
+    fim   = datetime.strptime(data_fim,    "%Y%m%d").date()
+    while atual <= fim:
+        proximo = min(atual + relativedelta(years=1) - relativedelta(days=1), fim)
+        yield atual.strftime("%Y%m%d"), proximo.strftime("%Y%m%d")
+        atual += relativedelta(years=1)
+
+    
+def gerar_meses_intervalos(data_inicio, data_fim):
+    atual = datetime.strptime(data_inicio, "%Y%m%d").date()
+    fim   = datetime.strptime(data_fim,    "%Y%m%d").date()
+    while atual <= fim:
+        proximo = min(atual + relativedelta(months=1) - relativedelta(days=1), fim)
+        yield atual.strftime("%Y%m%d"), proximo.strftime("%Y%m%d")
+        atual += relativedelta(months=1)
 
 
 def importar_pagamentos_csv(data_inicio: str, data_fim: str, multithreading: bool) -> None:
@@ -56,11 +72,12 @@ def importar_pagamentos_csv(data_inicio: str, data_fim: str, multithreading: boo
     
     datas = gerar_datas(data_inicio, data_fim)
 
-    with ThreadPoolExecutor(max_workers=3) as pool:
-        paths = [p for ps in pool.map(baixar, datas) for p in ps]
-
-    for path in paths:
-        database.salvar_csv(path, table_nome, campos, set)
+    for mes_inicio, mes_fim in gerar_meses_intervalos(data_inicio, data_fim):
+        datas = gerar_datas(mes_inicio, mes_fim)
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            paths = [p for ps in pool.map(baixar, datas) for p in ps]
+        for path in paths:
+            database.salvar_csv(path, table_nome, campos, set)
         
 
 
@@ -73,35 +90,32 @@ def importar_liquidacoes_csv(data_inicio: str, data_fim: str, multithreading: bo
     if not multithreading:
         for path in portal_transparencia.baixar_csv_path(data_inicio, data_fim, Documento.LIQUIDACOES):
             database.salvar_csv(path, table_nome1, campos, set)
-
         for path in portal_transparencia.baixar_csv_path(data_inicio, data_fim, Documento.LIQUIDACAO_EMPENHOS):
             database.atualizar_campos_via_csv(path, table_nome=table_nome2, chave_primaria="codigo_liquidacao", chave_primaria_csv="Código Liquidação", valor="Valor Liquidado (R$)")
-
         return
-
 
     def baixar(data_str):
         paths = list(portal_transparencia.baixar_csv_path(data_str, data_str, Documento.LIQUIDACOES))
         time.sleep(0.5)
         return paths
 
-    with ThreadPoolExecutor(max_workers=3) as pool:
-        paths = [p for ps in pool.map(baixar, gerar_datas(data_inicio, data_fim)) for p in ps]
-
-    for path in paths:
-        database.salvar_csv(path, table_nome1, campos, set)
-
     def baixar_empenhos(data_str):
         paths = list(portal_transparencia.baixar_csv_path(data_str, data_str, Documento.LIQUIDACAO_EMPENHOS))
         time.sleep(0.5)
         return paths
 
-    with ThreadPoolExecutor(max_workers=3) as pool:
-        paths = [p for ps in pool.map(baixar_empenhos, gerar_datas(data_inicio, data_fim)) for p in ps]
+    for mes_inicio, mes_fim in gerar_meses_intervalos(data_inicio, data_fim):
+        datas = gerar_datas(mes_inicio, mes_fim)
 
-    for path in paths:
-        database.atualizar_campos_via_csv(path, table_nome=table_nome2, chave_primaria="codigo_liquidacao", chave_primaria_csv="Código Liquidação", valor="Valor Liquidado (R$)")
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            paths = [p for ps in pool.map(baixar, datas) for p in ps]
+        for path in paths:
+            database.salvar_csv(path, table_nome1, campos, set)
 
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            paths = [p for ps in pool.map(baixar_empenhos, datas) for p in ps]
+        for path in paths:
+            database.atualizar_campos_via_csv(path, table_nome=table_nome2, chave_primaria="codigo_liquidacao", chave_primaria_csv="Código Liquidação", valor="Valor Liquidado (R$)")
 
 def importar_empenhos_csv(data_inicio: str, data_fim: str, multithreading: bool) -> None:
     campos = gerar_campos(PORTAL_TRANSPARENCIA_EMPENHOS_SCHEMA)
@@ -118,11 +132,12 @@ def importar_empenhos_csv(data_inicio: str, data_fim: str, multithreading: bool)
         time.sleep(0.5)
         return path
 
-    with ThreadPoolExecutor(max_workers=3) as pool:
-        paths = [p for ps in pool.map(baixar, gerar_datas(data_inicio, data_fim)) for p in ps]
-
-    for path in paths:
-        database.salvar_csv(path, table_nome, campos, set)
+    for mes_inicio, mes_fim in gerar_meses_intervalos(data_inicio, data_fim):
+        datas = gerar_datas(mes_inicio, mes_fim)
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            paths = [p for ps in pool.map(baixar, datas) for p in ps]
+        for path in paths:
+            database.salvar_csv(path, table_nome, campos, set)
 
 
 def importar_notas_fiscais_csv(data_inicio: str, data_fim: str, multithreading: bool) -> None:
@@ -140,11 +155,12 @@ def importar_notas_fiscais_csv(data_inicio: str, data_fim: str, multithreading: 
         time.sleep(0.5)
         return path
 
-    with ThreadPoolExecutor(max_workers=3) as pool:
-        paths = [p for ps in pool.map(baixar, gerar_meses(data_inicio, data_fim)) for p in ps]
-
-    for path in paths:
-        database.salvar_csv(path, table_nome, campos, set)
+    for ano_inicio, ano_fim in gerar_anos_intervalos(data_inicio, data_fim):
+        meses = list(gerar_meses(ano_inicio, ano_fim))
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            paths = [p for ps in pool.map(baixar, meses) for p in ps]
+        for path in paths:
+            database.salvar_csv(path, table_nome, campos, set)
 
 
 def importar_itens_notas_fiscais_csv(data_inicio: str, data_fim: str, multithreading: bool) -> None:
@@ -162,11 +178,12 @@ def importar_itens_notas_fiscais_csv(data_inicio: str, data_fim: str, multithrea
         time.sleep(0.5)
         return path
 
-    with ThreadPoolExecutor(max_workers=3) as pool:
-        paths = [p for ps in pool.map(baixar, gerar_meses(data_inicio, data_fim)) for p in ps]
-
-    for path in paths:
-        database.salvar_csv(path, table_nome, campos, set)
+    for ano_inicio, ano_fim in gerar_anos_intervalos(data_inicio, data_fim):
+        meses = list(gerar_meses(ano_inicio, ano_fim))
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            paths = [p for ps in pool.map(baixar, meses) for p in ps]
+        for path in paths:
+            database.salvar_csv(path, table_nome, campos, set)
 
 
 def importar_informacoes_cnpj_csv(multithreading: bool) -> None:
