@@ -47,5 +47,5 @@ def shutdown_event():
 from services.testes_fraude import teste_saldo_empenho
 from services.importacoes import portal_transparencia
 
-portal_transparencia.importar_pagamentos_csv("20250103","20250106", multithreading=True)
+#portal_transparencia.importar_pagamentos_csv("20250103","20250106", multithreading=True)
 #teste_saldo_empenho.executar_teste()

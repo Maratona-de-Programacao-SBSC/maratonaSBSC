@@ -16,5 +16,5 @@ CREATE TABLE IF NOT EXISTS empenhos (
 
 
 ALTER TABLE empenhos 
-ADD CONSTRAINT check_cnpj_nao_vazio 
+ADD CONSTRAINT check_empenhos_cnpj_nao_vazio
 CHECK (LENGTH(TRIM(codigo_favorecido)) > 0 AND codigo_favorecido NOT LIKE '%*%');

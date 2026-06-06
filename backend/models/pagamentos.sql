@@ -16,5 +16,5 @@ CREATE TABLE IF NOT EXISTS pagamentos (
 
 
 ALTER TABLE pagamentos 
-ADD CONSTRAINT check_cnpj_nao_vazio 
+ADD CONSTRAINT check_pagamentos_cnpj_nao_vazio
 CHECK (LENGTH(TRIM(codigo_favorecido)) > 0 AND codigo_favorecido NOT LIKE '%*%');

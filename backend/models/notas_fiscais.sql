@@ -18,5 +18,5 @@ CREATE TABLE IF NOT EXISTS notas_fiscais (
 );
 
 ALTER TABLE notas_fiscais 
-ADD CONSTRAINT check_cnpj_nao_vazio 
+ADD CONSTRAINT check_notas_fiscais_cnpj_nao_vazio
 CHECK (LENGTH(TRIM(codigo_favorecido)) > 0 AND codigo_favorecido NOT LIKE '%*%');
