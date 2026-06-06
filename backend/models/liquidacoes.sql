@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS liquidacoes (
     data_emissao DATE,
     codigo_orgao INTEGER,
     codigo_unidade_gestora INTEGER,
-    codigo_favorecido VARCHAR(14),
+    codigo_favorecido VARCHAR(14) NOT NULL,
     favorecido VARCHAR(200),
     observacao VARCHAR(200),
     codigo_elemento_despesa VARCHAR(10),

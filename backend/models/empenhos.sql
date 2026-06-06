@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS empenhos (
     tipo_empenho VARCHAR(50),
     codigo_orgao INTEGER,
     codigo_unidade_gestora INTEGER,
-    codigo_favorecido VARCHAR(14),
+    codigo_favorecido VARCHAR(14) NOT NULL,
     favorecido VARCHAR(200),
     observacao TEXT,
     elemento_despesa VARCHAR(20),

@@ -49,6 +49,11 @@ from services.importacoes import portal_transparencia
 
 
 
+portal_transparencia.importar_pagamentos_csv("20250305","20250608", multithreading=True)
+portal_transparencia.importar_liquidacoes_csv("20250305","20250608", multithreading=True)
+portal_transparencia.importar_empenhos_csv("20250305","20250608", multithreading=True)
+portal_transparencia.importar_notas_fiscais_csv("20250305","20250608", multithreading=True)
+portal_transparencia.importar_itens_notas_fiscais_csv("20250305","20250608", multithreading=True)
+portal_transparencia.importar_informacoes_cnpj_csv(multithreading=True)
 
 
-database.fechar_threads()

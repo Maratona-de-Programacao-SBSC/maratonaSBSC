@@ -25,7 +25,7 @@ PORTAL_TRANSPARENCIA_EMPENHOS_SCHEMA = {
         6:  {"coluna": "tipo_empenho",            "tipo": "direto"}, # "Tipo Empenho"
         10: {"coluna": "codigo_orgao",            "tipo": "direto"}, # "Código Órgão"
         12: {"coluna": "codigo_unidade_gestora",  "tipo": "direto"}, # "Código Unidade Gestora"
-        16: {"coluna": "codigo_favorecido",       "tipo": "direto"}, # "Código Favorecido"
+        16: {"coluna": "codigo_favorecido",       "tipo": "cnpj"}, # "Código Favorecido"
         17: {"coluna": "favorecido",              "tipo": "direto"}, # "Favorecido"
         18: {"coluna": "observacao",              "tipo": "direto"}, # "Observação"
         52: {"coluna": "elemento_despesa",        "tipo": "direto"}, # "Elemento de Despesa" (Índice 52)

@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS notas_fiscais (
     chave_acesso VARCHAR(44) PRIMARY KEY,
     data_emissao DATE,
-    codigo_favorecido VARCHAR(14),
+    codigo_favorecido VARCHAR(14) NOT NULL,
     razao_social_emitente VARCHAR(200),
     uf_emitente CHAR(2),
     municipio_emitente VARCHAR(100),

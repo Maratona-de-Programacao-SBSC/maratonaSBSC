@@ -27,7 +27,7 @@ PORTAL_TRANSPARENCIA_PAGAMENTOS_SCHEMA = {
         10: {"coluna": "orgao",                     "tipo": "direto"},
         11: {"coluna": "codigo_unidade_gestora",    "tipo": "direto"},
         12: {"coluna": "unidade_gestora",           "tipo": "direto"},
-        15: {"coluna": "codigo_favorecido",         "tipo": "direto"},
+        15: {"coluna": "codigo_favorecido",         "tipo": "cnpj"},
         16: {"coluna": "favorecido",                "tipo": "direto"},
         17: {"coluna": "observacao",                "tipo": "direto"},
         18: {"coluna": "processo",                  "tipo": "direto"},
