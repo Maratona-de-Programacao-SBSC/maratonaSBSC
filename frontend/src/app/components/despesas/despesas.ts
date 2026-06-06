@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -8,9 +8,17 @@ import { CommonModule } from '@angular/common';
   templateUrl: './despesas.html',
   styleUrls: ['./despesas.scss']
 })
-export class DespesasComponent {
+export class DespesasComponent implements OnChanges {
 
   @Input() resultado: any;
+
+  constructor(private cdr: ChangeDetectorRef) {}
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['resultado']) {
+      this.cdr.detectChanges();
+    }
+  }
 
   get totalEmpenhado(): number {
     return (this.resultado?.empenhos || [])
