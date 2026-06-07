@@ -3,8 +3,8 @@ services:
     image: mysql:8.4
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: senha
-      MYSQL_DATABASE: gammes
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE}
     volumes:
       - mysql_data:/var/lib/mysql
       - ./uploads:/uploads
