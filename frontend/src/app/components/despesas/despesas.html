@@ -14,9 +14,9 @@
 </div>
 
 <div class="secao">
-  <h2>Empenhos</h2>
+  <h2>Empenhos ({{ resumo?.empenhos?.total || 0 }})</h2>
   <div class="tabela-wrap">
-    @if (resultado?.empenhos?.length) {
+    @if (empenhos.length) {
       <table>
         <thead>
           <tr>
@@ -29,7 +29,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (e of paginar(resultado.empenhos, paginaEmpenhos); track e.codigo_empenho) {
+          @for (e of empenhos; track e.codigo_empenho) {
             <tr class="linha" (click)="abrirModal(e, 'empenho')">
               <td>{{ e.codigo_empenho }}</td>
               <td>{{ e.data_emissao }}</td>
@@ -42,9 +42,9 @@
         </tbody>
       </table>
       <div class="paginacao">
-        <button [disabled]="paginaEmpenhos === 0" (click)="paginaEmpenhos = paginaEmpenhos - 1">‹</button>
-        <span>{{ paginaEmpenhos + 1 }} / {{ totalPaginas(resultado.empenhos) }}</span>
-        <button [disabled]="paginaEmpenhos >= totalPaginas(resultado.empenhos) - 1" (click)="paginaEmpenhos = paginaEmpenhos + 1">›</button>
+        <button [disabled]="paginaEmpenhos === 0" (click)="mudarPaginaEmpenhos(paginaEmpenhos - 1)">‹</button>
+        <span>{{ paginaEmpenhos + 1 }} / {{ totalPaginasEmpenhos }}</span>
+        <button [disabled]="paginaEmpenhos >= totalPaginasEmpenhos - 1" (click)="mudarPaginaEmpenhos(paginaEmpenhos + 1)">›</button>
       </div>
     } @else {
       <p class="vazio">Nenhum empenho encontrado</p>
@@ -53,9 +53,9 @@
 </div>
 
 <div class="secao">
-  <h2>Liquidações</h2>
+  <h2>Liquidações ({{ resumo?.liquidacoes?.total || 0 }})</h2>
   <div class="tabela-wrap">
-    @if (resultado?.liquidacoes?.length) {
+    @if (liquidacoes.length) {
       <table>
         <thead>
           <tr>
@@ -67,7 +67,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (l of paginar(resultado.liquidacoes, paginaLiquidacoes); track l.codigo_liquidacao) {
+          @for (l of liquidacoes; track l.codigo_liquidacao) {
             <tr class="linha" (click)="abrirModal(l, 'liquidacao')">
               <td>{{ l.codigo_liquidacao }}</td>
               <td>{{ l.data_emissao }}</td>
@@ -79,9 +79,9 @@
         </tbody>
       </table>
       <div class="paginacao">
-        <button [disabled]="paginaLiquidacoes === 0" (click)="paginaLiquidacoes = paginaLiquidacoes - 1">‹</button>
-        <span>{{ paginaLiquidacoes + 1 }} / {{ totalPaginas(resultado.liquidacoes) }}</span>
-        <button [disabled]="paginaLiquidacoes >= totalPaginas(resultado.liquidacoes) - 1" (click)="paginaLiquidacoes = paginaLiquidacoes + 1">›</button>
+        <button [disabled]="paginaLiquidacoes === 0" (click)="mudarPaginaLiquidacoes(paginaLiquidacoes - 1)">‹</button>
+        <span>{{ paginaLiquidacoes + 1 }} / {{ totalPaginasLiquidacoes }}</span>
+        <button [disabled]="paginaLiquidacoes >= totalPaginasLiquidacoes - 1" (click)="mudarPaginaLiquidacoes(paginaLiquidacoes + 1)">›</button>
       </div>
     } @else {
       <p class="vazio">Nenhuma liquidação encontrada</p>
@@ -90,9 +90,9 @@
 </div>
 
 <div class="secao">
-  <h2>Pagamentos</h2>
+  <h2>Pagamentos ({{ resumo?.pagamentos?.total || 0 }})</h2>
   <div class="tabela-wrap">
-    @if (resultado?.pagamentos?.length) {
+    @if (pagamentos.length) {
       <table>
         <thead>
           <tr>
@@ -106,7 +106,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (p of paginar(resultado.pagamentos, paginaPagamentos); track p.codigo_pagamento) {
+          @for (p of pagamentos; track p.codigo_pagamento) {
             <tr class="linha" (click)="abrirModal(p, 'pagamento')">
               <td>{{ p.codigo_pagamento }}</td>
               <td>{{ p.data_emissao }}</td>
@@ -120,9 +120,9 @@
         </tbody>
       </table>
       <div class="paginacao">
-        <button [disabled]="paginaPagamentos === 0" (click)="paginaPagamentos = paginaPagamentos - 1">‹</button>
-        <span>{{ paginaPagamentos + 1 }} / {{ totalPaginas(resultado.pagamentos) }}</span>
-        <button [disabled]="paginaPagamentos >= totalPaginas(resultado.pagamentos) - 1" (click)="paginaPagamentos = paginaPagamentos + 1">›</button>
+        <button [disabled]="paginaPagamentos === 0" (click)="mudarPaginaPagamentos(paginaPagamentos - 1)">‹</button>
+        <span>{{ paginaPagamentos + 1 }} / {{ totalPaginasPagamentos }}</span>
+        <button [disabled]="paginaPagamentos >= totalPaginasPagamentos - 1" (click)="mudarPaginaPagamentos(paginaPagamentos + 1)">›</button>
       </div>
     } @else {
       <p class="vazio">Nenhum pagamento encontrado</p>

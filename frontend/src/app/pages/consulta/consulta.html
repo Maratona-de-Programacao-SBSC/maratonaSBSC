@@ -12,23 +12,24 @@
     <button (click)="pesquisar()">Pesquisar</button>
   </div>
 
-  @if (loadingDespesas) {
+  @if (loading) {
     <div class="loading">Carregando...</div>
   }
 
-  @if (!loadingDespesas && resultado) {
+  @if (!loading && cnpj) {
 
     <div class="infos-voto-row">
       <app-infos [cnpj]="cnpj" />
       <app-voto  [cnpj]="cnpj" />
     </div>
+
     <div class="tabs">
       <button (click)="aba = 'despesas'">Despesas</button>
       <button (click)="aba = 'notas'">Notas</button>
     </div>
 
     <app-despesas
-      [resultado]="resultado"
+      [cnpj]="cnpj"
       [style.display]="aba === 'despesas' ? 'block' : 'none'">
     </app-despesas>
 
@@ -36,10 +37,6 @@
       [cnpj]="aba === 'notas' ? cnpj : ''"
       [style.display]="aba === 'notas' ? 'block' : 'none'">
     </app-notas>
-
-    <div [style.display]="aba === 'outros' ? 'block' : 'none'">
-      <p>Outros dados aqui</p>
-    </div>
 
   }
 </div>

@@ -21,9 +21,8 @@ export class ConsultasComponent implements OnInit {
   @ViewChild('inputCnpj') inputCnpj!: ElementRef;
 
   cnpj = '';
-  resultado: any = null;
   empresa: any = null;
-  loadingDespesas = false;
+  loading = false;
   aba: 'despesas' | 'notas' | 'outros' = 'despesas';
 
   constructor(
@@ -51,32 +50,21 @@ export class ConsultasComponent implements OnInit {
 
   pesquisarPorCnpj(cnpj: string) {
     this.aba = 'despesas';
-    this.resultado = null;
     this.empresa = null;
-    this.loadingDespesas = true;
+    this.loading = true;
     this.cdr.detectChanges();
-
-    this.api.buscarDespesas(cnpj).subscribe({
-      next: (res) => {
-        this.zone.run(() => {
-          this.resultado = res;
-          this.loadingDespesas = false;
-          this.cdr.detectChanges();
-        });
-      },
-      error: (err) => {
-        this.zone.run(() => {
-          console.error('ERRO', err);
-          this.loadingDespesas = false;
-          this.cdr.detectChanges();
-        });
-      }
-    });
 
     this.api.buscarInformacoes(cnpj).subscribe({
       next: (res) => {
         this.zone.run(() => {
           this.empresa = res;
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      },
+      error: () => {
+        this.zone.run(() => {
+          this.loading = false;
           this.cdr.detectChanges();
         });
       }

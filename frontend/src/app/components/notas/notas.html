@@ -1,5 +1,5 @@
 <div class="notas-header">
-  <h2>Notas Fiscais ({{ notas.length }})</h2>
+  <h2>Notas Fiscais ({{ total }})</h2>
 </div>
 
 <div class="tabela-wrap">
@@ -16,22 +16,22 @@
         </tr>
       </thead>
       <tbody>
-        @for (n of paginar(notas, paginaNotas); track n.nota.chave_acesso) {
+        @for (n of notas; track n.chave_acesso) {
           <tr (click)="abrirNota(n)" class="linha">
-            <td class="obs">{{ n.nota.chave_acesso }}</td>
-            <td>{{ n.nota.data_emissao }}</td>
-            <td>{{ n.nota.razao_social_emitente }}</td>
-            <td>{{ n.nota.uf_emitente }}</td>
-            <td>{{ n.nota.orgao_destinatario }}</td>
-            <td>R$ {{ n.nota.valor | number:'1.2-2':'pt-BR' }}</td>
+            <td class="obs">{{ n.chave_acesso }}</td>
+            <td>{{ n.data_emissao }}</td>
+            <td>{{ n.razao_social_emitente }}</td>
+            <td>{{ n.uf_emitente }}</td>
+            <td>{{ n.orgao_destinatario }}</td>
+            <td>R$ {{ n.valor | number:'1.2-2':'pt-BR' }}</td>
           </tr>
         }
       </tbody>
     </table>
     <div class="paginacao">
-      <button [disabled]="paginaNotas === 0" (click)="paginaNotas = paginaNotas - 1">‹</button>
-      <span>{{ paginaNotas + 1 }} / {{ totalPaginas() }}</span>
-      <button [disabled]="paginaNotas >= totalPaginas() - 1" (click)="paginaNotas = paginaNotas + 1">›</button>
+      <button [disabled]="pagina === 0" (click)="mudarPagina(pagina - 1)">‹</button>
+      <span>{{ pagina + 1 }} / {{ totalPaginas }}</span>
+      <button [disabled]="pagina >= totalPaginas - 1" (click)="mudarPagina(pagina + 1)">›</button>
     </div>
   } @else {
     <p class="vazio">Nenhuma nota fiscal encontrada</p>
@@ -88,7 +88,9 @@
       </div>
 
       <div class="tabela-wrap">
-        @if (itens.length) {
+        @if (loadingItens) {
+          <p class="vazio">Carregando itens...</p>
+        } @else if (itens.length) {
           <table>
             <thead>
               <tr>

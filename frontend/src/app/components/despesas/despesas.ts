@@ -1,5 +1,6 @@
 import { Component, Input, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ApiService } from '../../services/api';
 
 @Component({
   selector: 'app-despesas',
@@ -10,51 +11,95 @@ import { CommonModule } from '@angular/common';
 })
 export class DespesasComponent implements OnChanges {
 
-  @Input() resultado: any;
+  @Input() cnpj = '';
 
-  modalAberto = false;
-  itemSelecionado: any = null;
-  tipoModal: 'empenho' | 'liquidacao' | 'pagamento' | null = null;
-
-  readonly pageSize = 10;
+  resumo: any = null;
+  empenhos: any[] = [];
+  liquidacoes: any[] = [];
+  pagamentos: any[] = [];
 
   paginaEmpenhos = 0;
   paginaLiquidacoes = 0;
   paginaPagamentos = 0;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  readonly tamanho = 10;
+
+  modalAberto = false;
+  itemSelecionado: any = null;
+  tipoModal: 'empenho' | 'liquidacao' | 'pagamento' | null = null;
+
+  constructor(
+    private api: ApiService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['resultado']) {
+    if (changes['cnpj'] && this.cnpj) {
       this.paginaEmpenhos = 0;
       this.paginaLiquidacoes = 0;
       this.paginaPagamentos = 0;
-      this.cdr.detectChanges();
+      this.carregar();
     }
   }
 
+  carregar() {
+    this.api.buscarResumoDespesas(this.cnpj).subscribe((res: any) => {
+      this.resumo = res;
+      this.cdr.detectChanges();
+    });
+
+    this.carregarEmpenhos();
+    this.carregarLiquidacoes();
+    this.carregarPagamentos();
+  }
+
+  carregarEmpenhos() {
+    this.api.buscarEmpenhos(this.cnpj, this.paginaEmpenhos).subscribe((res: any) => {
+      this.empenhos = res;
+      this.cdr.detectChanges();
+    });
+  }
+
+  carregarLiquidacoes() {
+    this.api.buscarLiquidacoes(this.cnpj, this.paginaLiquidacoes).subscribe((res: any) => {
+      this.liquidacoes = res;
+      this.cdr.detectChanges();
+    });
+  }
+
+  carregarPagamentos() {
+    this.api.buscarPagamentos(this.cnpj, this.paginaPagamentos).subscribe((res: any) => {
+      this.pagamentos = res;
+      this.cdr.detectChanges();
+    });
+  }
+
+  mudarPaginaEmpenhos(p: number) { this.paginaEmpenhos = p; this.carregarEmpenhos(); }
+  mudarPaginaLiquidacoes(p: number) { this.paginaLiquidacoes = p; this.carregarLiquidacoes(); }
+  mudarPaginaPagamentos(p: number) { this.paginaPagamentos = p; this.carregarPagamentos(); }
+
   get totalEmpenhado(): number {
-    return (this.resultado?.empenhos || [])
-      .reduce((soma: number, item: any) => soma + Number(item.valor || 0), 0);
+    return Number(this.resumo?.empenhos?.soma || 0);
   }
 
   get totalLiquidado(): number {
-    return (this.resultado?.liquidacoes || [])
-      .reduce((soma: number, item: any) => soma + Number(item.valor || 0), 0);
+    return Number(this.resumo?.liquidacoes?.soma || 0);
   }
 
   get totalPago(): number {
-    return (this.resultado?.pagamentos || [])
-      .reduce((soma: number, item: any) => soma + Number(item.valor || 0), 0);
+    return Number(this.resumo?.pagamentos?.soma || 0);
   }
 
-  paginar(lista: any[], pagina: number): any[] {
-    const inicio = pagina * this.pageSize;
-    return (lista || []).slice(inicio, inicio + this.pageSize);
+  get totalPaginasEmpenhos(): number {
+    return Math.ceil((this.resumo?.empenhos?.total || 0) / this.tamanho);
   }
 
-  totalPaginas(lista: any[]): number {
-    return Math.ceil((lista || []).length / this.pageSize);
+  get totalPaginasLiquidacoes(): number {
+    return Math.ceil((this.resumo?.liquidacoes?.total || 0) / this.tamanho);
+  }
+
+  get totalPaginasPagamentos(): number {
+    return Math.ceil((this.resumo?.pagamentos?.total || 0) / this.tamanho);
   }
 
   abrirModal(item: any, tipo: 'empenho' | 'liquidacao' | 'pagamento') {

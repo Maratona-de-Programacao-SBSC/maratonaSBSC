@@ -12,16 +12,17 @@ import { ApiService } from '../../services/api';
 export class NotasComponent implements OnChanges {
 
   private _cnpj = '';
-
   @Input() cnpj = '';
 
   notas: any[] = [];
   modalAberto = false;
   itens: any[] = [];
   notaSelecionada: any = null;
+  loadingItens = false;
 
-  readonly pageSize = 10;
-  paginaNotas = 0;
+  pagina = 0;
+  totalPaginas = 0;
+  total = 0;
 
   constructor(
     private api: ApiService,
@@ -33,8 +34,8 @@ export class NotasComponent implements OnChanges {
       const novo = changes['cnpj'].currentValue;
       if (novo && novo !== this._cnpj) {
         this._cnpj = novo;
+        this.pagina = 0;
         this.notas = [];
-        this.paginaNotas = 0;
         this.fechar();
         this.carregarNotas();
       }
@@ -42,33 +43,38 @@ export class NotasComponent implements OnChanges {
   }
 
   carregarNotas() {
-    this.api.buscarNotas(this._cnpj).subscribe((res: any) => {
-      this.notas = res;
-      this.paginaNotas = 0;
+    this.api.buscarNotas(this._cnpj, this.pagina).subscribe((res: any) => {
+      this.notas = res.notas;
+      this.total = res.total;
+      this.totalPaginas = res.total_paginas;
       this.cdr.detectChanges();
     });
   }
 
-  paginar(lista: any[], pagina: number): any[] {
-    const inicio = pagina * this.pageSize;
-    return (lista || []).slice(inicio, inicio + this.pageSize);
+  mudarPagina(pagina: number) {
+    this.pagina = pagina;
+    this.carregarNotas();
   }
 
-  totalPaginas(): number {
-    return Math.ceil(this.notas.length / this.pageSize);
-  }
-
-  abrirNota(registro: any) {
-    this.notaSelecionada = registro.nota;
-    this.itens = registro.itens;
+  abrirNota(nota: any) {
+    this.notaSelecionada = nota;
+    this.itens = [];
+    this.loadingItens = true;
     this.modalAberto = true;
     this.cdr.detectChanges();
+
+    this.api.buscarItensNota(this._cnpj, nota.chave_acesso).subscribe((res: any) => {
+      this.itens = res;
+      this.loadingItens = false;
+      this.cdr.detectChanges();
+    });
   }
 
   fechar() {
     this.modalAberto = false;
     this.itens = [];
     this.notaSelecionada = null;
+    this.loadingItens = false;
     this.cdr.detectChanges();
   }
 }

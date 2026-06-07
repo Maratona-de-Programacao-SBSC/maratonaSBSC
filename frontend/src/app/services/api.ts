@@ -33,12 +33,23 @@ export class ApiService {
     );
   }
 
-  buscarNotas(cnpj: string): Observable<any> {
-    if (this.cacheNotas.has(cnpj)) {
-      return of(this.cacheNotas.get(cnpj));
+  buscarNotas(cnpj: string, pagina: number = 0): Observable<any> {
+    const key = `${cnpj}_p${pagina}`;
+    if (this.cacheNotas.has(key)) {
+      return of(this.cacheNotas.get(key));
     }
-    return this.http.get(`${this.api}/cnpj/notas/${cnpj}`).pipe(
-      tap(res => this.cacheNotas.set(cnpj, res))
+    return this.http.get(`${this.api}/cnpj/notas/${cnpj}?pagina=${pagina}&tamanho=10`).pipe(
+      tap(res => this.cacheNotas.set(key, res))
+    );
+  }
+
+  buscarItensNota(cnpj: string, chave: string): Observable<any> {
+    const key = `itens_${chave}`;
+    if (this.cacheNotas.has(key)) {
+      return of(this.cacheNotas.get(key));
+    }
+    return this.http.get(`${this.api}/cnpj/notas/${cnpj}/itens/${chave}`).pipe(
+      tap(res => this.cacheNotas.set(key, res))
     );
   }
 
@@ -71,9 +82,47 @@ export class ApiService {
   }
 
   buscarRanking(): Observable<any> {
-    return this.http.get(`${this.api}/avaliacao/ranking?limit=10`);
+      return this.http.get(`${this.api}/avaliacao/ranking?limit=5`);
+    }
+  buscarResumoDespesas(cnpj: string): Observable<any> {
+    const key = `resumo_${cnpj}`;
+    if (this.cacheDespesas.has(key)) {
+      return of(this.cacheDespesas.get(key));
+    }
+    return this.http.get(`${this.api}/cnpj/despesas/${cnpj}/resumo`).pipe(
+      tap(res => this.cacheDespesas.set(key, res))
+    );
   }
 
+  buscarEmpenhos(cnpj: string, pagina: number = 0): Observable<any> {
+    const key = `emp_${cnpj}_p${pagina}`;
+    if (this.cacheDespesas.has(key)) {
+      return of(this.cacheDespesas.get(key));
+    }
+    return this.http.get(`${this.api}/cnpj/despesas/${cnpj}/empenhos?pagina=${pagina}&tamanho=10`).pipe(
+      tap(res => this.cacheDespesas.set(key, res))
+    );
+  }
+
+  buscarLiquidacoes(cnpj: string, pagina: number = 0): Observable<any> {
+    const key = `liq_${cnpj}_p${pagina}`;
+    if (this.cacheDespesas.has(key)) {
+      return of(this.cacheDespesas.get(key));
+    }
+    return this.http.get(`${this.api}/cnpj/despesas/${cnpj}/liquidacoes?pagina=${pagina}&tamanho=10`).pipe(
+      tap(res => this.cacheDespesas.set(key, res))
+    );
+  }
+
+  buscarPagamentos(cnpj: string, pagina: number = 0): Observable<any> {
+    const key = `pag_${cnpj}_p${pagina}`;
+    if (this.cacheDespesas.has(key)) {
+      return of(this.cacheDespesas.get(key));
+    }
+    return this.http.get(`${this.api}/cnpj/despesas/${cnpj}/pagamentos?pagina=${pagina}&tamanho=10`).pipe(
+      tap(res => this.cacheDespesas.set(key, res))
+    );
+  }
   limparCache() {
     this.cacheDespesas.clear();
     this.cacheNotas.clear();
