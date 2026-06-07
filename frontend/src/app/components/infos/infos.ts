@@ -17,6 +17,7 @@ export class InfosComponent implements OnChanges {
   dados: any = null;
   loading = false;
   erro = false;
+  mapUrl: SafeResourceUrl | null = null;
 
   constructor(
     private api: ApiService,
@@ -34,10 +35,12 @@ export class InfosComponent implements OnChanges {
     this.loading = true;
     this.erro = false;
     this.dados = null;
+    this.mapUrl = null;
 
     this.api.buscarInfosExternas(this.cnpj).subscribe({
       next: (res) => {
         this.dados = res;
+        this.mapUrl = this.gerarMapUrl(res);
         this.loading = false;
         this.cdr.detectChanges();
       },
@@ -49,22 +52,19 @@ export class InfosComponent implements OnChanges {
     });
   }
 
-  get enderecoFormatado(): string {
-    if (!this.dados) return '';
+  private gerarMapUrl(dados: any): SafeResourceUrl {
     const partes = [
-      this.dados.descricao_tipo_de_logradouro,
-      this.dados.logradouro,
-      this.dados.numero,
-      this.dados.bairro,
-      this.dados.municipio,
-      this.dados.uf,
+      dados.descricao_tipo_de_logradouro,
+      dados.logradouro,
+      dados.numero,
+      dados.bairro,
+      dados.municipio,
+      dados.uf,
       'Brasil'
     ].filter(Boolean);
-    return encodeURIComponent(partes.join(' '));
-  }
-
-  get mapUrl(): SafeResourceUrl {
-    const url = `https://maps.google.com/maps?q=${this.enderecoFormatado}&output=embed`;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    const query = encodeURIComponent(partes.join(' '));
+    return this.sanitizer.bypassSecurityTrustResourceUrl(
+      `https://maps.google.com/maps?q=${query}&output=embed`
+    );
   }
 }

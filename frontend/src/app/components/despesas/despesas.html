@@ -1,11 +1,15 @@
 <div class="cards">
   <div class="card">
     <h3>Empenhado</h3>
-    <span>R$ {{ totalEmpenhado | number:'1.2-2' }}</span>
+    <span>R$ {{ totalEmpenhado | number:'1.2-2':'pt-BR' }}</span>
+  </div>
+  <div class="card">
+    <h3>Liquidado</h3>
+    <span>R$ {{ totalLiquidado | number:'1.2-2':'pt-BR' }}</span>
   </div>
   <div class="card">
     <h3>Pago</h3>
-    <span>R$ {{ totalPago | number:'1.2-2' }}</span>
+    <span>R$ {{ totalPago | number:'1.2-2':'pt-BR' }}</span>
   </div>
 </div>
 
@@ -18,19 +22,30 @@
           <tr>
             <th>Código</th>
             <th>Data</th>
+            <th>Tipo</th>
+            <th>Elemento</th>
+            <th>Observação</th>
             <th>Valor</th>
           </tr>
         </thead>
         <tbody>
-          @for (e of resultado.empenhos; track e.codigo_empenho) {
-            <tr>
+          @for (e of paginar(resultado.empenhos, paginaEmpenhos); track e.codigo_empenho) {
+            <tr class="linha" (click)="abrirModal(e, 'empenho')">
               <td>{{ e.codigo_empenho }}</td>
               <td>{{ e.data_emissao }}</td>
-              <td>R$ {{ e.valor | number:'1.2-2' }}</td>
+              <td>{{ e.tipo_empenho }}</td>
+              <td>{{ e.elemento_despesa }}</td>
+              <td class="obs">{{ e.observacao }}</td>
+              <td>R$ {{ e.valor | number:'1.2-2':'pt-BR' }}</td>
             </tr>
           }
         </tbody>
       </table>
+      <div class="paginacao">
+        <button [disabled]="paginaEmpenhos === 0" (click)="paginaEmpenhos = paginaEmpenhos - 1">‹</button>
+        <span>{{ paginaEmpenhos + 1 }} / {{ totalPaginas(resultado.empenhos) }}</span>
+        <button [disabled]="paginaEmpenhos >= totalPaginas(resultado.empenhos) - 1" (click)="paginaEmpenhos = paginaEmpenhos + 1">›</button>
+      </div>
     } @else {
       <p class="vazio">Nenhum empenho encontrado</p>
     }
@@ -46,17 +61,28 @@
           <tr>
             <th>Código</th>
             <th>Data</th>
+            <th>Elemento</th>
+            <th>Observação</th>
+            <th>Valor</th>
           </tr>
         </thead>
         <tbody>
-          @for (l of resultado.liquidacoes; track l.codigo_liquidacao) {
-            <tr>
+          @for (l of paginar(resultado.liquidacoes, paginaLiquidacoes); track l.codigo_liquidacao) {
+            <tr class="linha" (click)="abrirModal(l, 'liquidacao')">
               <td>{{ l.codigo_liquidacao }}</td>
               <td>{{ l.data_emissao }}</td>
+              <td>{{ l.codigo_elemento_despesa }}</td>
+              <td class="obs">{{ l.observacao }}</td>
+              <td>R$ {{ l.valor | number:'1.2-2':'pt-BR' }}</td>
             </tr>
           }
         </tbody>
       </table>
+      <div class="paginacao">
+        <button [disabled]="paginaLiquidacoes === 0" (click)="paginaLiquidacoes = paginaLiquidacoes - 1">‹</button>
+        <span>{{ paginaLiquidacoes + 1 }} / {{ totalPaginas(resultado.liquidacoes) }}</span>
+        <button [disabled]="paginaLiquidacoes >= totalPaginas(resultado.liquidacoes) - 1" (click)="paginaLiquidacoes = paginaLiquidacoes + 1">›</button>
+      </div>
     } @else {
       <p class="vazio">Nenhuma liquidação encontrada</p>
     }
@@ -72,21 +98,163 @@
           <tr>
             <th>Código</th>
             <th>Data</th>
+            <th>Processo</th>
+            <th>Órgão</th>
+            <th>Unidade Gestora</th>
+            <th>Observação</th>
             <th>Valor</th>
           </tr>
         </thead>
         <tbody>
-          @for (p of resultado.pagamentos; track p.codigo_pagamento) {
-            <tr>
+          @for (p of paginar(resultado.pagamentos, paginaPagamentos); track p.codigo_pagamento) {
+            <tr class="linha" (click)="abrirModal(p, 'pagamento')">
               <td>{{ p.codigo_pagamento }}</td>
               <td>{{ p.data_emissao }}</td>
-              <td>R$ {{ p.valor | number:'1.2-2' }}</td>
+              <td>{{ p.processo }}</td>
+              <td>{{ p.orgao }}</td>
+              <td>{{ p.unidade_gestora }}</td>
+              <td class="obs">{{ p.observacao }}</td>
+              <td>R$ {{ p.valor | number:'1.2-2':'pt-BR' }}</td>
             </tr>
           }
         </tbody>
       </table>
+      <div class="paginacao">
+        <button [disabled]="paginaPagamentos === 0" (click)="paginaPagamentos = paginaPagamentos - 1">‹</button>
+        <span>{{ paginaPagamentos + 1 }} / {{ totalPaginas(resultado.pagamentos) }}</span>
+        <button [disabled]="paginaPagamentos >= totalPaginas(resultado.pagamentos) - 1" (click)="paginaPagamentos = paginaPagamentos + 1">›</button>
+      </div>
     } @else {
       <p class="vazio">Nenhum pagamento encontrado</p>
     }
   </div>
 </div>
+
+@if (modalAberto) {
+  <div class="modal-backdrop" (click)="fechar()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3>
+        @if (tipoModal === 'empenho') { Detalhes do Empenho }
+        @if (tipoModal === 'liquidacao') { Detalhes da Liquidação }
+        @if (tipoModal === 'pagamento') { Detalhes do Pagamento }
+      </h3>
+
+      <div class="modal-infos">
+        @if (tipoModal === 'empenho') {
+          <div class="modal-info-item">
+            <label>Código</label>
+            <span>{{ itemSelecionado?.codigo_empenho }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Data</label>
+            <span>{{ itemSelecionado?.data_emissao }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Tipo</label>
+            <span>{{ itemSelecionado?.tipo_empenho }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Elemento de Despesa</label>
+            <span>{{ itemSelecionado?.elemento_despesa }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Código Órgão</label>
+            <span>{{ itemSelecionado?.codigo_orgao }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Unidade Gestora</label>
+            <span>{{ itemSelecionado?.codigo_unidade_gestora }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Favorecido</label>
+            <span>{{ itemSelecionado?.favorecido }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Valor</label>
+            <span>R$ {{ itemSelecionado?.valor | number:'1.2-2':'pt-BR' }}</span>
+          </div>
+          <div class="modal-info-item modal-info-item--full">
+            <label>Observação</label>
+            <span>{{ itemSelecionado?.observacao }}</span>
+          </div>
+        }
+
+        @if (tipoModal === 'liquidacao') {
+          <div class="modal-info-item">
+            <label>Código</label>
+            <span>{{ itemSelecionado?.codigo_liquidacao }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Data</label>
+            <span>{{ itemSelecionado?.data_emissao }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Código Órgão</label>
+            <span>{{ itemSelecionado?.codigo_orgao }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Unidade Gestora</label>
+            <span>{{ itemSelecionado?.codigo_unidade_gestora }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Favorecido</label>
+            <span>{{ itemSelecionado?.favorecido }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Elemento de Despesa</label>
+            <span>{{ itemSelecionado?.codigo_elemento_despesa }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Valor</label>
+            <span>R$ {{ itemSelecionado?.valor | number:'1.2-2':'pt-BR' }}</span>
+          </div>
+          <div class="modal-info-item modal-info-item--full">
+            <label>Observação</label>
+            <span>{{ itemSelecionado?.observacao }}</span>
+          </div>
+        }
+
+        @if (tipoModal === 'pagamento') {
+          <div class="modal-info-item">
+            <label>Código</label>
+            <span>{{ itemSelecionado?.codigo_pagamento }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Data</label>
+            <span>{{ itemSelecionado?.data_emissao }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Processo</label>
+            <span>{{ itemSelecionado?.processo }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Órgão</label>
+            <span>{{ itemSelecionado?.orgao }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Código Órgão</label>
+            <span>{{ itemSelecionado?.codigo_orgao }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Unidade Gestora</label>
+            <span>{{ itemSelecionado?.unidade_gestora }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Favorecido</label>
+            <span>{{ itemSelecionado?.favorecido }}</span>
+          </div>
+          <div class="modal-info-item">
+            <label>Valor</label>
+            <span>R$ {{ itemSelecionado?.valor | number:'1.2-2':'pt-BR' }}</span>
+          </div>
+          <div class="modal-info-item modal-info-item--full">
+            <label>Observação</label>
+            <span>{{ itemSelecionado?.observacao }}</span>
+          </div>
+        }
+      </div>
+
+      <button (click)="fechar()">Fechar</button>
+    </div>
+  </div>
+}

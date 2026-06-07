@@ -91,3 +91,123 @@ table {
   color: var(--color-text-muted);
   font-size: 0.875rem;
 }
+.obs {
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.linha {
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f5f8ff;
+  }
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: var(--space-md);
+}
+
+.modal {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-xl);
+  width: 100%;
+  max-width: 740px;
+  max-height: 82vh;
+  overflow-y: auto;
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: var(--space-lg);
+  }
+
+  button {
+    margin-top: var(--space-lg);
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: var(--color-primary-hover);
+    }
+  }
+}
+
+.modal-infos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-md);
+}
+
+.modal-info-item {
+  label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-xs);
+  }
+
+  span {
+    font-size: 0.875rem;
+    color: var(--color-text);
+    word-break: break-word;
+  }
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+}.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border-top: 1px solid var(--color-border);
+
+  span {
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+
+  button {
+    padding: var(--space-xs) var(--space-sm);
+    background: none;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    cursor: pointer;
+    color: var(--color-text);
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+      background: #f0f4ff;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+}

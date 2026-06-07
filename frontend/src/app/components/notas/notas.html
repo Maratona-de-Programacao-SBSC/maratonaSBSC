@@ -9,19 +9,30 @@
         <tr>
           <th>Chave</th>
           <th>Data</th>
+          <th>Emitente</th>
+          <th>UF</th>
+          <th>Órgão Destino</th>
           <th>Valor</th>
         </tr>
       </thead>
       <tbody>
-        @for (n of notas; track n.nota.chave_acesso) {
+        @for (n of paginar(notas, paginaNotas); track n.nota.chave_acesso) {
           <tr (click)="abrirNota(n)" class="linha">
-            <td>{{ n.nota.chave_acesso }}</td>
+            <td class="obs">{{ n.nota.chave_acesso }}</td>
             <td>{{ n.nota.data_emissao }}</td>
-            <td>R$ {{ n.nota.valor }}</td>
+            <td>{{ n.nota.razao_social_emitente }}</td>
+            <td>{{ n.nota.uf_emitente }}</td>
+            <td>{{ n.nota.orgao_destinatario }}</td>
+            <td>R$ {{ n.nota.valor | number:'1.2-2':'pt-BR' }}</td>
           </tr>
         }
       </tbody>
     </table>
+    <div class="paginacao">
+      <button [disabled]="paginaNotas === 0" (click)="paginaNotas = paginaNotas - 1">‹</button>
+      <span>{{ paginaNotas + 1 }} / {{ totalPaginas() }}</span>
+      <button [disabled]="paginaNotas >= totalPaginas() - 1" (click)="paginaNotas = paginaNotas + 1">›</button>
+    </div>
   } @else {
     <p class="vazio">Nenhuma nota fiscal encontrada</p>
   }
@@ -30,8 +41,51 @@
 @if (modalAberto) {
   <div class="modal-backdrop" (click)="fechar()">
     <div class="modal" (click)="$event.stopPropagation()">
+
       <h3>Itens da Nota</h3>
-      <p><b>Chave:</b> {{ notaSelecionada?.chave_acesso }}</p>
+
+      <div class="modal-infos">
+        <div class="modal-info-item">
+          <label>Chave</label>
+          <span>{{ notaSelecionada?.chave_acesso }}</span>
+        </div>
+        <div class="modal-info-item">
+          <label>Data</label>
+          <span>{{ notaSelecionada?.data_emissao }}</span>
+        </div>
+        <div class="modal-info-item">
+          <label>Emitente</label>
+          <span>{{ notaSelecionada?.razao_social_emitente }}</span>
+        </div>
+        <div class="modal-info-item">
+          <label>UF Emitente</label>
+          <span>{{ notaSelecionada?.uf_emitente }}</span>
+        </div>
+        <div class="modal-info-item">
+          <label>Município Emitente</label>
+          <span>{{ notaSelecionada?.municipio_emitente }}</span>
+        </div>
+        <div class="modal-info-item">
+          <label>Órgão Destinatário</label>
+          <span>{{ notaSelecionada?.orgao_destinatario }}</span>
+        </div>
+        <div class="modal-info-item">
+          <label>CNPJ Destinatário</label>
+          <span>{{ notaSelecionada?.cnpj_destinatario }}</span>
+        </div>
+        <div class="modal-info-item">
+          <label>Nome Destinatário</label>
+          <span>{{ notaSelecionada?.nome_destinatario }}</span>
+        </div>
+        <div class="modal-info-item">
+          <label>UF Destinatário</label>
+          <span>{{ notaSelecionada?.uf_destinatario }}</span>
+        </div>
+        <div class="modal-info-item">
+          <label>Valor Total</label>
+          <span>R$ {{ notaSelecionada?.valor | number:'1.2-2':'pt-BR' }}</span>
+        </div>
+      </div>
 
       <div class="tabela-wrap">
         @if (itens.length) {
@@ -39,7 +93,11 @@
             <thead>
               <tr>
                 <th>Descrição</th>
+                <th>NCM</th>
+                <th>CFOP</th>
                 <th>Qtd</th>
+                <th>Unidade</th>
+                <th>Valor Unit.</th>
                 <th>Valor</th>
               </tr>
             </thead>
@@ -47,8 +105,12 @@
               @for (i of itens; track i.id) {
                 <tr>
                   <td>{{ i.descricao }}</td>
+                  <td>{{ i.ncm }}</td>
+                  <td>{{ i.cfop }}</td>
                   <td>{{ i.quantidade }}</td>
-                  <td>R$ {{ i.valor }}</td>
+                  <td>{{ i.unidade }}</td>
+                  <td>R$ {{ i.valor_unitario | number:'1.4-4':'pt-BR' }}</td>
+                  <td>R$ {{ i.valor | number:'1.2-2':'pt-BR' }}</td>
                 </tr>
               }
             </tbody>
