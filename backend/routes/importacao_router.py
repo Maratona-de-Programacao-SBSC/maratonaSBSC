@@ -58,5 +58,4 @@ def importar_itens(data_inicio: date, data_fim: date):
 
 @router.post("/finalizar")
 def finalizar():
-    database.fechar_threads()
     return {"status": "fechado"}
