@@ -1,0 +1,61 @@
+<div class="container">
+
+  <div class="item">
+    <button (click)="toggle('empenho')">1. Empenho</button>
+
+    @if (aberto === 'empenho') {
+      <div class="texto">
+        <p>Reserva formal do dinheiro no orçamento para garantir que haverá recurso para pagar uma despesa específica.</p>
+
+        <p><strong>Fracionamento:</strong> Múltiplos empenhos pequenos para o mesmo fornecedor para evitar licitação.</p>
+        <p><strong>Empenho "Fantasma":</strong> Reservas altas para empresas recém-criadas ou sem histórico.</p>
+        <p><strong>Objeto incompatível:</strong> Empresa contratada para serviço estranho ao seu CNAE (atividade econômica).</p>
+        <p><strong>Empenho Genérico:</strong> Descrições vagas (ex: "diversos") para ocultar o objeto real.</p>
+      </div>
+    }
+  </div>
+
+  <div class="item">
+    <button (click)="toggle('liquidacao')">2. Liquidação</button>
+
+    @if (aberto === 'liquidacao') {
+      <div class="texto">
+        <p>Momento em que o governo confirma oficialmente que o produto ou serviço foi entregue.</p>
+
+        <p><strong>Tempo Impossível:</strong> Liquidação realizada minutos ou poucas horas após a emissão do empenho.</p>
+        <p><strong>Atestado Duvidoso:</strong> Liquidação de serviços contínuos sem medição periódica comprovada.</p>
+        <p><strong>Divergência de Objeto:</strong> O que foi liquidado não corresponde ao item descrito no edital ou empenho.</p>
+      </div>
+    }
+  </div>
+
+  <div class="item">
+    <button (click)="toggle('notas')">3. Nota Fiscal e Itens</button>
+
+    @if (aberto === 'notas') {
+      <div class="texto">
+        <p>Documento que detalha o objeto, a quantidade e o preço unitário de cada item entregue para justificar o valor pago.</p>
+
+        <p><strong>Sobrepreço:</strong> Valores unitários acima da média de mercado para itens comuns.</p>
+        <p><strong>Itens "Invisíveis":</strong> Quantidades físicas impossíveis de serem entregues no prazo (ex: toneladas de cimento em um dia).</p>
+        <p><strong>Notas Sequenciais:</strong> Lotes de notas fiscais emitidos na mesma data ou sequência para o mesmo órgão.</p>
+        <p><strong>Descrição Genérica:</strong> Notas com descrição insuficiente, impedindo a verificação do que foi entregue.</p>
+      </div>
+    }
+  </div>
+
+  <div class="item">
+    <button (click)="toggle('pagamento')">4. Pagamento</button>
+
+    @if (aberto === 'pagamento') {
+      <div class="texto">
+        <p>Transferência efetiva do dinheiro público para a conta bancária do fornecedor.</p>
+
+        <p><strong>Sazonalidade Suspeita:</strong> Concentração atípica de pagamentos no final do ano ou vésperas de eleição.</p>
+        <p><strong>Pagamento Antecipado:</strong> Pagamento feito antes da entrega efetiva (salvo casos previstos em lei).</p>
+        <p><strong>Transferência em Lotes:</strong> Pagamentos massivos para um único fornecedor em um curto intervalo.</p>
+      </div>
+    }
+  </div>
+
+</div>
