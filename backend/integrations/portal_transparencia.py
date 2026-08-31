@@ -95,8 +95,9 @@ def _baixar_e_extrair(url: str, nome_csv: str) -> Path | None:
     max_download = _inteiro_ambiente("PORTAL_MAX_DOWNLOAD_BYTES", 2_000_000_000)
     max_csv = _inteiro_ambiente("PORTAL_MAX_CSV_BYTES", 8_000_000_000)
     response = _get(url, stream=True)
-    if response.status_code == 404:
+    if response.status_code in (403, 404):
         logger.warning("Arquivo ainda nao publicado: %s", url)
+        response.close()
         return None
     response.raise_for_status()
 
