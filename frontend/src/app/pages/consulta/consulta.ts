@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -17,7 +24,14 @@ type AbaConsulta = 'despesas' | 'notas';
 @Component({
   selector: 'app-consultas',
   standalone: true,
-  imports: [CommonModule, FormsModule, DespesasComponent, NotasComponent, InfosComponent, VotoComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    DespesasComponent,
+    NotasComponent,
+    InfosComponent,
+    VotoComponent,
+  ],
   templateUrl: './consulta.html',
   styleUrls: ['./consulta.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

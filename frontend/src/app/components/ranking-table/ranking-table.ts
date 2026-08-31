@@ -18,7 +18,9 @@ export class RankingTableComponent implements OnInit {
   readonly ranking = signal<CnpjSuspeito[]>([]);
   readonly loading = signal(false);
   readonly erro = signal('');
-  readonly maiorVotacao = computed(() => Math.max(...this.ranking().map((item) => item.votos_cidadaos), 1));
+  readonly maiorVotacao = computed(() =>
+    Math.max(...this.ranking().map((item) => item.votos_cidadaos), 1),
+  );
 
   constructor(private readonly api: ApiService) {}
 
@@ -29,10 +31,16 @@ export class RankingTableComponent implements OnInit {
   carregar(): void {
     this.loading.set(true);
     this.erro.set('');
-    this.api.buscarRanking(10).pipe(finalize(() => this.loading.set(false))).subscribe({
-      next: (ranking) => this.ranking.set(ranking),
-      error: (error) => this.erro.set(this.api.mensagemErro(error, 'Não foi possível carregar os alertas da comunidade.')),
-    });
+    this.api
+      .buscarRanking(10)
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (ranking) => this.ranking.set(ranking),
+        error: (error) =>
+          this.erro.set(
+            this.api.mensagemErro(error, 'Não foi possível carregar os alertas da comunidade.'),
+          ),
+      });
   }
 
   nivel(votos: number): NivelAlerta {

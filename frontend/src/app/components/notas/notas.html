@@ -1,63 +1,188 @@
 <section class="notes" aria-labelledby="notes-title">
   <header class="section-heading">
-    <div><span class="section-kicker">Documentos fiscais</span><h3 id="notes-title">Notas fiscais vinculadas</h3></div>
+    <div>
+      <span class="section-kicker">Documentos fiscais</span>
+      <h3 id="notes-title">Notas fiscais vinculadas</h3>
+    </div>
     <span class="record-count">{{ total() }} no total</span>
   </header>
 
   <div class="records-panel">
     @if (erro()) {
-      <div class="table-state table-state--error" role="alert"><p>{{ erro() }}</p><button type="button" (click)="carregarNotas()">Tentar novamente</button></div>
+      <div class="table-state table-state--error" role="alert">
+        <p>{{ erro() }}</p>
+        <button type="button" (click)="carregarNotas()">Tentar novamente</button>
+      </div>
     } @else if (loading()) {
-      <div class="table-state" aria-live="polite"><span class="spinner"></span><p>Carregando notas fiscais...</p></div>
+      <div class="table-state" aria-live="polite">
+        <span class="spinner"></span>
+        <p>Carregando notas fiscais...</p>
+      </div>
     } @else if (notas().length) {
-      <div class="table-scroll" tabindex="0" aria-label="Tabela de notas fiscais com rolagem horizontal">
+      <div
+        class="table-scroll"
+        tabindex="0"
+        aria-label="Tabela de notas fiscais com rolagem horizontal"
+      >
         <table>
-          <thead><tr><th>Chave de acesso</th><th>Data</th><th>Emitente</th><th>UF</th><th>Órgão de destino</th><th class="numeric">Valor</th><th><span class="sr-only">Ações</span></th></tr></thead>
+          <thead>
+            <tr>
+              <th>Chave de acesso</th>
+              <th>Data</th>
+              <th>Emitente</th>
+              <th>UF</th>
+              <th>Órgão de destino</th>
+              <th class="numeric">Valor</th>
+              <th><span class="sr-only">Ações</span></th>
+            </tr>
+          </thead>
           <tbody>
             @for (nota of notas(); track nota.chave_acesso) {
-              <tr><td class="code">{{ nota.chave_acesso }}</td><td>{{ nota.data_emissao | date:'dd/MM/yyyy' }}</td><td>{{ nota.razao_social_emitente || 'Não informado' }}</td><td>{{ nota.uf_emitente || '—' }}</td><td class="truncate" [title]="nota.orgao_destinatario || ''">{{ nota.orgao_destinatario || 'Não informado' }}</td><td class="numeric value">{{ +nota.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td><td><button type="button" class="details" (click)="abrirNota(nota)" aria-label="Ver detalhes e itens da nota fiscal">Detalhes</button></td></tr>
+              <tr>
+                <td class="code">{{ nota.chave_acesso }}</td>
+                <td>{{ nota.data_emissao | date: 'dd/MM/yyyy' }}</td>
+                <td>{{ nota.razao_social_emitente || 'Não informado' }}</td>
+                <td>{{ nota.uf_emitente || '—' }}</td>
+                <td class="truncate" [title]="nota.orgao_destinatario || ''">
+                  {{ nota.orgao_destinatario || 'Não informado' }}
+                </td>
+                <td class="numeric value">
+                  {{ +nota.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    class="details"
+                    (click)="abrirNota(nota)"
+                    aria-label="Ver detalhes e itens da nota fiscal"
+                  >
+                    Detalhes
+                  </button>
+                </td>
+              </tr>
             }
           </tbody>
         </table>
       </div>
-      <app-pagination [pagina]="pagina()" [totalPaginas]="totalPaginas()" (paginaChange)="mudarPagina($event)" />
+      <app-pagination
+        [pagina]="pagina()"
+        [totalPaginas]="totalPaginas()"
+        (paginaChange)="mudarPagina($event)"
+      />
     } @else {
-      <div class="table-state"><span class="empty-icon" aria-hidden="true">—</span><p>Nenhuma nota fiscal foi encontrada para este CNPJ.</p></div>
+      <div class="table-state">
+        <span class="empty-icon" aria-hidden="true">—</span>
+        <p>Nenhuma nota fiscal foi encontrada para este CNPJ.</p>
+      </div>
     }
   </div>
 </section>
 
 @if (modalAberto() && notaSelecionada(); as nota) {
   <div class="modal-backdrop" (click)="fechar()">
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="nota-modal-title" (click)="$event.stopPropagation()">
+    <section
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="nota-modal-title"
+      (click)="$event.stopPropagation()"
+    >
       <header class="modal-header">
-        <div><span class="section-kicker">Documento fiscal</span><h3 id="nota-modal-title">Detalhes da nota</h3></div>
-        <button type="button" class="close" (click)="fechar()" aria-label="Fechar detalhes">×</button>
+        <div>
+          <span class="section-kicker">Documento fiscal</span>
+          <h3 id="nota-modal-title">Detalhes da nota</h3>
+        </div>
+        <button type="button" class="close" (click)="fechar()" aria-label="Fechar detalhes">
+          ×
+        </button>
       </header>
 
       <dl class="modal-grid">
-        <div class="full"><dt>Chave de acesso</dt><dd class="code-value">{{ nota.chave_acesso }}</dd></div>
-        <div><dt>Data de emissão</dt><dd>{{ nota.data_emissao | date:'dd/MM/yyyy' }}</dd></div>
-        <div><dt>Emitente</dt><dd>{{ nota.razao_social_emitente || 'Não informado' }}</dd></div>
-        <div><dt>Origem</dt><dd>{{ nota.municipio_emitente || 'Não informado' }} @if (nota.uf_emitente) { / {{ nota.uf_emitente }} }</dd></div>
-        <div><dt>Órgão destinatário</dt><dd>{{ nota.orgao_destinatario || 'Não informado' }}</dd></div>
-        <div><dt>Destinatário</dt><dd>{{ nota.nome_destinatario || 'Não informado' }}</dd></div>
-        <div class="highlight"><dt>Valor total</dt><dd>{{ +nota.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</dd></div>
+        <div class="full">
+          <dt>Chave de acesso</dt>
+          <dd class="code-value">{{ nota.chave_acesso }}</dd>
+        </div>
+        <div>
+          <dt>Data de emissão</dt>
+          <dd>{{ nota.data_emissao | date: 'dd/MM/yyyy' }}</dd>
+        </div>
+        <div>
+          <dt>Emitente</dt>
+          <dd>{{ nota.razao_social_emitente || 'Não informado' }}</dd>
+        </div>
+        <div>
+          <dt>Origem</dt>
+          <dd>
+            {{ nota.municipio_emitente || 'Não informado' }}
+            @if (nota.uf_emitente) {
+              / {{ nota.uf_emitente }}
+            }
+          </dd>
+        </div>
+        <div>
+          <dt>Órgão destinatário</dt>
+          <dd>{{ nota.orgao_destinatario || 'Não informado' }}</dd>
+        </div>
+        <div>
+          <dt>Destinatário</dt>
+          <dd>{{ nota.nome_destinatario || 'Não informado' }}</dd>
+        </div>
+        <div class="highlight">
+          <dt>Valor total</dt>
+          <dd>{{ +nota.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+        </div>
       </dl>
 
       <div class="items-section">
-        <div class="items-heading"><div><span class="section-kicker">Composição</span><h4>Itens da nota</h4></div>@if (!loadingItens()) { <span>{{ itens().length }} itens</span> }</div>
+        <div class="items-heading">
+          <div>
+            <span class="section-kicker">Composição</span>
+            <h4>Itens da nota</h4>
+          </div>
+          @if (!loadingItens()) {
+            <span>{{ itens().length }} itens</span>
+          }
+        </div>
         @if (loadingItens()) {
-          <div class="table-state"><span class="spinner"></span><p>Carregando itens...</p></div>
+          <div class="table-state">
+            <span class="spinner"></span>
+            <p>Carregando itens...</p>
+          </div>
         } @else if (erroItens()) {
-          <div class="table-state table-state--error"><p>{{ erroItens() }}</p></div>
+          <div class="table-state table-state--error">
+            <p>{{ erroItens() }}</p>
+          </div>
         } @else if (itens().length) {
           <div class="table-scroll" tabindex="0" aria-label="Itens da nota com rolagem horizontal">
             <table class="items-table">
-              <thead><tr><th>Descrição</th><th>NCM</th><th>CFOP</th><th class="numeric">Quantidade</th><th>Unidade</th><th class="numeric">Valor unitário</th><th class="numeric">Valor total</th></tr></thead>
+              <thead>
+                <tr>
+                  <th>Descrição</th>
+                  <th>NCM</th>
+                  <th>CFOP</th>
+                  <th class="numeric">Quantidade</th>
+                  <th>Unidade</th>
+                  <th class="numeric">Valor unitário</th>
+                  <th class="numeric">Valor total</th>
+                </tr>
+              </thead>
               <tbody>
                 @for (item of itens(); track item.numero_produto) {
-                  <tr><td>{{ item.descricao || 'Não informado' }}</td><td>{{ item.codigo_ncm || item.ncm || '—' }}</td><td>{{ item.cfop || '—' }}</td><td class="numeric">{{ item.quantidade || 0 | number:'1.0-4':'pt-BR' }}</td><td>{{ item.unidade || '—' }}</td><td class="numeric">{{ +(item.valor_unitario || 0) | currency:'BRL':'symbol':'1.2-4':'pt-BR' }}</td><td class="numeric value">{{ +(item.valor || 0) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td></tr>
+                  <tr>
+                    <td>{{ item.descricao || 'Não informado' }}</td>
+                    <td>{{ item.codigo_ncm || item.ncm || '—' }}</td>
+                    <td>{{ item.cfop || '—' }}</td>
+                    <td class="numeric">{{ item.quantidade || 0 | number: '1.0-4' : 'pt-BR' }}</td>
+                    <td>{{ item.unidade || '—' }}</td>
+                    <td class="numeric">
+                      {{
+                        +(item.valor_unitario || 0) | currency: 'BRL' : 'symbol' : '1.2-4' : 'pt-BR'
+                      }}
+                    </td>
+                    <td class="numeric value">
+                      {{ +(item.valor || 0) | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+                    </td>
+                  </tr>
                 }
               </tbody>
             </table>

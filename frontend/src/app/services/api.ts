@@ -52,15 +52,27 @@ export class ApiService {
   }
 
   buscarEmpenhos(cnpj: string, pagina = 0): Observable<Empenho[]> {
-    return this.buscarPagina<Empenho>(`empenhos:${cnpj}`, `${this.api}/cnpj/despesas/${cnpj}/empenhos`, pagina);
+    return this.buscarPagina<Empenho>(
+      `empenhos:${cnpj}`,
+      `${this.api}/cnpj/despesas/${cnpj}/empenhos`,
+      pagina,
+    );
   }
 
   buscarLiquidacoes(cnpj: string, pagina = 0): Observable<Liquidacao[]> {
-    return this.buscarPagina<Liquidacao>(`liquidacoes:${cnpj}`, `${this.api}/cnpj/despesas/${cnpj}/liquidacoes`, pagina);
+    return this.buscarPagina<Liquidacao>(
+      `liquidacoes:${cnpj}`,
+      `${this.api}/cnpj/despesas/${cnpj}/liquidacoes`,
+      pagina,
+    );
   }
 
   buscarPagamentos(cnpj: string, pagina = 0): Observable<Pagamento[]> {
-    return this.buscarPagina<Pagamento>(`pagamentos:${cnpj}`, `${this.api}/cnpj/despesas/${cnpj}/pagamentos`, pagina);
+    return this.buscarPagina<Pagamento>(
+      `pagamentos:${cnpj}`,
+      `${this.api}/cnpj/despesas/${cnpj}/pagamentos`,
+      pagina,
+    );
   }
 
   buscarNotas(cnpj: string, pagina = 0): Observable<PaginaNotas> {
@@ -103,10 +115,12 @@ export class ApiService {
 
   mensagemErro(error: unknown, fallback = 'Não foi possível concluir a solicitação.'): string {
     if (!(error instanceof HttpErrorResponse)) return fallback;
-    if (error.status === 0) return 'Não foi possível conectar ao serviço. Tente novamente em instantes.';
+    if (error.status === 0)
+      return 'Não foi possível conectar ao serviço. Tente novamente em instantes.';
     if (error.status === 404) return 'Nenhum registro foi encontrado para este CNPJ.';
     if (error.status === 422) return 'Confira os dados informados e tente novamente.';
-    if (error.status >= 500) return 'O serviço está temporariamente indisponível. Tente novamente mais tarde.';
+    if (error.status >= 500)
+      return 'O serviço está temporariamente indisponível. Tente novamente mais tarde.';
     return fallback;
   }
 

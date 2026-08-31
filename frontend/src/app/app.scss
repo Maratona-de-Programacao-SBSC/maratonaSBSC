@@ -4,7 +4,9 @@
   flex-direction: column;
 }
 
-main { flex: 1; }
+main {
+  flex: 1;
+}
 
 .skip-link {
   position: fixed;
@@ -21,4 +23,6 @@ main { flex: 1; }
   transition: transform 0.2s ease;
 }
 
-.skip-link:focus { transform: translateY(0); }
+.skip-link:focus {
+  transform: translateY(0);
+}

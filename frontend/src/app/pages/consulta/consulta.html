@@ -22,10 +22,15 @@
             (ngModelChange)="atualizarEntrada($event)"
             placeholder="00.000.000/0000-00"
             aria-describedby="cnpj-ajuda cnpj-erro"
-            [attr.aria-invalid]="erro() ? true : null">
+            [attr.aria-invalid]="erro() ? true : null"
+          />
         </div>
         <button type="submit" [disabled]="loading()">
-          @if (loading()) { <span class="spinner" aria-hidden="true"></span> Consultando } @else { Consultar CNPJ <span aria-hidden="true">→</span> }
+          @if (loading()) {
+            <span class="spinner" aria-hidden="true"></span> Consultando
+          } @else {
+            Consultar CNPJ <span aria-hidden="true">→</span>
+          }
         </button>
       </div>
       <div class="search-meta">
@@ -38,7 +43,10 @@
       @if (erro()) {
         <div class="error-state" id="cnpj-erro" role="alert">
           <span aria-hidden="true">!</span>
-          <div><strong>Não foi possível concluir a consulta</strong><p>{{ erro() }}</p></div>
+          <div>
+            <strong>Não foi possível concluir a consulta</strong>
+            <p>{{ erro() }}</p>
+          </div>
           <button type="button" (click)="tentarNovamente()">Tentar novamente</button>
         </div>
       }
@@ -49,12 +57,31 @@
         <div class="guide-copy">
           <span class="guide-index">Como começar</span>
           <h2>Tenha o CNPJ em mãos.</h2>
-          <p>Você encontra o número em notas fiscais, contratos, portais públicos ou documentos da empresa.</p>
+          <p>
+            Você encontra o número em notas fiscais, contratos, portais públicos ou documentos da
+            empresa.
+          </p>
         </div>
         <ul>
-          <li><span>1</span><div><strong>Digite o CNPJ</strong><small>A pontuação é aplicada automaticamente.</small></div></li>
-          <li><span>2</span><div><strong>Confira o cadastro</strong><small>Valide razão social, situação e endereço.</small></div></li>
-          <li><span>3</span><div><strong>Explore os registros</strong><small>Compare despesas, notas e alertas.</small></div></li>
+          <li>
+            <span>1</span>
+            <div>
+              <strong>Digite o CNPJ</strong><small>A pontuação é aplicada automaticamente.</small>
+            </div>
+          </li>
+          <li>
+            <span>2</span>
+            <div>
+              <strong>Confira o cadastro</strong
+              ><small>Valide razão social, situação e endereço.</small>
+            </div>
+          </li>
+          <li>
+            <span>3</span>
+            <div>
+              <strong>Explore os registros</strong><small>Compare despesas, notas e alertas.</small>
+            </div>
+          </li>
         </ul>
       </div>
     }
@@ -76,19 +103,47 @@
         </div>
 
         <div class="tabs" role="tablist" aria-label="Registros do fornecedor">
-          <button type="button" role="tab" id="tab-despesas" [attr.aria-selected]="aba() === 'despesas'" aria-controls="painel-despesas" [class.active]="aba() === 'despesas'" (click)="selecionarAba('despesas')">
+          <button
+            type="button"
+            role="tab"
+            id="tab-despesas"
+            [attr.aria-selected]="aba() === 'despesas'"
+            aria-controls="painel-despesas"
+            [class.active]="aba() === 'despesas'"
+            (click)="selecionarAba('despesas')"
+          >
             Despesas públicas
           </button>
-          <button type="button" role="tab" id="tab-notas" [attr.aria-selected]="aba() === 'notas'" aria-controls="painel-notas" [class.active]="aba() === 'notas'" (click)="selecionarAba('notas')">
+          <button
+            type="button"
+            role="tab"
+            id="tab-notas"
+            [attr.aria-selected]="aba() === 'notas'"
+            aria-controls="painel-notas"
+            [class.active]="aba() === 'notas'"
+            (click)="selecionarAba('notas')"
+          >
             Notas fiscais
           </button>
         </div>
 
-        <div id="painel-despesas" role="tabpanel" aria-labelledby="tab-despesas" [hidden]="aba() !== 'despesas'">
+        <div
+          id="painel-despesas"
+          role="tabpanel"
+          aria-labelledby="tab-despesas"
+          [hidden]="aba() !== 'despesas'"
+        >
           <app-despesas [cnpj]="cnpjConsultado()" />
         </div>
-        <div id="painel-notas" role="tabpanel" aria-labelledby="tab-notas" [hidden]="aba() !== 'notas'">
-          @if (aba() === 'notas') { <app-notas [cnpj]="cnpjConsultado()" /> }
+        <div
+          id="painel-notas"
+          role="tabpanel"
+          aria-labelledby="tab-notas"
+          [hidden]="aba() !== 'notas'"
+        >
+          @if (aba() === 'notas') {
+            <app-notas [cnpj]="cnpjConsultado()" />
+          }
         </div>
       </section>
     }

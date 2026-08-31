@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  signal,
+} from '@angular/core';
 import { ApiService } from '../../services/api';
 import { EmpresaBrasilApi } from '../../models/api.models';
 
@@ -54,7 +61,9 @@ export class InfosComponent implements OnChanges {
       dados.municipio,
       dados.uf,
       'Brasil',
-    ].filter(Boolean).join(' ');
+    ]
+      .filter(Boolean)
+      .join(' ');
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
   }
 }

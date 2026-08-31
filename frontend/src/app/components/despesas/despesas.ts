@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, HostListener, Input, OnChanges, SimpleChanges, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  HostListener,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs';
 import { ApiService } from '../../services/api';
@@ -62,12 +70,14 @@ export class DespesasComponent implements OnChanges {
   }
 
   total(tipo: TipoDespesa): number {
-    const chave = tipo === 'empenho' ? 'empenhos' : tipo === 'liquidacao' ? 'liquidacoes' : 'pagamentos';
+    const chave =
+      tipo === 'empenho' ? 'empenhos' : tipo === 'liquidacao' ? 'liquidacoes' : 'pagamentos';
     return this.resumo()?.[chave]?.total ?? 0;
   }
 
   soma(tipo: TipoDespesa): number {
-    const chave = tipo === 'empenho' ? 'empenhos' : tipo === 'liquidacao' ? 'liquidacoes' : 'pagamentos';
+    const chave =
+      tipo === 'empenho' ? 'empenhos' : tipo === 'liquidacao' ? 'liquidacoes' : 'pagamentos';
     return Number(this.resumo()?.[chave]?.soma ?? 0);
   }
 
@@ -127,24 +137,63 @@ export class DespesasComponent implements OnChanges {
 
   private carregarResumo(): void {
     this.carregandoResumo.set(true);
-    this.api.buscarResumoDespesas(this.cnpj).pipe(finalize(() => this.carregandoResumo.set(false))).subscribe({
-      next: (resumo) => this.resumo.set(resumo),
-      error: (error) => this.erro.set(this.api.mensagemErro(error, 'Não foi possível carregar o resumo financeiro.')),
-    });
+    this.api
+      .buscarResumoDespesas(this.cnpj)
+      .pipe(finalize(() => this.carregandoResumo.set(false)))
+      .subscribe({
+        next: (resumo) => this.resumo.set(resumo),
+        error: (error) =>
+          this.erro.set(
+            this.api.mensagemErro(error, 'Não foi possível carregar o resumo financeiro.'),
+          ),
+      });
   }
 
   private carregarTabela(tipo: TipoDespesa): void {
     this.carregandoTabela.set(true);
     this.erro.set('');
-    const pagina = tipo === 'empenho' ? this.paginaEmpenhos() : tipo === 'liquidacao' ? this.paginaLiquidacoes() : this.paginaPagamentos();
-    const falhar = (error: unknown) => this.erro.set(this.api.mensagemErro(error, 'Não foi possível carregar os registros.'));
+    const pagina =
+      tipo === 'empenho'
+        ? this.paginaEmpenhos()
+        : tipo === 'liquidacao'
+          ? this.paginaLiquidacoes()
+          : this.paginaPagamentos();
+    const falhar = (error: unknown) =>
+      this.erro.set(this.api.mensagemErro(error, 'Não foi possível carregar os registros.'));
 
     if (tipo === 'empenho') {
-      this.api.buscarEmpenhos(this.cnpj, pagina).pipe(finalize(() => this.carregandoTabela.set(false))).subscribe({ next: (itens) => { this.empenhos.set(itens); this.carregados.add(tipo); }, error: falhar });
+      this.api
+        .buscarEmpenhos(this.cnpj, pagina)
+        .pipe(finalize(() => this.carregandoTabela.set(false)))
+        .subscribe({
+          next: (itens) => {
+            this.empenhos.set(itens);
+            this.carregados.add(tipo);
+          },
+          error: falhar,
+        });
     } else if (tipo === 'liquidacao') {
-      this.api.buscarLiquidacoes(this.cnpj, pagina).pipe(finalize(() => this.carregandoTabela.set(false))).subscribe({ next: (itens) => { this.liquidacoes.set(itens); this.carregados.add(tipo); }, error: falhar });
+      this.api
+        .buscarLiquidacoes(this.cnpj, pagina)
+        .pipe(finalize(() => this.carregandoTabela.set(false)))
+        .subscribe({
+          next: (itens) => {
+            this.liquidacoes.set(itens);
+            this.carregados.add(tipo);
+          },
+          error: falhar,
+        });
     } else {
-      this.api.buscarPagamentos(this.cnpj, pagina).pipe(finalize(() => this.carregandoTabela.set(false))).subscribe({ next: (itens) => { this.pagamentos.set(itens); this.carregados.add(tipo); }, error: falhar });
+      this.api
+        .buscarPagamentos(this.cnpj, pagina)
+        .pipe(finalize(() => this.carregandoTabela.set(false)))
+        .subscribe({
+          next: (itens) => {
+            this.pagamentos.set(itens);
+            this.carregados.add(tipo);
+          },
+          error: falhar,
+        });
     }
   }
 }

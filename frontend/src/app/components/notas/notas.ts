@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, HostListener, Input, OnChanges, SimpleChanges, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  HostListener,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs';
 import { ApiService } from '../../services/api';
@@ -56,10 +64,16 @@ export class NotasComponent implements OnChanges {
     this.loadingItens.set(true);
     this.modalAberto.set(true);
 
-    this.api.buscarItensNota(this.cnpj, nota.chave_acesso).pipe(finalize(() => this.loadingItens.set(false))).subscribe({
-      next: (itens) => this.itens.set(itens),
-      error: (error) => this.erroItens.set(this.api.mensagemErro(error, 'Não foi possível carregar os itens da nota.')),
-    });
+    this.api
+      .buscarItensNota(this.cnpj, nota.chave_acesso)
+      .pipe(finalize(() => this.loadingItens.set(false)))
+      .subscribe({
+        next: (itens) => this.itens.set(itens),
+        error: (error) =>
+          this.erroItens.set(
+            this.api.mensagemErro(error, 'Não foi possível carregar os itens da nota.'),
+          ),
+      });
   }
 
   fechar(): void {
@@ -72,13 +86,19 @@ export class NotasComponent implements OnChanges {
   carregarNotas(): void {
     this.loading.set(true);
     this.erro.set('');
-    this.api.buscarNotas(this.cnpj, this.pagina()).pipe(finalize(() => this.loading.set(false))).subscribe({
-      next: (resposta) => {
-        this.notas.set(resposta.notas);
-        this.total.set(resposta.total);
-        this.totalPaginas.set(resposta.total_paginas);
-      },
-      error: (error) => this.erro.set(this.api.mensagemErro(error, 'Não foi possível carregar as notas fiscais.')),
-    });
+    this.api
+      .buscarNotas(this.cnpj, this.pagina())
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (resposta) => {
+          this.notas.set(resposta.notas);
+          this.total.set(resposta.total);
+          this.totalPaginas.set(resposta.total_paginas);
+        },
+        error: (error) =>
+          this.erro.set(
+            this.api.mensagemErro(error, 'Não foi possível carregar as notas fiscais.'),
+          ),
+      });
   }
 }

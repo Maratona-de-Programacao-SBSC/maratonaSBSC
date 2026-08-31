@@ -2,14 +2,22 @@
   <div class="infos-card skeleton-card" aria-live="polite" aria-busy="true">
     <span class="sr-only">Buscando dados cadastrais da empresa</span>
     <div class="skeleton skeleton--title"></div>
-    <div class="skeleton-grid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="skeleton-grid">
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+    </div>
   </div>
 }
 
 @if (erro()) {
   <div class="infos-card unavailable" role="status">
     <span aria-hidden="true">i</span>
-    <div><strong>Dados cadastrais complementares indisponíveis</strong><p>Os registros financeiros ainda podem ser consultados abaixo.</p></div>
+    <div>
+      <strong>Dados cadastrais complementares indisponíveis</strong>
+      <p>Os registros financeiros ainda podem ser consultados abaixo.</p>
+    </div>
   </div>
 }
 
@@ -19,38 +27,84 @@
       <div>
         <span class="card-label">Dados cadastrais</span>
         <h3 class="infos-nome">{{ empresa.razao_social }}</h3>
-        @if (empresa.nome_fantasia) { <p class="infos-alias">Nome fantasia: {{ empresa.nome_fantasia }}</p> }
+        @if (empresa.nome_fantasia) {
+          <p class="infos-alias">Nome fantasia: {{ empresa.nome_fantasia }}</p>
+        }
       </div>
       <div class="infos-badges">
-        <span class="badge" [class.ativa]="empresa.descricao_situacao_cadastral === 'ATIVA'">{{ empresa.descricao_situacao_cadastral || 'Situação não informada' }}</span>
-        @if (empresa.opcao_pelo_simples) { <span class="badge simples">Simples Nacional</span> }
-        @if (empresa.opcao_pelo_mei) { <span class="badge simples">MEI</span> }
+        <span class="badge" [class.ativa]="empresa.descricao_situacao_cadastral === 'ATIVA'">{{
+          empresa.descricao_situacao_cadastral || 'Situação não informada'
+        }}</span>
+        @if (empresa.opcao_pelo_simples) {
+          <span class="badge simples">Simples Nacional</span>
+        }
+        @if (empresa.opcao_pelo_mei) {
+          <span class="badge simples">MEI</span>
+        }
       </div>
     </header>
 
     <dl class="infos-grid">
-      <div class="infos-item"><dt>CNPJ</dt><dd>{{ formatarCnpj(empresa.cnpj) }}</dd></div>
-      <div class="infos-item"><dt>Natureza jurídica</dt><dd>{{ empresa.natureza_juridica || 'Não informado' }}</dd></div>
-      <div class="infos-item"><dt>Porte</dt><dd>{{ empresa.porte || 'Não informado' }}</dd></div>
-      <div class="infos-item"><dt>Início da atividade</dt><dd>{{ empresa.data_inicio_atividade || 'Não informado' }}</dd></div>
-      <div class="infos-item infos-item--wide"><dt>Atividade principal</dt><dd>{{ empresa.cnae_fiscal_descricao || 'Não informada' }}</dd></div>
-      <div class="infos-item"><dt>Município</dt><dd>{{ empresa.municipio || 'Não informado' }} @if (empresa.uf) { / {{ empresa.uf }} }</dd></div>
+      <div class="infos-item">
+        <dt>CNPJ</dt>
+        <dd>{{ formatarCnpj(empresa.cnpj) }}</dd>
+      </div>
+      <div class="infos-item">
+        <dt>Natureza jurídica</dt>
+        <dd>{{ empresa.natureza_juridica || 'Não informado' }}</dd>
+      </div>
+      <div class="infos-item">
+        <dt>Porte</dt>
+        <dd>{{ empresa.porte || 'Não informado' }}</dd>
+      </div>
+      <div class="infos-item">
+        <dt>Início da atividade</dt>
+        <dd>{{ empresa.data_inicio_atividade || 'Não informado' }}</dd>
+      </div>
+      <div class="infos-item infos-item--wide">
+        <dt>Atividade principal</dt>
+        <dd>{{ empresa.cnae_fiscal_descricao || 'Não informada' }}</dd>
+      </div>
+      <div class="infos-item">
+        <dt>Município</dt>
+        <dd>
+          {{ empresa.municipio || 'Não informado' }}
+          @if (empresa.uf) {
+            / {{ empresa.uf }}
+          }
+        </dd>
+      </div>
     </dl>
 
     <div class="contact-row">
       <div>
         <span class="card-label">Endereço</span>
-        <p>{{ empresa.descricao_tipo_de_logradouro }} {{ empresa.logradouro }}, {{ empresa.numero }}@if (empresa.complemento) { — {{ empresa.complemento }} } · {{ empresa.bairro }} · {{ empresa.municipio }} / {{ empresa.uf }}</p>
+        <p>
+          {{ empresa.descricao_tipo_de_logradouro }} {{ empresa.logradouro }}, {{ empresa.numero }}
+          @if (empresa.complemento) {
+            — {{ empresa.complemento }}
+          }
+          · {{ empresa.bairro }} · {{ empresa.municipio }} / {{ empresa.uf }}
+        </p>
       </div>
-      @if (mapUrl()) { <a [href]="mapUrl()" target="_blank" rel="noopener noreferrer">Abrir no mapa <span aria-hidden="true">↗</span></a> }
+      @if (mapUrl()) {
+        <a [href]="mapUrl()" target="_blank" rel="noopener noreferrer"
+          >Abrir no mapa <span aria-hidden="true">↗</span></a
+        >
+      }
     </div>
 
     @if (empresa.qsa?.length) {
       <details class="socios">
-        <summary>Ver sócios e administradores <span>{{ empresa.qsa?.length }}</span></summary>
+        <summary>
+          Ver sócios e administradores <span>{{ empresa.qsa?.length }}</span>
+        </summary>
         <ul>
           @for (socio of empresa.qsa; track socio.cnpj_cpf_do_socio || socio.nome_socio) {
-            <li><strong>{{ socio.nome_socio }}</strong><small>{{ socio.qualificacao_socio || 'Qualificação não informada' }}</small></li>
+            <li>
+              <strong>{{ socio.nome_socio }}</strong
+              ><small>{{ socio.qualificacao_socio || 'Qualificação não informada' }}</small>
+            </li>
           }
         </ul>
       </details>

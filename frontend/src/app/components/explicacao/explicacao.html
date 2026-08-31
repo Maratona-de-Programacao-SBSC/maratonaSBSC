@@ -3,62 +3,112 @@
     <div class="glossary-intro">
       <p class="eyebrow">Glossário cidadão</p>
       <h2 id="glossary-title">Entenda o que cada etapa revela.</h2>
-      <p>Conhecer o significado dos registros ajuda a fazer perguntas melhores e evita interpretações precipitadas.</p>
+      <p>
+        Conhecer o significado dos registros ajuda a fazer perguntas melhores e evita interpretações
+        precipitadas.
+      </p>
     </div>
 
     <div class="accordion">
       <article class="item">
         <h3>
-          <button type="button" (click)="toggle('empenho')" [attr.aria-expanded]="aberto() === 'empenho'" aria-controls="painel-empenho">
+          <button
+            type="button"
+            (click)="toggle('empenho')"
+            [attr.aria-expanded]="aberto() === 'empenho'"
+            aria-controls="painel-empenho"
+          >
             <span><b>01</b> Empenho</span><i aria-hidden="true">+</i>
           </button>
         </h3>
         @if (aberto() === 'empenho') {
           <div class="texto" id="painel-empenho">
-            <p>É a reserva formal do orçamento para garantir recursos para uma despesa específica.</p>
-            <ul><li>Observe descrições excessivamente genéricas.</li><li>Compare o objeto contratado com a atividade do fornecedor.</li><li>Procure fracionamentos recorrentes para o mesmo objeto.</li></ul>
+            <p>
+              É a reserva formal do orçamento para garantir recursos para uma despesa específica.
+            </p>
+            <ul>
+              <li>Observe descrições excessivamente genéricas.</li>
+              <li>Compare o objeto contratado com a atividade do fornecedor.</li>
+              <li>Procure fracionamentos recorrentes para o mesmo objeto.</li>
+            </ul>
           </div>
         }
       </article>
 
       <article class="item">
         <h3>
-          <button type="button" (click)="toggle('liquidacao')" [attr.aria-expanded]="aberto() === 'liquidacao'" aria-controls="painel-liquidacao">
+          <button
+            type="button"
+            (click)="toggle('liquidacao')"
+            [attr.aria-expanded]="aberto() === 'liquidacao'"
+            aria-controls="painel-liquidacao"
+          >
             <span><b>02</b> Liquidação</span><i aria-hidden="true">+</i>
           </button>
         </h3>
         @if (aberto() === 'liquidacao') {
           <div class="texto" id="painel-liquidacao">
-            <p>É o reconhecimento oficial de que o produto ou serviço foi entregue conforme o combinado.</p>
-            <ul><li>Verifique intervalos incompatíveis com o prazo de entrega.</li><li>Compare o objeto liquidado com o empenho.</li><li>Busque evidências de medição em serviços contínuos.</li></ul>
+            <p>
+              É o reconhecimento oficial de que o produto ou serviço foi entregue conforme o
+              combinado.
+            </p>
+            <ul>
+              <li>Verifique intervalos incompatíveis com o prazo de entrega.</li>
+              <li>Compare o objeto liquidado com o empenho.</li>
+              <li>Busque evidências de medição em serviços contínuos.</li>
+            </ul>
           </div>
         }
       </article>
 
       <article class="item">
         <h3>
-          <button type="button" (click)="toggle('notas')" [attr.aria-expanded]="aberto() === 'notas'" aria-controls="painel-notas">
+          <button
+            type="button"
+            (click)="toggle('notas')"
+            [attr.aria-expanded]="aberto() === 'notas'"
+            aria-controls="painel-notas"
+          >
             <span><b>03</b> Nota fiscal</span><i aria-hidden="true">+</i>
           </button>
         </h3>
         @if (aberto() === 'notas') {
           <div class="texto" id="painel-notas">
-            <p>É o documento que detalha itens, quantidades e preços usados para justificar o valor cobrado.</p>
-            <ul><li>Compare preços unitários com referências conhecidas.</li><li>Observe quantidades incompatíveis com o prazo.</li><li>Questione descrições que não permitem identificar o item.</li></ul>
+            <p>
+              É o documento que detalha itens, quantidades e preços usados para justificar o valor
+              cobrado.
+            </p>
+            <ul>
+              <li>Compare preços unitários com referências conhecidas.</li>
+              <li>Observe quantidades incompatíveis com o prazo.</li>
+              <li>Questione descrições que não permitem identificar o item.</li>
+            </ul>
           </div>
         }
       </article>
 
       <article class="item">
         <h3>
-          <button type="button" (click)="toggle('pagamento')" [attr.aria-expanded]="aberto() === 'pagamento'" aria-controls="painel-pagamento">
+          <button
+            type="button"
+            (click)="toggle('pagamento')"
+            [attr.aria-expanded]="aberto() === 'pagamento'"
+            aria-controls="painel-pagamento"
+          >
             <span><b>04</b> Pagamento</span><i aria-hidden="true">+</i>
           </button>
         </h3>
         @if (aberto() === 'pagamento') {
           <div class="texto" id="painel-pagamento">
-            <p>É a transferência efetiva do recurso público para o fornecedor após as etapas anteriores.</p>
-            <ul><li>Observe concentrações atípicas em períodos curtos.</li><li>Confira se o pagamento ocorreu após a entrega.</li><li>Compare o valor pago com o liquidado.</li></ul>
+            <p>
+              É a transferência efetiva do recurso público para o fornecedor após as etapas
+              anteriores.
+            </p>
+            <ul>
+              <li>Observe concentrações atípicas em períodos curtos.</li>
+              <li>Confira se o pagamento ocorreu após a entrega.</li>
+              <li>Compare o valor pago com o liquidado.</li>
+            </ul>
           </div>
         }
       </article>

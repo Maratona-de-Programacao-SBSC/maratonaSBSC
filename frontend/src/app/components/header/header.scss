@@ -26,7 +26,11 @@
   flex-shrink: 0;
 }
 
-.brand-mark { width: 2.5rem; height: 2.5rem; object-fit: contain; }
+.brand-mark {
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: contain;
+}
 
 .brand-copy {
   display: flex;
@@ -34,10 +38,22 @@
   line-height: 1.1;
 }
 
-.brand-copy strong { font-size: 1.05rem; letter-spacing: 0.01em; }
-.brand-copy small { margin-top: 0.2rem; color: #b9c9d6; font-size: 0.68rem; font-weight: 500; }
+.brand-copy strong {
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+.brand-copy small {
+  margin-top: 0.2rem;
+  color: #b9c9d6;
+  font-size: 0.68rem;
+  font-weight: 500;
+}
 
-.nav { display: flex; align-items: center; gap: 0.25rem; }
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
 
 .nav a {
   padding: 0.65rem 0.85rem;
@@ -45,14 +61,26 @@
   color: #cbd7e0;
   font-size: 0.9rem;
   font-weight: 600;
-  transition: color 0.2s ease, background 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
 }
 
 .nav a:hover,
-.nav a.active { background: rgba(255, 255, 255, 0.09); color: #fff; }
+.nav a.active {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+}
 
-.nav .nav-cta { margin-left: 0.5rem; background: var(--color-accent); color: #172a3a; }
-.nav .nav-cta:hover { background: #f3c862; color: #172a3a; }
+.nav .nav-cta {
+  margin-left: 0.5rem;
+  background: var(--color-accent);
+  color: #172a3a;
+}
+.nav .nav-cta:hover {
+  background: #f3c862;
+  color: #172a3a;
+}
 
 .menu-toggle {
   display: none;
@@ -67,10 +95,17 @@
   cursor: pointer;
 }
 
-.menu-toggle span { width: 1.2rem; height: 2px; border-radius: 999px; background: #fff; }
+.menu-toggle span {
+  width: 1.2rem;
+  height: 2px;
+  border-radius: 999px;
+  background: #fff;
+}
 
 @media (max-width: 720px) {
-  .menu-toggle { display: flex; }
+  .menu-toggle {
+    display: flex;
+  }
 
   .nav {
     position: absolute;
@@ -87,7 +122,14 @@
     box-shadow: var(--shadow-lg);
   }
 
-  .nav--open { display: flex; }
-  .nav a { padding: 0.8rem 0.9rem; }
-  .nav .nav-cta { margin: 0.35rem 0 0; text-align: center; }
+  .nav--open {
+    display: flex;
+  }
+  .nav a {
+    padding: 0.8rem 0.9rem;
+  }
+  .nav .nav-cta {
+    margin: 0.35rem 0 0;
+    text-align: center;
+  }
 }
