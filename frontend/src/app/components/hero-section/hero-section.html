@@ -1,13 +1,60 @@
-<section class="hero">
-  <div class="hero-content">
-    <h1>Sistema de Transparência e Análise de Dados Públicos</h1>
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-grid container-shell">
+    <div class="hero-copy">
+      <p class="eyebrow"><span></span> Dados abertos. Contexto claro.</p>
+      <h1 id="hero-title">Acompanhe o caminho do <em>dinheiro público.</em></h1>
+      <p class="hero-description">
+        Consulte fornecedores por CNPJ, conecte despesas e notas fiscais e veja os sinais levantados pela comunidade em um só lugar.
+      </p>
 
-    <p>
-      Plataforma para consulta de dados governamentais e colaboração cidadã na identificação de possíveis inconsistências e fraudes fiscais.
-    </p>
+      <div class="hero-actions">
+        <a routerLink="/dashboard" class="button button--primary">Consultar fornecedor <span aria-hidden="true">→</span></a>
+        <a routerLink="/ranking" class="button button--secondary">Ver alertas da comunidade</a>
+      </div>
 
-    <button routerLink="/dashboard" class="btn">
-      Acessar sistema
-    </button>
+      <ul class="trust-list" aria-label="Características da plataforma">
+        <li>Consulta gratuita</li>
+        <li>Fontes públicas</li>
+        <li>Sem cadastro</li>
+      </ul>
+    </div>
+
+    <div class="journey-card" aria-label="Etapas acompanhadas pela plataforma">
+      <div class="journey-header">
+        <div>
+          <span class="card-kicker">Leitura guiada</span>
+          <strong>Da reserva ao pagamento</strong>
+        </div>
+        <span class="status"><i></i> Dados conectados</span>
+      </div>
+
+      <ol class="journey-list">
+        <li>
+          <span class="journey-number">01</span>
+          <div><strong>Empenho</strong><small>O recurso é reservado</small></div>
+          <span class="journey-state">Origem</span>
+        </li>
+        <li>
+          <span class="journey-number">02</span>
+          <div><strong>Liquidação</strong><small>A entrega é reconhecida</small></div>
+          <span class="journey-state">Conferência</span>
+        </li>
+        <li>
+          <span class="journey-number">03</span>
+          <div><strong>Nota fiscal</strong><small>Itens e valores são detalhados</small></div>
+          <span class="journey-state">Evidência</span>
+        </li>
+        <li>
+          <span class="journey-number">04</span>
+          <div><strong>Pagamento</strong><small>O dinheiro chega ao fornecedor</small></div>
+          <span class="journey-state">Destino</span>
+        </li>
+      </ol>
+
+      <div class="journey-footer">
+        <span>Comece com um CNPJ</span>
+        <a routerLink="/dashboard" aria-label="Ir para consulta de CNPJ">Explorar agora →</a>
+      </div>
+    </div>
   </div>
 </section>

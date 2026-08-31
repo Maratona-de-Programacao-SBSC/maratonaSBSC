@@ -1,61 +1,67 @@
-<div class="container">
+<section class="glossary" aria-labelledby="glossary-title">
+  <div class="glossary-grid container-shell">
+    <div class="glossary-intro">
+      <p class="eyebrow">Glossário cidadão</p>
+      <h2 id="glossary-title">Entenda o que cada etapa revela.</h2>
+      <p>Conhecer o significado dos registros ajuda a fazer perguntas melhores e evita interpretações precipitadas.</p>
+    </div>
 
-  <div class="item">
-    <button (click)="toggle('empenho')">1. Empenho</button>
+    <div class="accordion">
+      <article class="item">
+        <h3>
+          <button type="button" (click)="toggle('empenho')" [attr.aria-expanded]="aberto() === 'empenho'" aria-controls="painel-empenho">
+            <span><b>01</b> Empenho</span><i aria-hidden="true">+</i>
+          </button>
+        </h3>
+        @if (aberto() === 'empenho') {
+          <div class="texto" id="painel-empenho">
+            <p>É a reserva formal do orçamento para garantir recursos para uma despesa específica.</p>
+            <ul><li>Observe descrições excessivamente genéricas.</li><li>Compare o objeto contratado com a atividade do fornecedor.</li><li>Procure fracionamentos recorrentes para o mesmo objeto.</li></ul>
+          </div>
+        }
+      </article>
 
-    @if (aberto === 'empenho') {
-      <div class="texto">
-        <p>Reserva formal do dinheiro no orçamento para garantir que haverá recurso para pagar uma despesa específica.</p>
+      <article class="item">
+        <h3>
+          <button type="button" (click)="toggle('liquidacao')" [attr.aria-expanded]="aberto() === 'liquidacao'" aria-controls="painel-liquidacao">
+            <span><b>02</b> Liquidação</span><i aria-hidden="true">+</i>
+          </button>
+        </h3>
+        @if (aberto() === 'liquidacao') {
+          <div class="texto" id="painel-liquidacao">
+            <p>É o reconhecimento oficial de que o produto ou serviço foi entregue conforme o combinado.</p>
+            <ul><li>Verifique intervalos incompatíveis com o prazo de entrega.</li><li>Compare o objeto liquidado com o empenho.</li><li>Busque evidências de medição em serviços contínuos.</li></ul>
+          </div>
+        }
+      </article>
 
-        <p><strong>Fracionamento:</strong> Múltiplos empenhos pequenos para o mesmo fornecedor para evitar licitação.</p>
-        <p><strong>Empenho "Fantasma":</strong> Reservas altas para empresas recém-criadas ou sem histórico.</p>
-        <p><strong>Objeto incompatível:</strong> Empresa contratada para serviço estranho ao seu CNAE (atividade econômica).</p>
-        <p><strong>Empenho Genérico:</strong> Descrições vagas (ex: "diversos") para ocultar o objeto real.</p>
-      </div>
-    }
+      <article class="item">
+        <h3>
+          <button type="button" (click)="toggle('notas')" [attr.aria-expanded]="aberto() === 'notas'" aria-controls="painel-notas">
+            <span><b>03</b> Nota fiscal</span><i aria-hidden="true">+</i>
+          </button>
+        </h3>
+        @if (aberto() === 'notas') {
+          <div class="texto" id="painel-notas">
+            <p>É o documento que detalha itens, quantidades e preços usados para justificar o valor cobrado.</p>
+            <ul><li>Compare preços unitários com referências conhecidas.</li><li>Observe quantidades incompatíveis com o prazo.</li><li>Questione descrições que não permitem identificar o item.</li></ul>
+          </div>
+        }
+      </article>
+
+      <article class="item">
+        <h3>
+          <button type="button" (click)="toggle('pagamento')" [attr.aria-expanded]="aberto() === 'pagamento'" aria-controls="painel-pagamento">
+            <span><b>04</b> Pagamento</span><i aria-hidden="true">+</i>
+          </button>
+        </h3>
+        @if (aberto() === 'pagamento') {
+          <div class="texto" id="painel-pagamento">
+            <p>É a transferência efetiva do recurso público para o fornecedor após as etapas anteriores.</p>
+            <ul><li>Observe concentrações atípicas em períodos curtos.</li><li>Confira se o pagamento ocorreu após a entrega.</li><li>Compare o valor pago com o liquidado.</li></ul>
+          </div>
+        }
+      </article>
+    </div>
   </div>
-
-  <div class="item">
-    <button (click)="toggle('liquidacao')">2. Liquidação</button>
-
-    @if (aberto === 'liquidacao') {
-      <div class="texto">
-        <p>Momento em que o governo confirma oficialmente que o produto ou serviço foi entregue.</p>
-
-        <p><strong>Tempo Impossível:</strong> Liquidação realizada minutos ou poucas horas após a emissão do empenho.</p>
-        <p><strong>Atestado Duvidoso:</strong> Liquidação de serviços contínuos sem medição periódica comprovada.</p>
-        <p><strong>Divergência de Objeto:</strong> O que foi liquidado não corresponde ao item descrito no edital ou empenho.</p>
-      </div>
-    }
-  </div>
-
-  <div class="item">
-    <button (click)="toggle('notas')">3. Nota Fiscal e Itens</button>
-
-    @if (aberto === 'notas') {
-      <div class="texto">
-        <p>Documento que detalha o objeto, a quantidade e o preço unitário de cada item entregue para justificar o valor pago.</p>
-
-        <p><strong>Sobrepreço:</strong> Valores unitários acima da média de mercado para itens comuns.</p>
-        <p><strong>Itens "Invisíveis":</strong> Quantidades físicas impossíveis de serem entregues no prazo (ex: toneladas de cimento em um dia).</p>
-        <p><strong>Notas Sequenciais:</strong> Lotes de notas fiscais emitidos na mesma data ou sequência para o mesmo órgão.</p>
-        <p><strong>Descrição Genérica:</strong> Notas com descrição insuficiente, impedindo a verificação do que foi entregue.</p>
-      </div>
-    }
-  </div>
-
-  <div class="item">
-    <button (click)="toggle('pagamento')">4. Pagamento</button>
-
-    @if (aberto === 'pagamento') {
-      <div class="texto">
-        <p>Transferência efetiva do dinheiro público para a conta bancária do fornecedor.</p>
-
-        <p><strong>Sazonalidade Suspeita:</strong> Concentração atípica de pagamentos no final do ano ou vésperas de eleição.</p>
-        <p><strong>Pagamento Antecipado:</strong> Pagamento feito antes da entrega efetiva (salvo casos previstos em lei).</p>
-        <p><strong>Transferência em Lotes:</strong> Pagamentos massivos para um único fornecedor em um curto intervalo.</p>
-      </div>
-    }
-  </div>
-
-</div>
+</section>
