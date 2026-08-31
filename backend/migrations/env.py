@@ -5,7 +5,6 @@ from urllib.parse import quote_plus
 from alembic import context
 from sqlalchemy import create_engine, pool
 
-
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
