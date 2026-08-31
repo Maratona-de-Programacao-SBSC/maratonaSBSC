@@ -1,113 +1,59 @@
-@if (loading) {
-  <div class="infos-loading">Buscando dados da empresa...</div>
+@if (loading()) {
+  <div class="infos-card skeleton-card" aria-live="polite" aria-busy="true">
+    <span class="sr-only">Buscando dados cadastrais da empresa</span>
+    <div class="skeleton skeleton--title"></div>
+    <div class="skeleton-grid"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+  </div>
 }
 
-@if (erro) {
-  <div class="infos-erro">Não foi possível carregar os dados da empresa.</div>
+@if (erro()) {
+  <div class="infos-card unavailable" role="status">
+    <span aria-hidden="true">i</span>
+    <div><strong>Dados cadastrais complementares indisponíveis</strong><p>Os registros financeiros ainda podem ser consultados abaixo.</p></div>
+  </div>
 }
 
-@if (dados) {
-  <div class="infos-card">
-
-    <div class="infos-topo">
+@if (dados(); as empresa) {
+  <article class="infos-card">
+    <header class="infos-topo">
       <div>
-        <h2 class="infos-nome">{{ dados.razao_social }}</h2>
-        @if (dados.nome_fantasia) {
-          <span class="infos-alias">{{ dados.nome_fantasia }}</span>
-        }
+        <span class="card-label">Dados cadastrais</span>
+        <h3 class="infos-nome">{{ empresa.razao_social }}</h3>
+        @if (empresa.nome_fantasia) { <p class="infos-alias">Nome fantasia: {{ empresa.nome_fantasia }}</p> }
       </div>
       <div class="infos-badges">
-        <span class="badge" [class.ativa]="dados.descricao_situacao_cadastral === 'ATIVA'">
-          {{ dados.descricao_situacao_cadastral }}
-        </span>
-        @if (dados.opcao_pelo_simples) {
-          <span class="badge simples">Simples Nacional</span>
-        }
-        @if (dados.opcao_pelo_mei) {
-          <span class="badge simples">MEI</span>
-        }
+        <span class="badge" [class.ativa]="empresa.descricao_situacao_cadastral === 'ATIVA'">{{ empresa.descricao_situacao_cadastral || 'Situação não informada' }}</span>
+        @if (empresa.opcao_pelo_simples) { <span class="badge simples">Simples Nacional</span> }
+        @if (empresa.opcao_pelo_mei) { <span class="badge simples">MEI</span> }
       </div>
+    </header>
+
+    <dl class="infos-grid">
+      <div class="infos-item"><dt>CNPJ</dt><dd>{{ formatarCnpj(empresa.cnpj) }}</dd></div>
+      <div class="infos-item"><dt>Natureza jurídica</dt><dd>{{ empresa.natureza_juridica || 'Não informado' }}</dd></div>
+      <div class="infos-item"><dt>Porte</dt><dd>{{ empresa.porte || 'Não informado' }}</dd></div>
+      <div class="infos-item"><dt>Início da atividade</dt><dd>{{ empresa.data_inicio_atividade || 'Não informado' }}</dd></div>
+      <div class="infos-item infos-item--wide"><dt>Atividade principal</dt><dd>{{ empresa.cnae_fiscal_descricao || 'Não informada' }}</dd></div>
+      <div class="infos-item"><dt>Município</dt><dd>{{ empresa.municipio || 'Não informado' }} @if (empresa.uf) { / {{ empresa.uf }} }</dd></div>
+    </dl>
+
+    <div class="contact-row">
+      <div>
+        <span class="card-label">Endereço</span>
+        <p>{{ empresa.descricao_tipo_de_logradouro }} {{ empresa.logradouro }}, {{ empresa.numero }}@if (empresa.complemento) { — {{ empresa.complemento }} } · {{ empresa.bairro }} · {{ empresa.municipio }} / {{ empresa.uf }}</p>
+      </div>
+      @if (mapUrl()) { <a [href]="mapUrl()" target="_blank" rel="noopener noreferrer">Abrir no mapa <span aria-hidden="true">↗</span></a> }
     </div>
 
-    <div class="infos-grid">
-
-      <div class="infos-item">
-        <label>CNPJ</label>
-        <span>{{ dados.cnpj }}</span>
-      </div>
-
-      <div class="infos-item">
-        <label>Natureza Jurídica</label>
-        <span>{{ dados.natureza_juridica }}</span>
-      </div>
-
-      <div class="infos-item">
-        <label>Porte</label>
-        <span>{{ dados.porte }}</span>
-      </div>
-
-      <div class="infos-item">
-        <label>Fundação</label>
-        <span>{{ dados.data_inicio_atividade }}</span>
-      </div>
-
-      <div class="infos-item">
-        <label>Atividade Principal</label>
-        <span>{{ dados.cnae_fiscal_descricao }}</span>
-      </div>
-
-      <div class="infos-item">
-        <label>Município</label>
-        <span>{{ dados.municipio }} / {{ dados.uf }}</span>
-      </div>
-
-        <div class="infos-item infos-item--full">
-        <label>Endereço</label>
-        <span>
-            {{ dados.descricao_tipo_de_logradouro }} {{ dados.logradouro }}, {{ dados.numero }}
-            @if (dados.complemento) { — {{ dados.complemento }} }
-            — {{ dados.bairro }} — {{ dados.municipio }} / {{ dados.uf }}
-        </span>
-        <iframe
-            class="maps-iframe"
-            [src]="mapUrl"
-            width="100%"
-            height="200"
-            style="border:0;"
-            allowfullscreen
-            loading="lazy">
-        </iframe>
-        </div>
-
-      @if (dados.ddd_telefone_1) {
-        <div class="infos-item">
-          <label>Telefone</label>
-          <span>{{ dados.ddd_telefone_1 }}</span>
-        </div>
-      }
-
-      @if (dados.email) {
-        <div class="infos-item">
-          <label>E-mail</label>
-          <span>{{ dados.email }}</span>
-        </div>
-      }
-
-    </div>
-
-    @if (dados.qsa?.length) {
-      <div class="infos-socios">
-        <h3>Sócios / Diretores</h3>
-        <div class="socios-lista">
-          @for (s of dados.qsa; track s.cnpj_cpf_do_socio) {
-            <div class="socio">
-              <span class="socio-nome">{{ s.nome_socio }}</span>
-              <span class="socio-cargo">{{ s.qualificacao_socio }}</span>
-            </div>
+    @if (empresa.qsa?.length) {
+      <details class="socios">
+        <summary>Ver sócios e administradores <span>{{ empresa.qsa?.length }}</span></summary>
+        <ul>
+          @for (socio of empresa.qsa; track socio.cnpj_cpf_do_socio || socio.nome_socio) {
+            <li><strong>{{ socio.nome_socio }}</strong><small>{{ socio.qualificacao_socio || 'Qualificação não informada' }}</small></li>
           }
-        </div>
-      </div>
+        </ul>
+      </details>
     }
-
-  </div>
+  </article>
 }

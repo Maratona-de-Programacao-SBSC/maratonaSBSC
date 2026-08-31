@@ -1,61 +1,24 @@
-.voto-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  padding: var(--space-lg);
-  text-align: center;
-  width: 100%;
-  height: 100%;
-}
-.voto-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-muted);
-  line-height: 1.3;
-}
+:host { display: block; height: 100%; }
+.voto-card { display: flex; height: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 1.35rem; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: linear-gradient(160deg,#fff,#f8fafb); box-shadow: var(--shadow-sm); text-align: center; }
+.voto-eyebrow { color: var(--color-text-muted); font-size: 0.62rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.voto-total { display: flex; align-items: baseline; gap: 0.35rem; margin: 0.7rem 0; color: var(--color-danger); }
+.voto-total strong { font-size: 2.6rem; letter-spacing: -0.06em; line-height: 1; }
+.voto-total span { font-size: 0.72rem; font-weight: 800; }
+.voto-card > p { margin-bottom: 1rem; color: var(--color-text-muted); font-size: 0.7rem; line-height: 1.5; }
+.voto-btn, .confirmar, .cancelar { width: 100%; min-height: 2.65rem; padding: 0.65rem 0.8rem; border-radius: var(--radius-sm); font-size: 0.7rem; font-weight: 800; cursor: pointer; transition: background 0.2s,color 0.2s,border 0.2s; }
+.voto-btn { border: 1px solid var(--color-danger); background: var(--color-danger-soft); color: var(--color-danger); }
+.voto-btn:hover:not(:disabled) { background: var(--color-danger); color: #fff; }
+.voto-btn.votado { border-color: #bcdcc9; background: var(--color-success-soft); color: var(--color-success); cursor: default; }
+.confirmacao { width: 100%; padding: 0.75rem; border-radius: var(--radius); background: var(--color-warning-soft); }
+.confirmacao strong, .confirmacao small { display: block; }
+.confirmacao strong { color: #70430a; font-size: 0.76rem; }
+.confirmacao small { margin: 0.3rem 0 0.65rem; color: #85642f; font-size: 0.63rem; line-height: 1.45; }
+.confirmar { background: var(--color-danger); color: #fff; }
+.cancelar { min-height: 2rem; margin-top: 0.25rem; background: transparent; color: var(--color-text-muted); }
+.disclaimer { margin-top: 0.8rem; color: var(--color-text-muted); font-size: 0.58rem; line-height: 1.4; }
+.erro { margin-top: 0.65rem; color: var(--color-danger); font-size: 0.62rem; }
+button:disabled { opacity: 0.7; }
 
-.voto-count {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--color-danger);
-  line-height: 1;
-}
-
-.voto-btn {
-  width: 100%;
-  padding: var(--space-sm) var(--space-md);
-  background: #fff1f2;
-  color: var(--color-danger);
-  border: 1.5px solid var(--color-danger);
-  border-radius: var(--radius);
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-
-  &:hover:not(:disabled) {
-    background: var(--color-danger);
-    color: #fff;
-  }
-
-  &.votado {
-    background: #f1f5f9;
-    color: var(--color-text-muted);
-    border-color: var(--color-border);
-    cursor: default;
-  }
-
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
+@media (max-width: 760px) {
+  .voto-card { min-height: 260px; }
 }

@@ -1,70 +1,60 @@
-import { Component, Input, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges, signal } from '@angular/core';
 import { ApiService } from '../../services/api';
+import { EmpresaBrasilApi } from '../../models/api.models';
 
 @Component({
   selector: 'app-infos',
   standalone: true,
-  imports: [CommonModule],
   templateUrl: './infos.html',
-  styleUrl: './infos.scss'
+  styleUrl: './infos.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InfosComponent implements OnChanges {
-
   @Input() cnpj = '';
 
-  dados: any = null;
-  loading = false;
-  erro = false;
-  mapUrl: SafeResourceUrl | null = null;
+  readonly dados = signal<EmpresaBrasilApi | null>(null);
+  readonly loading = signal(false);
+  readonly erro = signal(false);
+  readonly mapUrl = signal('');
 
-  constructor(
-    private api: ApiService,
-    private cdr: ChangeDetectorRef,
-    private sanitizer: DomSanitizer
-  ) {}
+  constructor(private readonly api: ApiService) {}
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['cnpj'] && this.cnpj) {
-      this.carregar();
-    }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['cnpj'] && this.cnpj) this.carregar();
   }
 
-  carregar() {
-    this.loading = true;
-    this.erro = false;
-    this.dados = null;
-    this.mapUrl = null;
+  formatarCnpj(cnpj: string): string {
+    return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+  }
+
+  private carregar(): void {
+    this.loading.set(true);
+    this.erro.set(false);
+    this.dados.set(null);
 
     this.api.buscarInfosExternas(this.cnpj).subscribe({
-      next: (res) => {
-        this.dados = res;
-        this.mapUrl = this.gerarMapUrl(res);
-        this.loading = false;
-        this.cdr.detectChanges();
+      next: (dados) => {
+        this.dados.set(dados);
+        this.mapUrl.set(this.gerarMapUrl(dados));
+        this.loading.set(false);
       },
       error: () => {
-        this.erro = true;
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
+        this.erro.set(true);
+        this.loading.set(false);
+      },
     });
   }
 
-  private gerarMapUrl(dados: any): SafeResourceUrl {
-    const partes = [
+  private gerarMapUrl(dados: EmpresaBrasilApi): string {
+    const endereco = [
       dados.descricao_tipo_de_logradouro,
       dados.logradouro,
       dados.numero,
       dados.bairro,
       dados.municipio,
       dados.uf,
-      'Brasil'
-    ].filter(Boolean);
-    const query = encodeURIComponent(partes.join(' '));
-    return this.sanitizer.bypassSecurityTrustResourceUrl(
-      `https://maps.google.com/maps?q=${query}&output=embed`
-    );
+      'Brasil',
+    ].filter(Boolean).join(' ');
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
   }
 }

@@ -1,18 +1,26 @@
-<div class="voto-card">
-  <span class="voto-label">Denúncias de suspeita</span>
-  <span class="voto-count">{{ votos }}</span>
+<aside class="voto-card" aria-labelledby="voto-title">
+  <span class="voto-eyebrow">Participação cidadã</span>
+  <div class="voto-total">
+    <strong>{{ votos() }}</strong>
+    <span id="voto-title">@if (votos() === 1) { alerta } @else { alertas }</span>
+  </div>
+  <p>Sinalizações de usuários que acreditam que este fornecedor merece análise.</p>
 
-  <button
-    class="voto-btn"
-    [class.votado]="jaVotou"
-    [disabled]="jaVotou || loading"
-    (click)="votar()">
-    @if (loading) {
-      Enviando...
-    } @else if (jaVotou) {
-      ✓ Denunciado
-    } @else {
-      ⚑ Denunciar
-    }
-  </button>
-</div>
+  @if (confirmando() && !jaVotou()) {
+    <div class="confirmacao" role="group" aria-label="Confirmar sinalização">
+      <strong>Deseja sinalizar?</strong>
+      <small>Use o alerta apenas quando houver um motivo para análise.</small>
+      <button type="button" class="confirmar" [disabled]="loading()" (click)="votar()">
+        @if (loading()) { Registrando... } @else { Confirmar alerta }
+      </button>
+      <button type="button" class="cancelar" [disabled]="loading()" (click)="cancelar()">Cancelar</button>
+    </div>
+  } @else {
+    <button type="button" class="voto-btn" [class.votado]="jaVotou()" [disabled]="jaVotou()" (click)="iniciarConfirmacao()">
+      @if (jaVotou()) { <span aria-hidden="true">✓</span> Alerta registrado } @else { Sinalizar para análise }
+    </button>
+  }
+
+  @if (erro()) { <small class="erro" role="alert">{{ erro() }}</small> }
+  <small class="disclaimer">Alertas não representam comprovação de irregularidade.</small>
+</aside>
