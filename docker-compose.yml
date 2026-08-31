@@ -14,6 +14,7 @@ services:
   mysql:
     image: mysql:8.4
     restart: unless-stopped
+    command: --local-infile=1
     environment:
       MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
       MYSQL_DATABASE: ${DATABASE}
