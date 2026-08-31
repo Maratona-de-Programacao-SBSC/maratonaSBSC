@@ -37,4 +37,29 @@ describe('ApiService', () => {
     service.buscarInformacoes('12345678000199').subscribe();
     http.expectNone('/api/cnpj/informacoes/12345678000199');
   });
+
+  it('should start a dated import with the administrative header', () => {
+    service
+      .iniciarImportacao('despesas', 'chave-segura', {
+        dataInicio: '2026-08-01',
+        dataFim: '2026-08-31',
+      })
+      .subscribe((job) => expect(job.job_id).toBe('job-123'));
+
+    const request = http.expectOne((candidate) => candidate.url === '/api/importacao/despesas');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.headers.get('X-Admin-Key')).toBe('chave-segura');
+    expect(request.request.params.get('data_inicio')).toBe('2026-08-01');
+    expect(request.request.params.get('data_fim')).toBe('2026-08-31');
+    request.flush({ job_id: 'job-123', status: 'PENDING' });
+  });
+
+  it('should fetch an import status with the administrative header', () => {
+    service.consultarImportacao('job-123', 'chave-segura').subscribe();
+
+    const request = http.expectOne('/api/importacao/jobs/job-123');
+    expect(request.request.method).toBe('GET');
+    expect(request.request.headers.get('X-Admin-Key')).toBe('chave-segura');
+    request.flush({ job_id: 'job-123', status: 'SUCCESS', resultado: {} });
+  });
 });

@@ -21,4 +21,9 @@ describe('Header', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should expose the import page in the main navigation', () => {
+    const link = fixture.nativeElement.querySelector('a[href="/importacao"]') as HTMLAnchorElement;
+    expect(link?.textContent).toContain('Importar dados');
+  });
 });
