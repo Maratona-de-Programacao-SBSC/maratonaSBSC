@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, of, shareReplay, throwError } from 'rxjs';
 import {
@@ -8,11 +8,15 @@ import {
   EmpresaBrasilApi,
   EmpresaLocal,
   ItemNotaFiscal,
+  JobImportacao,
+  JobImportacaoCriado,
   Liquidacao,
   NotaFiscal,
   Pagamento,
   PaginaNotas,
   ResumoDespesas,
+  PeriodoImportacao,
+  TipoImportacao,
 } from '../models/api.models';
 
 interface CacheEntry<T> {
@@ -101,6 +105,31 @@ export class ApiService {
     return this.http.get<CnpjSuspeito[]>(`${this.api}/avaliacao/ranking`, { params });
   }
 
+  iniciarImportacao(
+    tipo: TipoImportacao,
+    chaveAdministrativa: string,
+    periodo?: PeriodoImportacao,
+  ): Observable<JobImportacaoCriado> {
+    const headers = this.cabecalhoAdministrativo(chaveAdministrativa);
+    let params = new HttpParams();
+
+    if (periodo) {
+      params = params.set('data_inicio', periodo.dataInicio).set('data_fim', periodo.dataFim);
+    }
+
+    return this.http.post<JobImportacaoCriado>(
+      `${this.api}/importacao/${tipo}`,
+      {},
+      { headers, params },
+    );
+  }
+
+  consultarImportacao(jobId: string, chaveAdministrativa: string): Observable<JobImportacao> {
+    return this.http.get<JobImportacao>(`${this.api}/importacao/jobs/${jobId}`, {
+      headers: this.cabecalhoAdministrativo(chaveAdministrativa),
+    });
+  }
+
   temInfosExternas(cnpj: string): boolean {
     return this.lerLocalStorage<EmpresaBrasilApi>(`brasilapi_${cnpj}`) !== null;
   }
@@ -117,11 +146,17 @@ export class ApiService {
     if (!(error instanceof HttpErrorResponse)) return fallback;
     if (error.status === 0)
       return 'Não foi possível conectar ao serviço. Tente novamente em instantes.';
+    if (error.status === 401 || error.status === 403)
+      return 'A chave administrativa informada não é válida.';
     if (error.status === 404) return 'Nenhum registro foi encontrado para este CNPJ.';
     if (error.status === 422) return 'Confira os dados informados e tente novamente.';
     if (error.status >= 500)
       return 'O serviço está temporariamente indisponível. Tente novamente mais tarde.';
     return fallback;
+  }
+
+  private cabecalhoAdministrativo(chaveAdministrativa: string): HttpHeaders {
+    return new HttpHeaders().set('X-Admin-Key', chaveAdministrativa);
   }
 
   private buscarPagina<T>(key: string, url: string, pagina: number): Observable<T[]> {

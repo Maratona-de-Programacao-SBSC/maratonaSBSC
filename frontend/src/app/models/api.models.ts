@@ -138,3 +138,19 @@ export interface Avaliacao {
 export interface CnpjSuspeito extends Avaliacao {
   razao_social?: string | null;
 }
+
+export type TipoImportacao = 'cnpj' | 'despesas' | 'notas' | 'itens-notas';
+
+export interface PeriodoImportacao {
+  dataInicio: string;
+  dataFim: string;
+}
+
+export interface JobImportacaoCriado {
+  job_id: string;
+  status: string;
+}
+
+export interface JobImportacao extends JobImportacaoCriado {
+  resultado?: Record<string, unknown> | null;
+}

@@ -18,6 +18,8 @@ export const apiServiceMock = {
   buscarAvaliacao: () => of({ cnpj: '12345678000199', votos_cidadaos: 0 }),
   votar: () => of({ cnpj: '12345678000199', votos_cidadaos: 1 }),
   buscarRanking: () => of([]),
+  iniciarImportacao: () => of({ job_id: 'job-teste', status: 'PENDING' }),
+  consultarImportacao: () => of({ job_id: 'job-teste', status: 'SUCCESS', resultado: {} }),
   mensagemErro: (_error: unknown, fallback = 'Erro') => fallback,
   temInfosExternas: () => false,
   getNomeCache: () => null,
