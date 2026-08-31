@@ -18,5 +18,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/ranking/ranking').then((module) => module.RankingComponent),
   },
+  {
+    path: 'importacao',
+    title: 'Importar dados — Ágoradit',
+    loadComponent: () =>
+      import('./pages/importacao/importacao').then((module) => module.ImportacaoComponent),
+  },
   { path: '**', redirectTo: '' },
 ];
