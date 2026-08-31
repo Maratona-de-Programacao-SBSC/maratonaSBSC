@@ -1,4 +1,16 @@
 services:
+  redis:
+    image: redis:8.2-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - redis_data:/data
+
   mysql:
     image: mysql:8.4
     restart: unless-stopped
@@ -15,8 +27,18 @@ services:
       start_period: 15s
     volumes:
       - mysql_data:/var/lib/mysql
-      - uploads_data:/uploads
-      - ./backend/models:/docker-entrypoint-initdb.d:ro
+
+  migrate:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: alembic upgrade head
+    env_file:
+      - ./.env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: "no"
 
   backend:
     build:
@@ -28,10 +50,28 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
     ports:
       - "8000:8000"
-    volumes:
-      - uploads_data:/uploads
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    command: celery -A worker.celery_app worker --loglevel=INFO --concurrency=2
+    env_file:
+      - ./.env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
 
   frontend:
     build: ./frontend
@@ -41,4 +81,4 @@ services:
 
 volumes:
   mysql_data:
-  uploads_data:
+  redis_data:
