@@ -1,42 +1,96 @@
-<div class="container">
-  <h1>Consulta Pública</h1>
+<section class="consulta-page" aria-labelledby="consulta-title">
+  <div class="container-shell">
+    <header class="page-heading">
+      <p class="eyebrow">Consulta de fornecedor</p>
+      <h1 id="consulta-title">Investigue registros públicos por CNPJ.</h1>
+      <p>Reunimos dados cadastrais, despesas e notas fiscais para facilitar sua análise.</p>
+    </header>
 
-  <div class="busca">
-    <input
-      #inputCnpj
-      [value]="cnpj"
-      (input)="cnpj = inputCnpj.value"
-      placeholder="Digite o CNPJ"
-      (keyup.enter)="pesquisar()"
-    />
-    <button (click)="pesquisar()">Pesquisar</button>
+    <form class="search-card" (ngSubmit)="pesquisar()" novalidate>
+      <label for="cnpj">CNPJ do fornecedor</label>
+      <div class="search-row">
+        <div class="input-wrap">
+          <span aria-hidden="true">CNPJ</span>
+          <input
+            id="cnpj"
+            name="cnpj"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            maxlength="18"
+            [ngModel]="cnpjInput"
+            (ngModelChange)="atualizarEntrada($event)"
+            placeholder="00.000.000/0000-00"
+            aria-describedby="cnpj-ajuda cnpj-erro"
+            [attr.aria-invalid]="erro() ? true : null">
+        </div>
+        <button type="submit" [disabled]="loading()">
+          @if (loading()) { <span class="spinner" aria-hidden="true"></span> Consultando } @else { Consultar CNPJ <span aria-hidden="true">→</span> }
+        </button>
+      </div>
+      <div class="search-meta">
+        <small id="cnpj-ajuda">Use apenas um CNPJ válido com 14 números.</small>
+        <span>Consulta gratuita e sem cadastro</span>
+      </div>
+    </form>
+
+    <div class="feedback-region" aria-live="polite" aria-atomic="true">
+      @if (erro()) {
+        <div class="error-state" id="cnpj-erro" role="alert">
+          <span aria-hidden="true">!</span>
+          <div><strong>Não foi possível concluir a consulta</strong><p>{{ erro() }}</p></div>
+          <button type="button" (click)="tentarNovamente()">Tentar novamente</button>
+        </div>
+      }
+    </div>
+
+    @if (!loading() && !erro() && !cnpjConsultado()) {
+      <div class="empty-guide">
+        <div class="guide-copy">
+          <span class="guide-index">Como começar</span>
+          <h2>Tenha o CNPJ em mãos.</h2>
+          <p>Você encontra o número em notas fiscais, contratos, portais públicos ou documentos da empresa.</p>
+        </div>
+        <ul>
+          <li><span>1</span><div><strong>Digite o CNPJ</strong><small>A pontuação é aplicada automaticamente.</small></div></li>
+          <li><span>2</span><div><strong>Confira o cadastro</strong><small>Valide razão social, situação e endereço.</small></div></li>
+          <li><span>3</span><div><strong>Explore os registros</strong><small>Compare despesas, notas e alertas.</small></div></li>
+        </ul>
+      </div>
+    }
+
+    @if (empresa(); as empresaAtual) {
+      <section class="result" aria-labelledby="result-title">
+        <header class="result-heading">
+          <div>
+            <span class="result-status"><i></i> Fornecedor localizado</span>
+            <h2 id="result-title">{{ empresaAtual.razao_social }}</h2>
+            <p>{{ formatarCnpj(empresaAtual.codigo_favorecido) }}</p>
+          </div>
+          <span class="result-source">Dados públicos consolidados</span>
+        </header>
+
+        <div class="infos-voto-row">
+          <app-infos [cnpj]="cnpjConsultado()" />
+          <app-voto [cnpj]="cnpjConsultado()" />
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Registros do fornecedor">
+          <button type="button" role="tab" id="tab-despesas" [attr.aria-selected]="aba() === 'despesas'" aria-controls="painel-despesas" [class.active]="aba() === 'despesas'" (click)="selecionarAba('despesas')">
+            Despesas públicas
+          </button>
+          <button type="button" role="tab" id="tab-notas" [attr.aria-selected]="aba() === 'notas'" aria-controls="painel-notas" [class.active]="aba() === 'notas'" (click)="selecionarAba('notas')">
+            Notas fiscais
+          </button>
+        </div>
+
+        <div id="painel-despesas" role="tabpanel" aria-labelledby="tab-despesas" [hidden]="aba() !== 'despesas'">
+          <app-despesas [cnpj]="cnpjConsultado()" />
+        </div>
+        <div id="painel-notas" role="tabpanel" aria-labelledby="tab-notas" [hidden]="aba() !== 'notas'">
+          @if (aba() === 'notas') { <app-notas [cnpj]="cnpjConsultado()" /> }
+        </div>
+      </section>
+    }
   </div>
-
-  @if (loading) {
-    <div class="loading">Carregando...</div>
-  }
-
-  @if (!loading && cnpj) {
-
-    <div class="infos-voto-row">
-      <app-infos [cnpj]="cnpj" />
-      <app-voto  [cnpj]="cnpj" />
-    </div>
-
-    <div class="tabs">
-      <button (click)="aba = 'despesas'">Despesas</button>
-      <button (click)="aba = 'notas'">Notas</button>
-    </div>
-
-    <app-despesas
-      [cnpj]="cnpj"
-      [style.display]="aba === 'despesas' ? 'block' : 'none'">
-    </app-despesas>
-
-    <app-notas
-      [cnpj]="aba === 'notas' ? cnpj : ''"
-      [style.display]="aba === 'notas' ? 'block' : 'none'">
-    </app-notas>
-
-  }
-</div>
+</section>
