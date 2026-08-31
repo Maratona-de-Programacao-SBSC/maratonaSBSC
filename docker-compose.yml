@@ -29,9 +29,7 @@ services:
       - mysql_data:/var/lib/mysql
 
   migrate:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
+    image: agoradit-backend:local
     command: alembic upgrade head
     env_file:
       - ./.env
@@ -41,6 +39,7 @@ services:
     restart: "no"
 
   backend:
+    image: agoradit-backend:local
     build:
       context: .
       dockerfile: backend/Dockerfile
@@ -56,11 +55,15 @@ services:
         condition: service_healthy
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   worker:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
+    image: agoradit-backend:local
     restart: unless-stopped
     command: celery -A worker.celery_app worker --loglevel=INFO --concurrency=2
     env_file:
