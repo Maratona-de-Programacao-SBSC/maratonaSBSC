@@ -5,21 +5,33 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
       MYSQL_DATABASE: ${DATABASE}
+      MYSQL_USER: ${DATABASE_USER:-agoradit}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./uploads:/uploads
+      - uploads_data:/uploads
+      - ./backend/models:/docker-entrypoint-initdb.d:ro
 
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     restart: unless-stopped
     env_file:
-      - ./backend/.env
+      - ./.env
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     ports:
       - "8000:8000"
     volumes:
-      - ./uploads:/uploads
+      - uploads_data:/uploads
 
   frontend:
     build: ./frontend
@@ -29,3 +41,4 @@ services:
 
 volumes:
   mysql_data:
+  uploads_data:
