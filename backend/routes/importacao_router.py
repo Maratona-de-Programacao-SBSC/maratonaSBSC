@@ -33,6 +33,11 @@ class JobStatus(BaseModel):
 
 
 def _periodo(data_inicio: date, data_fim: date, limite_dias: int) -> tuple[str, str]:
+    if data_fim > date.today():
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="data_fim nao pode estar no futuro",
+        )
     if data_fim < data_inicio:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,

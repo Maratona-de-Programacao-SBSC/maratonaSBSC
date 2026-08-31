@@ -33,3 +33,11 @@ def test_periodo_limita_quantidade_de_dias() -> None:
         _periodo(date(2024, 1, 1), date(2025, 1, 2), limite_dias=366)
 
     assert erro.value.status_code == 422
+
+
+def test_periodo_rejeita_data_futura() -> None:
+    with pytest.raises(HTTPException) as erro:
+        _periodo(date(2099, 1, 1), date(2099, 1, 2), limite_dias=366)
+
+    assert erro.value.status_code == 422
+    assert "futuro" in erro.value.detail
