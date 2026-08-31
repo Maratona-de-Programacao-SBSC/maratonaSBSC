@@ -41,6 +41,7 @@ node_modules
 .sass-cache/
 /connect.lock
 /coverage
+.coverage
 /libpeerconnection.log
 testem.log
 /typings
