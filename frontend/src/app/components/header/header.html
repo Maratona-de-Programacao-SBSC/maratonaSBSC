@@ -1,16 +1,28 @@
 <header class="header">
-  <div class="header-content">
-    
-    <a routerLink="/" class="logo-wrapper">
-      <img src="/images/Logo-Ágoradit.png" alt="Logo Ágoradit" class="imagem-logo">
-      <div class="logo">Ágoradit</div>
+  <div class="header-content container-shell">
+    <a routerLink="/" class="brand" aria-label="Ágoradit — página inicial" (click)="fecharMenu()">
+      <img src="/images/Logo-Ágoradit.png" alt="" class="brand-mark">
+      <span class="brand-copy">
+        <strong>Ágoradit</strong>
+        <small>Transparência pública</small>
+      </span>
     </a>
 
-    <nav class="nav">
-      <a routerLink="/">Home</a>
-      <a routerLink="/dashboard">Dashboard</a>
-      <a routerLink="/ranking">Ranking</a>
+    <button
+      type="button"
+      class="menu-toggle"
+      aria-label="Alternar menu de navegação"
+      aria-controls="menu-principal"
+      [attr.aria-expanded]="menuAberto()"
+      (click)="alternarMenu()">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav id="menu-principal" class="nav" aria-label="Navegação principal" [class.nav--open]="menuAberto()">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="fecharMenu()">Início</a>
+      <a routerLink="/dashboard" routerLinkActive="active" (click)="fecharMenu()">Consultar</a>
+      <a routerLink="/ranking" routerLinkActive="active" (click)="fecharMenu()">Alertas</a>
+      <a class="nav-cta" routerLink="/dashboard" (click)="fecharMenu()">Buscar CNPJ</a>
     </nav>
-    
   </div>
 </header>
