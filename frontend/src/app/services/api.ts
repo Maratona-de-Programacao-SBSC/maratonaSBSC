@@ -1,131 +1,160 @@
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, catchError, of, shareReplay, throwError } from 'rxjs';
+import {
+  Avaliacao,
+  CnpjSuspeito,
+  Empenho,
+  EmpresaBrasilApi,
+  EmpresaLocal,
+  ItemNotaFiscal,
+  Liquidacao,
+  NotaFiscal,
+  Pagamento,
+  PaginaNotas,
+  ResumoDespesas,
+} from '../models/api.models';
 
-@Injectable({
-  providedIn: 'root'
-})
+interface CacheEntry<T> {
+  expiresAt: number;
+  stream: Observable<T>;
+}
+
+@Injectable({ providedIn: 'root' })
 export class ApiService {
+  private readonly http = inject(HttpClient);
+  private readonly api = '/api';
+  private readonly cache = new Map<string, CacheEntry<unknown>>();
+  private readonly cacheTtlMs = 5 * 60 * 1000;
 
-  private http = inject(HttpClient);
-  private readonly api = 'http://localhost:8000';
-
-  private cacheDespesas  = new Map<string, any>();
-  private cacheNotas     = new Map<string, any>();
-  private cacheEmpresas  = new Map<string, any>();
-
-  buscarInformacoes(cnpj: string): Observable<any> {
-    if (this.cacheEmpresas.has(cnpj)) {
-      return of(this.cacheEmpresas.get(cnpj));
-    }
-    return this.http.get(`${this.api}/cnpj/informacoes/${cnpj}`).pipe(
-      tap(res => this.cacheEmpresas.set(cnpj, res))
+  buscarInformacoes(cnpj: string): Observable<EmpresaLocal> {
+    return this.cached(`empresa:${cnpj}`, () =>
+      this.http.get<EmpresaLocal>(`${this.api}/cnpj/informacoes/${cnpj}`),
     );
   }
 
-  buscarDespesas(cnpj: string): Observable<any> {
-    if (this.cacheDespesas.has(cnpj)) {
-      return of(this.cacheDespesas.get(cnpj));
-    }
-    return this.http.get(`${this.api}/cnpj/despesas/${cnpj}`).pipe(
-      tap(res => this.cacheDespesas.set(cnpj, res))
+  buscarInfosExternas(cnpj: string): Observable<EmpresaBrasilApi> {
+    const key = `brasilapi_${cnpj}`;
+    const salvo = this.lerLocalStorage<EmpresaBrasilApi>(key);
+    if (salvo) return of(salvo);
+
+    return this.cached(`externa:${cnpj}`, () =>
+      this.http
+        .get<EmpresaBrasilApi>(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`)
+        .pipe(this.salvarRespostaLocal(key)),
     );
   }
 
-  buscarNotas(cnpj: string, pagina: number = 0): Observable<any> {
-    const key = `${cnpj}_p${pagina}`;
-    if (this.cacheNotas.has(key)) {
-      return of(this.cacheNotas.get(key));
-    }
-    return this.http.get(`${this.api}/cnpj/notas/${cnpj}?pagina=${pagina}&tamanho=10`).pipe(
-      tap(res => this.cacheNotas.set(key, res))
+  buscarResumoDespesas(cnpj: string): Observable<ResumoDespesas> {
+    return this.cached(`resumo:${cnpj}`, () =>
+      this.http.get<ResumoDespesas>(`${this.api}/cnpj/despesas/${cnpj}/resumo`),
     );
   }
 
-  buscarItensNota(cnpj: string, chave: string): Observable<any> {
-    const key = `itens_${chave}`;
-    if (this.cacheNotas.has(key)) {
-      return of(this.cacheNotas.get(key));
-    }
-    return this.http.get(`${this.api}/cnpj/notas/${cnpj}/itens/${chave}`).pipe(
-      tap(res => this.cacheNotas.set(key, res))
+  buscarEmpenhos(cnpj: string, pagina = 0): Observable<Empenho[]> {
+    return this.buscarPagina<Empenho>(`empenhos:${cnpj}`, `${this.api}/cnpj/despesas/${cnpj}/empenhos`, pagina);
+  }
+
+  buscarLiquidacoes(cnpj: string, pagina = 0): Observable<Liquidacao[]> {
+    return this.buscarPagina<Liquidacao>(`liquidacoes:${cnpj}`, `${this.api}/cnpj/despesas/${cnpj}/liquidacoes`, pagina);
+  }
+
+  buscarPagamentos(cnpj: string, pagina = 0): Observable<Pagamento[]> {
+    return this.buscarPagina<Pagamento>(`pagamentos:${cnpj}`, `${this.api}/cnpj/despesas/${cnpj}/pagamentos`, pagina);
+  }
+
+  buscarNotas(cnpj: string, pagina = 0): Observable<PaginaNotas> {
+    const params = new HttpParams().set('pagina', pagina).set('tamanho', 10);
+    return this.cached(`notas:${cnpj}:${pagina}`, () =>
+      this.http.get<PaginaNotas>(`${this.api}/cnpj/notas/${cnpj}`, { params }),
     );
   }
 
-  buscarInfosExternas(cnpj: string): Observable<any> {
-    const salvo = localStorage.getItem(`brasilapi_${cnpj}`);
-    if (salvo) {
-      return of(JSON.parse(salvo));
-    }
-    return this.http.get(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`).pipe(
-      tap(res => localStorage.setItem(`brasilapi_${cnpj}`, JSON.stringify(res)))
+  buscarItensNota(cnpj: string, chave: string): Observable<ItemNotaFiscal[]> {
+    return this.cached(`itens:${cnpj}:${chave}`, () =>
+      this.http.get<ItemNotaFiscal[]>(`${this.api}/cnpj/notas/${cnpj}/itens/${chave}`),
     );
+  }
+
+  buscarAvaliacao(cnpj: string): Observable<Avaliacao> {
+    return this.http.get<Avaliacao>(`${this.api}/avaliacao/${cnpj}`);
+  }
+
+  votar(cnpj: string): Observable<Avaliacao> {
+    return this.http.post<Avaliacao>(`${this.api}/avaliacao/${cnpj}/votar`, {});
+  }
+
+  buscarRanking(limite = 10): Observable<CnpjSuspeito[]> {
+    const params = new HttpParams().set('limit', limite);
+    return this.http.get<CnpjSuspeito[]>(`${this.api}/avaliacao/ranking`, { params });
   }
 
   temInfosExternas(cnpj: string): boolean {
-    return localStorage.getItem(`brasilapi_${cnpj}`) !== null;
+    return this.lerLocalStorage<EmpresaBrasilApi>(`brasilapi_${cnpj}`) !== null;
   }
 
   getNomeCache(cnpj: string): string | null {
-    const salvo = localStorage.getItem(`brasilapi_${cnpj}`);
-    if (!salvo) return null;
-    return JSON.parse(salvo)?.razao_social ?? null;
+    return this.lerLocalStorage<EmpresaBrasilApi>(`brasilapi_${cnpj}`)?.razao_social ?? null;
   }
 
-  buscarAvaliacao(cnpj: string): Observable<any> {
-    return this.http.get(`${this.api}/avaliacao/${cnpj}`);
+  limparCache(): void {
+    this.cache.clear();
   }
 
-  votar(cnpj: string): Observable<any> {
-    return this.http.post(`${this.api}/avaliacao/${cnpj}/votar`, {});
+  mensagemErro(error: unknown, fallback = 'Não foi possível concluir a solicitação.'): string {
+    if (!(error instanceof HttpErrorResponse)) return fallback;
+    if (error.status === 0) return 'Não foi possível conectar ao serviço. Tente novamente em instantes.';
+    if (error.status === 404) return 'Nenhum registro foi encontrado para este CNPJ.';
+    if (error.status === 422) return 'Confira os dados informados e tente novamente.';
+    if (error.status >= 500) return 'O serviço está temporariamente indisponível. Tente novamente mais tarde.';
+    return fallback;
   }
 
-  buscarRanking(): Observable<any> {
-      return this.http.get(`${this.api}/avaliacao/ranking?limit=5`);
-    }
-  buscarResumoDespesas(cnpj: string): Observable<any> {
-    const key = `resumo_${cnpj}`;
-    if (this.cacheDespesas.has(key)) {
-      return of(this.cacheDespesas.get(key));
-    }
-    return this.http.get(`${this.api}/cnpj/despesas/${cnpj}/resumo`).pipe(
-      tap(res => this.cacheDespesas.set(key, res))
+  private buscarPagina<T>(key: string, url: string, pagina: number): Observable<T[]> {
+    const params = new HttpParams().set('pagina', pagina).set('tamanho', 10);
+    return this.cached(`${key}:${pagina}`, () => this.http.get<T[]>(url, { params }));
+  }
+
+  private cached<T>(key: string, request: () => Observable<T>): Observable<T> {
+    const agora = Date.now();
+    const entry = this.cache.get(key) as CacheEntry<T> | undefined;
+    if (entry && entry.expiresAt > agora) return entry.stream;
+
+    const stream = request().pipe(
+      catchError((error) => {
+        this.cache.delete(key);
+        return throwError(() => error);
+      }),
+      shareReplay({ bufferSize: 1, refCount: false }),
     );
+    this.cache.set(key, { expiresAt: agora + this.cacheTtlMs, stream });
+    return stream;
   }
 
-  buscarEmpenhos(cnpj: string, pagina: number = 0): Observable<any> {
-    const key = `emp_${cnpj}_p${pagina}`;
-    if (this.cacheDespesas.has(key)) {
-      return of(this.cacheDespesas.get(key));
-    }
-    return this.http.get(`${this.api}/cnpj/despesas/${cnpj}/empenhos?pagina=${pagina}&tamanho=10`).pipe(
-      tap(res => this.cacheDespesas.set(key, res))
-    );
+  private salvarRespostaLocal<T>(key: string) {
+    return (source: Observable<T>) =>
+      new Observable<T>((subscriber) =>
+        source.subscribe({
+          next: (value) => {
+            try {
+              localStorage.setItem(key, JSON.stringify(value));
+            } catch {
+              // O cache local é opcional e pode estar indisponível.
+            }
+            subscriber.next(value);
+          },
+          error: (error) => subscriber.error(error),
+          complete: () => subscriber.complete(),
+        }),
+      );
   }
 
-  buscarLiquidacoes(cnpj: string, pagina: number = 0): Observable<any> {
-    const key = `liq_${cnpj}_p${pagina}`;
-    if (this.cacheDespesas.has(key)) {
-      return of(this.cacheDespesas.get(key));
+  private lerLocalStorage<T>(key: string): T | null {
+    try {
+      const value = localStorage.getItem(key);
+      return value ? (JSON.parse(value) as T) : null;
+    } catch {
+      return null;
     }
-    return this.http.get(`${this.api}/cnpj/despesas/${cnpj}/liquidacoes?pagina=${pagina}&tamanho=10`).pipe(
-      tap(res => this.cacheDespesas.set(key, res))
-    );
-  }
-
-  buscarPagamentos(cnpj: string, pagina: number = 0): Observable<any> {
-    const key = `pag_${cnpj}_p${pagina}`;
-    if (this.cacheDespesas.has(key)) {
-      return of(this.cacheDespesas.get(key));
-    }
-    return this.http.get(`${this.api}/cnpj/despesas/${cnpj}/pagamentos?pagina=${pagina}&tamanho=10`).pipe(
-      tap(res => this.cacheDespesas.set(key, res))
-    );
-  }
-  limparCache() {
-    this.cacheDespesas.clear();
-    this.cacheNotas.clear();
-    this.cacheEmpresas.clear();
   }
 }
