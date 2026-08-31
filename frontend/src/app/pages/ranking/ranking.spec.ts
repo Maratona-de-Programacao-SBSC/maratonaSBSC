@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RankingComponent } from './ranking';
+import { provideRouter } from '@angular/router';
+import { ApiService } from '../../services/api';
+import { apiServiceMock } from '../../testing/api-service.mock';
 
 describe('RankingComponent', () => {
   let component: RankingComponent;
@@ -9,6 +12,7 @@ describe('RankingComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RankingComponent],
+      providers: [provideRouter([]), { provide: ApiService, useValue: apiServiceMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RankingComponent);
