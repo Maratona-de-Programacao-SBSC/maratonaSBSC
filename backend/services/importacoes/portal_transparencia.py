@@ -1,25 +1,25 @@
-from repositories import database
-from integrations import portal_transparencia
-from schemes.documento import Documento
-
-
-from schemes.empenho import PORTAL_TRANSPARENCIA_EMPENHOS_SCHEMA
-from schemes.pagamento import PORTAL_TRANSPARENCIA_PAGAMENTOS_SCHEMA
-from schemes.liquidacao import PORTAL_TRANSPARENCIA_LIQUIDACOES_SCHEMA
-from schemes.nota_fiscal import PORTAL_TRANSPARENCIA_NOTA_FISCAL_SCHEMA 
-from schemes.item_nota_fiscal import PORTAL_TRANSPARENCIA_ITEM_NOTA_FISCAL_SCHEMA
-from schemes.informacoes_cnpj import PORTA_TRANSPARENCIA_INFORMACOES_CNPJ_SCHEMA
-from schemes.liquidacao import PORTAL_TRANSPARENCIA_LIQUIDACAO_EMPENHOS_SCHEMA
-
+import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
+
 from dateutil.relativedelta import relativedelta
-import time
+from integrations import portal_transparencia
+from repositories import database
+from schemes.documento import Documento
+from schemes.empenho import PORTAL_TRANSPARENCIA_EMPENHOS_SCHEMA
+from schemes.informacoes_cnpj import PORTA_TRANSPARENCIA_INFORMACOES_CNPJ_SCHEMA
+from schemes.item_nota_fiscal import PORTAL_TRANSPARENCIA_ITEM_NOTA_FISCAL_SCHEMA
+from schemes.liquidacao import (
+    PORTAL_TRANSPARENCIA_LIQUIDACAO_EMPENHOS_SCHEMA,
+    PORTAL_TRANSPARENCIA_LIQUIDACOES_SCHEMA,
+)
+from schemes.nota_fiscal import PORTAL_TRANSPARENCIA_NOTA_FISCAL_SCHEMA
+from schemes.pagamento import PORTAL_TRANSPARENCIA_PAGAMENTOS_SCHEMA
 
 
 def gerar_datas(data_inicio, data_fim):
     atual = datetime.strptime(data_inicio, "%Y%m%d").date()
-    fim   = datetime.strptime(data_fim,    "%Y%m%d").date()
+    fim = datetime.strptime(data_fim, "%Y%m%d").date()
     datas = []
     while atual <= fim:
         datas.append(atual.strftime("%Y%m%d"))
@@ -30,7 +30,7 @@ def gerar_datas(data_inicio, data_fim):
 
 def gerar_meses(data_inicio, data_fim):
     atual = datetime.strptime(data_inicio, "%Y%m%d").date()
-    fim   = datetime.strptime(data_fim,    "%Y%m%d").date()
+    fim = datetime.strptime(data_fim, "%Y%m%d").date()
     while atual <= fim:
         yield atual.strftime("%Y%m%d")
         atual += relativedelta(months=1)
@@ -38,16 +38,16 @@ def gerar_meses(data_inicio, data_fim):
 
 def gerar_anos_intervalos(data_inicio, data_fim):
     atual = datetime.strptime(data_inicio, "%Y%m%d").date()
-    fim   = datetime.strptime(data_fim,    "%Y%m%d").date()
+    fim = datetime.strptime(data_fim, "%Y%m%d").date()
     while atual <= fim:
         proximo = min(atual + relativedelta(years=1) - relativedelta(days=1), fim)
         yield atual.strftime("%Y%m%d"), proximo.strftime("%Y%m%d")
         atual += relativedelta(years=1)
 
-    
+
 def gerar_meses_intervalos(data_inicio, data_fim):
     atual = datetime.strptime(data_inicio, "%Y%m%d").date()
-    fim   = datetime.strptime(data_fim,    "%Y%m%d").date()
+    fim = datetime.strptime(data_fim, "%Y%m%d").date()
     while atual <= fim:
         proximo = min(atual + relativedelta(months=1) - relativedelta(days=1), fim)
         yield atual.strftime("%Y%m%d"), proximo.strftime("%Y%m%d")
@@ -60,16 +60,17 @@ def importar_pagamentos_csv(data_inicio: str, data_fim: str, multithreading: boo
     table_nome = PORTAL_TRANSPARENCIA_PAGAMENTOS_SCHEMA["tabela"]
 
     if not multithreading:
-        for path in portal_transparencia.baixar_csv_path(data_inicio, data_fim, Documento.PAGAMENTOS):
+        for path in portal_transparencia.baixar_csv_path(
+            data_inicio, data_fim, Documento.PAGAMENTOS
+        ):
             database.salvar_csv(path, table_nome, campos, set)
         return
-    
 
     def baixar(data_str):
         path = list(portal_transparencia.baixar_csv_path(data_str, data_str, Documento.PAGAMENTOS))
         time.sleep(0.5)
         return path
-    
+
     datas = gerar_datas(data_inicio, data_fim)
 
     for mes_inicio, mes_fim in gerar_meses_intervalos(data_inicio, data_fim):
@@ -78,7 +79,6 @@ def importar_pagamentos_csv(data_inicio: str, data_fim: str, multithreading: boo
             paths = [p for ps in pool.map(baixar, datas) for p in ps]
         for path in paths:
             database.salvar_csv(path, table_nome, campos, set)
-        
 
 
 def importar_liquidacoes_csv(data_inicio: str, data_fim: str, multithreading: bool) -> None:
@@ -88,19 +88,33 @@ def importar_liquidacoes_csv(data_inicio: str, data_fim: str, multithreading: bo
     table_nome2 = PORTAL_TRANSPARENCIA_LIQUIDACAO_EMPENHOS_SCHEMA["tabela"]
 
     if not multithreading:
-        for path in portal_transparencia.baixar_csv_path(data_inicio, data_fim, Documento.LIQUIDACOES):
+        for path in portal_transparencia.baixar_csv_path(
+            data_inicio, data_fim, Documento.LIQUIDACOES
+        ):
             database.salvar_csv(path, table_nome1, campos, set)
-        for path in portal_transparencia.baixar_csv_path(data_inicio, data_fim, Documento.LIQUIDACAO_EMPENHOS):
-            database.atualizar_campos_via_csv(path, table_nome=table_nome2, chave_primaria="codigo_liquidacao", chave_primaria_csv="Código Liquidação", valor="Valor Liquidado (R$)")
+        for path in portal_transparencia.baixar_csv_path(
+            data_inicio, data_fim, Documento.LIQUIDACAO_EMPENHOS
+        ):
+            database.atualizar_campos_via_csv(
+                path,
+                table_nome=table_nome2,
+                chave_primaria="codigo_liquidacao",
+                chave_primaria_csv="Código Liquidação",
+                valor="Valor Liquidado (R$)",
+            )
         return
 
     def baixar(data_str):
-        paths = list(portal_transparencia.baixar_csv_path(data_str, data_str, Documento.LIQUIDACOES))
+        paths = list(
+            portal_transparencia.baixar_csv_path(data_str, data_str, Documento.LIQUIDACOES)
+        )
         time.sleep(0.5)
         return paths
 
     def baixar_empenhos(data_str):
-        paths = list(portal_transparencia.baixar_csv_path(data_str, data_str, Documento.LIQUIDACAO_EMPENHOS))
+        paths = list(
+            portal_transparencia.baixar_csv_path(data_str, data_str, Documento.LIQUIDACAO_EMPENHOS)
+        )
         time.sleep(0.5)
         return paths
 
@@ -115,7 +129,14 @@ def importar_liquidacoes_csv(data_inicio: str, data_fim: str, multithreading: bo
         with ThreadPoolExecutor(max_workers=3) as pool:
             paths = [p for ps in pool.map(baixar_empenhos, datas) for p in ps]
         for path in paths:
-            database.atualizar_campos_via_csv(path, table_nome=table_nome2, chave_primaria="codigo_liquidacao", chave_primaria_csv="Código Liquidação", valor="Valor Liquidado (R$)")
+            database.atualizar_campos_via_csv(
+                path,
+                table_nome=table_nome2,
+                chave_primaria="codigo_liquidacao",
+                chave_primaria_csv="Código Liquidação",
+                valor="Valor Liquidado (R$)",
+            )
+
 
 def importar_empenhos_csv(data_inicio: str, data_fim: str, multithreading: bool) -> None:
     campos = gerar_campos(PORTAL_TRANSPARENCIA_EMPENHOS_SCHEMA)
@@ -146,7 +167,9 @@ def importar_notas_fiscais_csv(data_inicio: str, data_fim: str, multithreading: 
     table_nome = PORTAL_TRANSPARENCIA_NOTA_FISCAL_SCHEMA["tabela"]
 
     if not multithreading:
-        for path in portal_transparencia.baixar_csv_path(data_inicio, data_fim, Documento.NOTA_FISCAL):
+        for path in portal_transparencia.baixar_csv_path(
+            data_inicio, data_fim, Documento.NOTA_FISCAL
+        ):
             database.salvar_csv(path, table_nome, campos, set)
         return
 
@@ -169,12 +192,16 @@ def importar_itens_notas_fiscais_csv(data_inicio: str, data_fim: str, multithrea
     table_nome = PORTAL_TRANSPARENCIA_ITEM_NOTA_FISCAL_SCHEMA["tabela"]
 
     if not multithreading:
-        for path in portal_transparencia.baixar_csv_path(data_inicio, data_fim, Documento.ITEM_NOTA_FISCAL):
+        for path in portal_transparencia.baixar_csv_path(
+            data_inicio, data_fim, Documento.ITEM_NOTA_FISCAL
+        ):
             database.salvar_csv(path, table_nome, campos, set)
         return
 
     def baixar(data_str):
-        path = list(portal_transparencia.baixar_csv_path(data_str, data_str, Documento.ITEM_NOTA_FISCAL))
+        path = list(
+            portal_transparencia.baixar_csv_path(data_str, data_str, Documento.ITEM_NOTA_FISCAL)
+        )
         time.sleep(0.5)
         return path
 
@@ -193,7 +220,7 @@ def importar_informacoes_cnpj_csv(multithreading: bool) -> None:
 
     path = portal_transparencia.baixar_csv_cnpj()
     database.salvar_csv(path, table_nome, campos, set)
-        
+
 
 def gerar_campos(schema: dict) -> str:
     total = schema["total_colunas"]
@@ -222,9 +249,7 @@ def gerar_set(schema: dict) -> str:
         tipo = info["tipo"]
 
         if tipo == "data":
-            sets.append(
-                f"{col} = STR_TO_DATE(@{col}, '%d/%m/%Y')"
-            )
+            sets.append(f"{col} = STR_TO_DATE(@{col}, '%d/%m/%Y')")
 
         elif tipo == "valor":
             sets.append(
@@ -232,13 +257,10 @@ def gerar_set(schema: dict) -> str:
             )
         elif tipo == "cnpj":
             limpeza = f"REPLACE(REPLACE(REPLACE(@{col}, '.', ''), '-', ''), '/', '')"
-            sets.append(
-                f"{col} = {limpeza}"
-            )
-        
+            sets.append(f"{col} = {limpeza}")
 
-    if not sets: return ""
+    if not sets:
+        return ""
 
     result = "SET " + ", ".join(sets)
     return result
-
