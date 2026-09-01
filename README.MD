@@ -1,84 +1,121 @@
+# Agoradit
 
+Sistema para centralizacao e consulta de gastos governamentais. O backend importa dados publicos do Portal da Transparencia, armazena notas fiscais, empenhos, liquidacoes e pagamentos e disponibiliza consultas por CNPJ.
 
+## Arquitetura
 
-# Ágoradit - maratonaSBSC
-Sistema de controle e centralização de gastos governamentais. O Ágoradit consome dados diretamente do **Portal da Transparência** através de um pipeline de importação automatizado, organizando notas fiscais, contratos, empenhos, liquidações e pagamentos em um único banco de dados.
+- FastAPI atende as consultas HTTP.
+- MySQL armazena os dados importados.
+- Redis atua como broker e backend de resultados.
+- Celery executa as importacoes fora do processo web.
+- Alembic aplica migrations versionadas antes da API e dos workers iniciarem.
 
-O objetivo é oferecer uma base centralizada e consultável para fiscalização e análise de gastos públicos.
+As consultas usam um pool de conexoes por processo. Cada transacao recebe uma conexao isolada e executa `commit` ou `rollback` automaticamente.
 
+## Execucao com Docker
 
-# Pré-requisitos
-
-Antes de rodar o projeto, garanta que as seguintes ferramentas estejam instaladas:
-
-- Python 3.10+
-- Pip
-
-
-# Instalação
-
-## 1. Clonar o repositório
+Crie o arquivo de configuracao:
 
 ```bash
-git clone <repository-url>
-cd maratonaSBSC
+cp .env.example .env
 ```
 
+Altere pelo menos `DATABASE_PASSWORD`, `ADMIN_API_KEY` e `PORTAL_TOKEN`. Em seguida:
 
-## 2. Configurar ambiente virtual Python
-- ## Linux
-    ```bash
-    python -m venv .venv
-    source .venv/bin/activate
-    ```
-
-- ## Windows CMD
-    ```cmd
-    python -m venv .venv
-    .venv\Scripts\activate.bat
-    ```
-
-- ## Windows PowerShell
-    ```powershell
-    python -m venv .venv
-    .venv\Scripts\Activate.ps1
-    ```
-
-## 3. Instalar dependências Python
 ```bash
-pip install -r requirements.txt
+docker compose up --build
 ```
 
-# Endpoints
+Servicos disponiveis:
 
-- ### GET /notas/
-    ---
-    Listar Notas
-    Insere um cnpj e recebe suas notas e itens de cada emissão,
-    além disso as informações serão organizadas e colocadas no database
-    SE a emissão da nota for antes de 3 meses desde a criação da empresa, ela será considerada suspeita, essa informação também será colocada no DB
+- frontend: `http://localhost`
+- API: `http://localhost:8000`
+- Swagger: `http://localhost:8000/docs`
+- liveness: `http://localhost:8000/health/live`
+- readiness: `http://localhost:8000/health/ready`
 
-- ### GET /contratos/
-    ---
-    Listar Contratos
-    Insere duas datas (inicial e final)
-    E recebe os contratos que foram postados nesse período
+O servico `migrate` executa `alembic upgrade head` automaticamente. Para criar uma nova migration:
 
-- ### POST /despesas/importar
-    ---
-    Importar Despesas
-    Insere duas datas (inicial e final) e importa os empenhos,
-    liquidações e pagamentos do Portal da Transparência para o banco de dados.
-    O processo inteiro pode levar alguns minutos dependendo da quantidade.
-
-
-# Inicializando Projeto
-
-Para inicializar o servidor rode:
-
-```cmd
-uvicorn main:app --reload
+```bash
+docker compose run --rm migrate alembic revision -m "descricao"
 ```
 
-Para facilitar o processo de consumo dos endpoints, utilizem a documentação interativa
-> http://localhost:8000/docs#
+## Desenvolvimento local
+
+Requer Python 3.12 ou superior, MySQL e Redis.
+
+```bash
+python -m venv .venv
+.venv/Scripts/activate
+pip install -r requirements-dev.txt
+alembic upgrade head
+uvicorn main:app --app-dir backend --reload
+```
+
+Em outro terminal, inicie o worker:
+
+```bash
+celery --workdir backend -A worker.celery_app worker --loglevel=INFO
+```
+
+No Linux ou macOS, ative o ambiente com `source .venv/bin/activate`.
+
+## Endpoints principais
+
+Consultas publicas:
+
+- `GET /cnpj/informacoes/{cnpj}`
+- `GET /cnpj/despesas/{cnpj}/resumo`
+- `GET /cnpj/despesas/{cnpj}/empenhos`
+- `GET /cnpj/despesas/{cnpj}/liquidacoes`
+- `GET /cnpj/despesas/{cnpj}/pagamentos`
+- `GET /cnpj/notas/{cnpj}`
+- `GET /cnpj/notas/{cnpj}/itens/{chave}`
+- `GET /avaliacao/ranking`
+- `POST /avaliacao/{cnpj}/votar`
+
+Importacoes administrativas:
+
+- `POST /importacao/cnpj`
+- `POST /importacao/despesas?data_inicio=YYYY-MM-DD&data_fim=YYYY-MM-DD`
+- `POST /importacao/notas?data_inicio=YYYY-MM-DD&data_fim=YYYY-MM-DD`
+- `POST /importacao/itens-notas?data_inicio=YYYY-MM-DD&data_fim=YYYY-MM-DD`
+- `GET /importacao/jobs/{job_id}`
+
+Todas as rotas de importacao exigem o header:
+
+```text
+X-Admin-Key: valor-configurado-em-ADMIN_API_KEY
+```
+
+A criacao de uma importacao retorna HTTP `202`:
+
+```json
+{
+  "job_id": "identificador-do-job",
+  "status": "PENDING"
+}
+```
+
+Use o identificador no endpoint de status para acompanhar a execucao.
+
+## Escalabilidade
+
+Os workers podem ser replicados sem aumentar a quantidade de processos da API:
+
+```bash
+docker compose up --scale worker=4
+```
+
+Para replicar a API em producao, coloque as instancias atras de um balanceador e remova o mapeamento fixo `8000:8000` do Compose. Ajuste `DATABASE_POOL_SIZE` considerando a soma de todos os processos web e workers para nao exceder o limite de conexoes do MySQL.
+
+Os limites de periodo, pagina e tamanho de download podem ser configurados pelo `.env`. Downloads usam streaming, timeout e retry com backoff.
+
+## Qualidade
+
+```bash
+ruff check backend
+pytest --cov=backend --cov-report=term-missing
+```
+
+Os testes nao dependem de uma instancia real do MySQL ou Redis. Para validar a integracao completa, suba o ambiente pelo Docker Compose.

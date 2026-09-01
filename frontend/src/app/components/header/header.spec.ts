@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Header } from './header';
+import { provideRouter } from '@angular/router';
 
 describe('Header', () => {
   let component: Header;
@@ -9,6 +10,7 @@ describe('Header', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Header],
+      providers: [provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Header);
@@ -18,5 +20,10 @@ describe('Header', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should expose the import page in the main navigation', () => {
+    const link = fixture.nativeElement.querySelector('a[href="/importacao"]') as HTMLAnchorElement;
+    expect(link?.textContent).toContain('Importar dados');
   });
 });

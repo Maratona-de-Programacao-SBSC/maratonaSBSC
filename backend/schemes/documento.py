@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Documento(Enum):
     EMPENHOS = "Empenho"
     PAGAMENTOS = "Pagamento"

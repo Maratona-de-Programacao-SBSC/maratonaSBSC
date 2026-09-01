@@ -1,17 +1,17 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+
+type Secao = 'empenho' | 'liquidacao' | 'notas' | 'pagamento';
 
 @Component({
   selector: 'app-explicacao',
-  standalone: true,
-  imports: [CommonModule],
   templateUrl: './explicacao.html',
-  styleUrls: ['./explicacao.scss']
+  styleUrls: ['./explicacao.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExplicacoesComponent {
-  aberto: string | null = null;
+  readonly aberto = signal<Secao | null>('empenho');
 
-  toggle(secao: string) {
-    this.aberto = this.aberto === secao ? null : secao;
+  toggle(secao: Secao): void {
+    this.aberto.update((atual) => (atual === secao ? null : secao));
   }
 }

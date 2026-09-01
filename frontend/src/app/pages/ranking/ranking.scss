@@ -1,0 +1,5 @@
+.ranking-page {
+  min-height: calc(100vh - var(--header-height));
+  background:
+    radial-gradient(circle at 85% 5%, rgba(7, 91, 104, 0.1), transparent 24rem), var(--color-bg);
+}

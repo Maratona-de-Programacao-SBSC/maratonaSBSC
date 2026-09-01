@@ -1,10 +1,8 @@
-
 import time
 
+
 def tempo_execucao(func):
-
     def wraper():
-
         inicio = time.time()
         func()
         fim = time.time()
@@ -13,7 +11,5 @@ def tempo_execucao(func):
     return wraper
 
 
-def fundir_csv(path1:str , path2: str):
+def fundir_csv(path1: str, path2: str):
     pass
-
-

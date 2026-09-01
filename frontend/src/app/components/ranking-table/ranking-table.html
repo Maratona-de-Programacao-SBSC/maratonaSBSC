@@ -1,48 +1,81 @@
-<div class="ranking-section">
-  <div class="cabecalho">
-    <h2>Top 5 Alertas da Comunidade</h2>
-    <p>Os CNPJs com maior número de apontamentos de irregularidades pela população.</p>
-  </div>
+<section class="ranking-section container-shell" aria-labelledby="ranking-title">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">Participação cidadã</p>
+      <h1 id="ranking-title">Alertas que merecem atenção.</h1>
+    </div>
+    <p>
+      Fornecedores ordenados pelo número de sinalizações feitas pela comunidade. Use a lista como
+      ponto de partida para consultar os registros.
+    </p>
+  </header>
 
-  @if (loading) {
-    <div class="loading">Carregando...</div>
+  <aside class="context-note">
+    <span aria-hidden="true">i</span>
+    <p>
+      <strong>Como interpretar:</strong> mais alertas indicam maior interesse da comunidade, não
+      comprovação de irregularidade.
+    </p>
+  </aside>
+
+  @if (loading()) {
+    <div class="ranking-list loading-list" aria-live="polite" aria-busy="true">
+      <span class="sr-only">Carregando alertas</span>
+      @for (item of [1, 2, 3, 4]; track item) {
+        <div class="skeleton-row"><i></i><span></span><b></b></div>
+      }
+    </div>
+  } @else if (erro()) {
+    <div class="state-card" role="alert">
+      <span aria-hidden="true">!</span>
+      <h2>Não foi possível carregar o ranking</h2>
+      <p>{{ erro() }}</p>
+      <button type="button" (click)="carregar()">Tentar novamente</button>
+    </div>
+  } @else if (ranking().length) {
+    <ol class="ranking-list">
+      @for (item of ranking(); track item.cnpj; let posicao = $index) {
+        <li [class.podium]="posicao < 3">
+          <a
+            routerLink="/dashboard"
+            [queryParams]="{ cnpj: item.cnpj }"
+            [attr.aria-label]="'Consultar ' + (item.razao_social || item.cnpj)"
+          >
+            <span class="position" [class.position--top]="posicao < 3">{{ posicao + 1 }}</span>
+            <div class="supplier">
+              <strong>{{ item.razao_social || 'Fornecedor sem razão social disponível' }}</strong>
+              <small>{{ formatarCnpj(item.cnpj) }}</small>
+            </div>
+            <div class="alert-level">
+              <span class="badge" [class]="'badge ' + classeNivel(item.votos_cidadaos)">{{
+                nivel(item.votos_cidadaos)
+              }}</span>
+              <div class="meter" aria-hidden="true">
+                <i [style.width.%]="percentual(item.votos_cidadaos)"></i>
+              </div>
+            </div>
+            <div class="votes">
+              <strong>{{ item.votos_cidadaos }}</strong
+              ><small>
+                @if (item.votos_cidadaos === 1) {
+                  alerta
+                } @else {
+                  alertas
+                }
+              </small>
+            </div>
+            <span class="arrow" aria-hidden="true">→</span>
+          </a>
+        </li>
+      }
+    </ol>
+    <p class="list-footer">Selecione um fornecedor para abrir a consulta completa.</p>
+  } @else {
+    <div class="state-card">
+      <span aria-hidden="true">—</span>
+      <h2>Nenhum alerta registrado</h2>
+      <p>A lista será exibida quando a comunidade começar a sinalizar fornecedores.</p>
+      <a routerLink="/dashboard">Consultar um fornecedor</a>
+    </div>
   }
-
-  <div class="card-tabela">
-    <table>
-      <thead>
-        <tr>
-          <th class="center">Posição</th>
-          <th>Fornecedor (CNPJ)</th>
-          <th>Nível de Alerta</th>
-          <th class="center">Votos</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (item of top5; track item.cnpj; let i = $index) {
-          <tr class="linha" (click)="irParaDashboard(item.cnpj)">
-            <td class="col-posicao">{{ i + 1 }}º</td>
-            <td>
-              <strong>{{ item.razao_social }}</strong><br>
-              <span class="cnpj">{{ item.cnpj }}</span>
-            </td>
-            <td>
-              <span class="badge"
-                [class.critico]="item.votos_cidadaos >= 20"
-                [class.alto]="item.votos_cidadaos >= 10 && item.votos_cidadaos < 20"
-                [class.medio]="item.votos_cidadaos >= 5 && item.votos_cidadaos < 10"
-                [class.baixo]="item.votos_cidadaos < 5">
-                {{
-                  item.votos_cidadaos >= 20 ? 'Crítico' :
-                  (item.votos_cidadaos >= 10 ? 'Alto' :
-                  (item.votos_cidadaos >= 5 ? 'Atenção' : 'Observação'))
-                }}
-              </span>
-            </td>
-            <td class="col-votos">{{ item.votos_cidadaos }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </div>
-</div>
+</section>

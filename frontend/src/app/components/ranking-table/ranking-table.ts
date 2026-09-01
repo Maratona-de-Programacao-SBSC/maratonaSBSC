@@ -1,80 +1,67 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { ApiService } from '../../services/api';
+import { CnpjSuspeito } from '../../models/api.models';
 
-export interface CnpjSuspeito {
-  cnpj: string;
-  razao_social: string;
-  votos_cidadaos: number;
-}
+type NivelAlerta = 'Crítico' | 'Alto' | 'Atenção' | 'Observação';
 
 @Component({
   selector: 'app-ranking-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [RouterLink],
   templateUrl: './ranking-table.html',
-  styleUrls: ['./ranking-table.scss']
+  styleUrls: ['./ranking-table.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RankingTableComponent implements OnInit {
+  readonly ranking = signal<CnpjSuspeito[]>([]);
+  readonly loading = signal(false);
+  readonly erro = signal('');
+  readonly maiorVotacao = computed(() =>
+    Math.max(...this.ranking().map((item) => item.votos_cidadaos), 1),
+  );
 
-  top5: CnpjSuspeito[] = [];
-  loading = false;
+  constructor(private readonly api: ApiService) {}
 
-  constructor(
-    private api: ApiService,
-    private router: Router,
-    private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.carregar();
   }
 
-  async carregar() {
-    this.loading = true;
-    this.cdr.detectChanges();
-
-    this.api.buscarRanking().subscribe({
-      next: async (res: any) => {
-        this.top5 = res;
-        this.loading = false;
-        this.cdr.detectChanges();
-
-        for (let i = 0; i < this.top5.length; i++) {
-          const item = this.top5[i];
-
-          // verifica localStorage primeiro
-          if (this.api.temInfosExternas(item.cnpj)) {
-            item.razao_social = this.api.getNomeCache(item.cnpj) ?? item.cnpj;
-            this.cdr.detectChanges();
-            continue;
-          }
-
-          if (item.razao_social) continue;
-
-          await new Promise(r => setTimeout(r, 300 * i));
-
-          this.api.buscarInfosExternas(item.cnpj).subscribe({
-            next: (info: any) => {
-              item.razao_social = info.razao_social ?? item.cnpj;
-              this.cdr.detectChanges();
-            },
-            error: () => {
-              item.razao_social = item.cnpj;
-              this.cdr.detectChanges();
-            }
-          });
-        }
-      },
-      error: () => {
-        this.loading = false;
-        this.cdr.detectChanges();
-      }
-    });
+  carregar(): void {
+    this.loading.set(true);
+    this.erro.set('');
+    this.api
+      .buscarRanking(10)
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (ranking) => this.ranking.set(ranking),
+        error: (error) =>
+          this.erro.set(
+            this.api.mensagemErro(error, 'Não foi possível carregar os alertas da comunidade.'),
+          ),
+      });
   }
 
-  irParaDashboard(cnpj: string) {
-    this.router.navigate(['/dashboard'], { queryParams: { cnpj } });
+  nivel(votos: number): NivelAlerta {
+    if (votos >= 20) return 'Crítico';
+    if (votos >= 10) return 'Alto';
+    if (votos >= 5) return 'Atenção';
+    return 'Observação';
+  }
+
+  classeNivel(votos: number): string {
+    if (votos >= 20) return 'critical';
+    if (votos >= 10) return 'high';
+    if (votos >= 5) return 'medium';
+    return 'low';
+  }
+
+  percentual(votos: number): number {
+    return Math.max(4, Math.round((votos / this.maiorVotacao()) * 100));
+  }
+
+  formatarCnpj(cnpj: string): string {
+    return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
   }
 }

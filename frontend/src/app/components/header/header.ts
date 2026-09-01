@@ -1,10 +1,21 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink],
+  imports: [RouterLink, RouterLinkActive],
   templateUrl: './header.html',
   styleUrl: './header.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Header {}
+export class Header {
+  readonly menuAberto = signal(false);
+
+  alternarMenu(): void {
+    this.menuAberto.update((aberto) => !aberto);
+  }
+
+  fecharMenu(): void {
+    this.menuAberto.set(false);
+  }
+}

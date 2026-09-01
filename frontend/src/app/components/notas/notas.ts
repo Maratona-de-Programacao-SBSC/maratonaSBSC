@@ -1,80 +1,104 @@
-import { Component, Input, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  HostListener,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { finalize } from 'rxjs';
 import { ApiService } from '../../services/api';
+import { ItemNotaFiscal, NotaFiscal } from '../../models/api.models';
+import { PaginationComponent } from '../ui/pagination/pagination';
 
 @Component({
   selector: 'app-notas',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PaginationComponent],
   templateUrl: './notas.html',
-  styleUrl: './notas.scss'
+  styleUrl: './notas.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotasComponent implements OnChanges {
-
-  private _cnpj = '';
   @Input() cnpj = '';
 
-  notas: any[] = [];
-  modalAberto = false;
-  itens: any[] = [];
-  notaSelecionada: any = null;
-  loadingItens = false;
+  readonly notas = signal<NotaFiscal[]>([]);
+  readonly pagina = signal(0);
+  readonly totalPaginas = signal(0);
+  readonly total = signal(0);
+  readonly loading = signal(false);
+  readonly erro = signal('');
+  readonly modalAberto = signal(false);
+  readonly notaSelecionada = signal<NotaFiscal | null>(null);
+  readonly itens = signal<ItemNotaFiscal[]>([]);
+  readonly loadingItens = signal(false);
+  readonly erroItens = signal('');
 
-  pagina = 0;
-  totalPaginas = 0;
-  total = 0;
+  constructor(private readonly api: ApiService) {}
 
-  constructor(
-    private api: ApiService,
-    private cdr: ChangeDetectorRef
-  ) {}
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['cnpj']) {
-      const novo = changes['cnpj'].currentValue;
-      if (novo && novo !== this._cnpj) {
-        this._cnpj = novo;
-        this.pagina = 0;
-        this.notas = [];
-        this.fechar();
-        this.carregarNotas();
-      }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['cnpj'] && this.cnpj) {
+      this.pagina.set(0);
+      this.fechar();
+      this.carregarNotas();
     }
   }
 
-  carregarNotas() {
-    this.api.buscarNotas(this._cnpj, this.pagina).subscribe((res: any) => {
-      this.notas = res.notas;
-      this.total = res.total;
-      this.totalPaginas = res.total_paginas;
-      this.cdr.detectChanges();
-    });
+  @HostListener('document:keydown.escape')
+  fecharComEscape(): void {
+    if (this.modalAberto()) this.fechar();
   }
 
-  mudarPagina(pagina: number) {
-    this.pagina = pagina;
+  mudarPagina(pagina: number): void {
+    if (pagina < 0 || pagina >= this.totalPaginas()) return;
+    this.pagina.set(pagina);
     this.carregarNotas();
   }
 
-  abrirNota(nota: any) {
-    this.notaSelecionada = nota;
-    this.itens = [];
-    this.loadingItens = true;
-    this.modalAberto = true;
-    this.cdr.detectChanges();
+  abrirNota(nota: NotaFiscal): void {
+    this.notaSelecionada.set(nota);
+    this.itens.set([]);
+    this.erroItens.set('');
+    this.loadingItens.set(true);
+    this.modalAberto.set(true);
 
-    this.api.buscarItensNota(this._cnpj, nota.chave_acesso).subscribe((res: any) => {
-      this.itens = res;
-      this.loadingItens = false;
-      this.cdr.detectChanges();
-    });
+    this.api
+      .buscarItensNota(this.cnpj, nota.chave_acesso)
+      .pipe(finalize(() => this.loadingItens.set(false)))
+      .subscribe({
+        next: (itens) => this.itens.set(itens),
+        error: (error) =>
+          this.erroItens.set(
+            this.api.mensagemErro(error, 'Não foi possível carregar os itens da nota.'),
+          ),
+      });
   }
 
-  fechar() {
-    this.modalAberto = false;
-    this.itens = [];
-    this.notaSelecionada = null;
-    this.loadingItens = false;
-    this.cdr.detectChanges();
+  fechar(): void {
+    this.modalAberto.set(false);
+    this.notaSelecionada.set(null);
+    this.itens.set([]);
+    this.erroItens.set('');
+  }
+
+  carregarNotas(): void {
+    this.loading.set(true);
+    this.erro.set('');
+    this.api
+      .buscarNotas(this.cnpj, this.pagina())
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (resposta) => {
+          this.notas.set(resposta.notas);
+          this.total.set(resposta.total);
+          this.totalPaginas.set(resposta.total_paginas);
+        },
+        error: (error) =>
+          this.erro.set(
+            this.api.mensagemErro(error, 'Não foi possível carregar as notas fiscais.'),
+          ),
+      });
   }
 }

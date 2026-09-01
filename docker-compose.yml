@@ -1,31 +1,91 @@
 services:
+  redis:
+    image: redis:8.2-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - redis_data:/data
+
   mysql:
     image: mysql:8.4
     restart: unless-stopped
+    command: --local-infile=1
     environment:
       MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
       MYSQL_DATABASE: ${DATABASE}
+      MYSQL_USER: ${DATABASE_USER:-agoradit}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./uploads:/uploads
+
+  migrate:
+    image: agoradit-backend:local
+    command: alembic upgrade head
+    env_file:
+      - ./.env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: "no"
 
   backend:
-    build: ./backend
+    image: agoradit-backend:local
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     restart: unless-stopped
     env_file:
-      - ./backend/.env
+      - ./.env
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
     ports:
       - "8000:8000"
-    volumes:
-      - ./uploads:/uploads
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  worker:
+    image: agoradit-backend:local
+    restart: unless-stopped
+    command: celery -A worker.celery_app worker --loglevel=INFO --concurrency=2
+    env_file:
+      - ./.env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
 
   frontend:
     build: ./frontend
     restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
     ports:
       - "80:80"
 
 volumes:
   mysql_data:
+  redis_data:

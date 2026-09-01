@@ -1,0 +1,189 @@
+<main class="importacao-page" aria-labelledby="importacao-title">
+  <div class="container-shell page-grid">
+    <section class="intro">
+      <span class="admin-badge">Área administrativa</span>
+      <h1 id="importacao-title">Importe os dados sem sair do painel.</h1>
+      <p>
+        Escolha uma base, defina o período e acompanhe o processamento até a conclusão. As cargas
+        são executadas em segundo plano.
+      </p>
+
+      <div class="security-note">
+        <span aria-hidden="true">✓</span>
+        <div>
+          <strong>Chave protegida</strong>
+          <p>A credencial fica apenas nesta página e não é salva no navegador.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="import-card" aria-label="Configurar importação">
+      @if (!job()) {
+        <form (ngSubmit)="iniciar()" novalidate>
+          <fieldset class="type-fieldset">
+            <legend>1. O que deseja importar?</legend>
+            <div class="type-grid">
+              @for (opcao of opcoes; track opcao.tipo) {
+                <label class="type-option" [class.selected]="tipo() === opcao.tipo">
+                  <input
+                    type="radio"
+                    name="tipoImportacao"
+                    [value]="opcao.tipo"
+                    [checked]="tipo() === opcao.tipo"
+                    (change)="selecionarTipo(opcao.tipo)"
+                  />
+                  <span class="radio-mark" aria-hidden="true"></span>
+                  <span>
+                    <strong>{{ opcao.titulo }}</strong>
+                    <small>{{ opcao.descricao }}</small>
+                  </span>
+                </label>
+              }
+            </div>
+          </fieldset>
+
+          @if (tipo() !== 'cnpj') {
+            <fieldset class="period-fieldset">
+              <legend>2. Qual período deve ser carregado?</legend>
+              <div class="date-grid">
+                <label>
+                  <span>Data inicial</span>
+                  <input
+                    type="date"
+                    name="dataInicio"
+                    [(ngModel)]="dataInicio"
+                    [max]="dataFim || hoje"
+                    required
+                  />
+                </label>
+                <label>
+                  <span>Data final</span>
+                  <input
+                    type="date"
+                    name="dataFim"
+                    [(ngModel)]="dataFim"
+                    [min]="dataInicio"
+                    [max]="hoje"
+                    required
+                  />
+                </label>
+              </div>
+              <p class="field-help">
+                Período máximo: {{ opcaoAtual().limiteDias }} dias. A data final não pode estar no
+                futuro.
+              </p>
+            </fieldset>
+          } @else {
+            <div class="full-load-warning">
+              <strong>Carga completa</strong>
+              <p>
+                Esta operação percorre toda a base de CNPJs e pode levar bastante tempo. Evite
+                iniciá-la novamente enquanto houver outra execução em andamento.
+              </p>
+              <label>
+                <input
+                  type="checkbox"
+                  name="confirmacaoCargaCompleta"
+                  [(ngModel)]="confirmacaoCargaCompleta"
+                />
+                <span>Estou ciente e quero iniciar a carga completa.</span>
+              </label>
+            </div>
+          }
+
+          <fieldset class="credential-fieldset">
+            <legend>{{ tipo() === 'cnpj' ? '2' : '3' }}. Autorize a operação</legend>
+            <label for="admin-key">Chave administrativa</label>
+            <div class="password-field">
+              <input
+                id="admin-key"
+                name="chaveAdministrativa"
+                [type]="mostrarChave() ? 'text' : 'password'"
+                [(ngModel)]="chaveAdministrativa"
+                autocomplete="off"
+                spellcheck="false"
+                aria-describedby="admin-key-help importacao-error"
+                [attr.aria-invalid]="erro() ? true : null"
+              />
+              <button type="button" (click)="alternarVisibilidadeChave()">
+                {{ mostrarChave() ? 'Ocultar' : 'Mostrar' }}
+              </button>
+            </div>
+            <small id="admin-key-help">Use o valor de ADMIN_API_KEY configurado no ambiente.</small>
+          </fieldset>
+
+          @if (erro()) {
+            <div class="form-error" id="importacao-error" role="alert">
+              <span aria-hidden="true">!</span>
+              <p>{{ erro() }}</p>
+            </div>
+          }
+
+          <button class="submit-button" type="submit" [disabled]="enviando()">
+            @if (enviando()) {
+              <span class="spinner" aria-hidden="true"></span>
+              Enviando para a fila
+            } @else {
+              Iniciar importação <span aria-hidden="true">→</span>
+            }
+          </button>
+        </form>
+      } @else if (job(); as jobAtual) {
+        <div class="job-panel" aria-live="polite">
+          <div class="job-icon" [ngClass]="statusClasse(jobAtual.status)">
+            @if (statusClasse(jobAtual.status) === 'progress') {
+              <span class="spinner spinner-dark" aria-hidden="true"></span>
+            } @else if (statusClasse(jobAtual.status) === 'success') {
+              <span aria-hidden="true">✓</span>
+            } @else {
+              <span aria-hidden="true">!</span>
+            }
+          </div>
+          <span class="status-chip" [ngClass]="statusClasse(jobAtual.status)">
+            {{ statusTraduzido(jobAtual.status) }}
+          </span>
+          <h2>{{ opcaoAtual().titulo }}</h2>
+          <p class="job-message">
+            @if (statusClasse(jobAtual.status) === 'progress') {
+              A carga está sendo processada. Esta página atualiza o status automaticamente.
+            } @else if (statusClasse(jobAtual.status) === 'success') {
+              A importação foi concluída e os dados já podem ser consultados.
+            } @else {
+              A carga não foi concluída. Verifique os serviços e tente novamente.
+            }
+          </p>
+
+          <div class="job-id">
+            <span>Identificador do job</span>
+            <code>{{ jobAtual.job_id }}</code>
+          </div>
+
+          @if (resultado().length) {
+            <dl class="job-results">
+              @for (item of resultado(); track item.chave) {
+                <div>
+                  <dt>{{ item.chave }}</dt>
+                  <dd>{{ item.valor }}</dd>
+                </div>
+              }
+            </dl>
+          }
+
+          @if (erro()) {
+            <div class="form-error" role="alert">
+              <span aria-hidden="true">!</span>
+              <p>{{ erro() }}</p>
+            </div>
+          }
+
+          @if (statusClasse(jobAtual.status) !== 'progress' || erro()) {
+            <button class="submit-button" type="button" (click)="novaImportacao()">
+              Configurar nova importação
+            </button>
+          }
+          <small class="expiry-note">O histórico do job fica disponível por até 24 horas.</small>
+        </div>
+      }
+    </section>
+  </div>
+</main>

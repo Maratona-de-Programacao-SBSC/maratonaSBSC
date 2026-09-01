@@ -1,0 +1,23 @@
+@if (totalPaginas() > 1) {
+  <nav class="pagination" aria-label="Navegação entre páginas">
+    <button
+      type="button"
+      [disabled]="pagina() === 0"
+      (click)="anterior()"
+      aria-label="Página anterior"
+    >
+      <span aria-hidden="true">←</span> Anterior
+    </button>
+    <span
+      ><strong>{{ pagina() + 1 }}</strong> de {{ totalPaginas() }}</span
+    >
+    <button
+      type="button"
+      [disabled]="pagina() >= totalPaginas() - 1"
+      (click)="proxima()"
+      aria-label="Próxima página"
+    >
+      Próxima <span aria-hidden="true">→</span>
+    </button>
+  </nav>
+}

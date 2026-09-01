@@ -1,260 +1,347 @@
-<div class="cards">
-  <div class="card">
-    <h3>Empenhado</h3>
-    <span>R$ {{ totalEmpenhado | number:'1.2-2':'pt-BR' }}</span>
-  </div>
-  <div class="card">
-    <h3>Liquidado</h3>
-    <span>R$ {{ totalLiquidado | number:'1.2-2':'pt-BR' }}</span>
-  </div>
-  <div class="card">
-    <h3>Pago</h3>
-    <span>R$ {{ totalPago | number:'1.2-2':'pt-BR' }}</span>
-  </div>
-</div>
-
-<div class="secao">
-  <h2>Empenhos ({{ resumo?.empenhos?.total || 0 }})</h2>
-  <div class="tabela-wrap">
-    @if (empenhos.length) {
-      <table>
-        <thead>
-          <tr>
-            <th>Código</th>
-            <th>Data</th>
-            <th>Tipo</th>
-            <th>Elemento</th>
-            <th>Observação</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (e of empenhos; track e.codigo_empenho) {
-            <tr class="linha" (click)="abrirModal(e, 'empenho')">
-              <td>{{ e.codigo_empenho }}</td>
-              <td>{{ e.data_emissao }}</td>
-              <td>{{ e.tipo_empenho }}</td>
-              <td>{{ e.elemento_despesa }}</td>
-              <td class="obs">{{ e.observacao }}</td>
-              <td>R$ {{ e.valor | number:'1.2-2':'pt-BR' }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-      <div class="paginacao">
-        <button [disabled]="paginaEmpenhos === 0" (click)="mudarPaginaEmpenhos(paginaEmpenhos - 1)">‹</button>
-        <span>{{ paginaEmpenhos + 1 }} / {{ totalPaginasEmpenhos }}</span>
-        <button [disabled]="paginaEmpenhos >= totalPaginasEmpenhos - 1" (click)="mudarPaginaEmpenhos(paginaEmpenhos + 1)">›</button>
-      </div>
-    } @else {
-      <p class="vazio">Nenhum empenho encontrado</p>
-    }
-  </div>
-</div>
-
-<div class="secao">
-  <h2>Liquidações ({{ resumo?.liquidacoes?.total || 0 }})</h2>
-  <div class="tabela-wrap">
-    @if (liquidacoes.length) {
-      <table>
-        <thead>
-          <tr>
-            <th>Código</th>
-            <th>Data</th>
-            <th>Elemento</th>
-            <th>Observação</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (l of liquidacoes; track l.codigo_liquidacao) {
-            <tr class="linha" (click)="abrirModal(l, 'liquidacao')">
-              <td>{{ l.codigo_liquidacao }}</td>
-              <td>{{ l.data_emissao }}</td>
-              <td>{{ l.codigo_elemento_despesa }}</td>
-              <td class="obs">{{ l.observacao }}</td>
-              <td>R$ {{ l.valor | number:'1.2-2':'pt-BR' }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-      <div class="paginacao">
-        <button [disabled]="paginaLiquidacoes === 0" (click)="mudarPaginaLiquidacoes(paginaLiquidacoes - 1)">‹</button>
-        <span>{{ paginaLiquidacoes + 1 }} / {{ totalPaginasLiquidacoes }}</span>
-        <button [disabled]="paginaLiquidacoes >= totalPaginasLiquidacoes - 1" (click)="mudarPaginaLiquidacoes(paginaLiquidacoes + 1)">›</button>
-      </div>
-    } @else {
-      <p class="vazio">Nenhuma liquidação encontrada</p>
-    }
-  </div>
-</div>
-
-<div class="secao">
-  <h2>Pagamentos ({{ resumo?.pagamentos?.total || 0 }})</h2>
-  <div class="tabela-wrap">
-    @if (pagamentos.length) {
-      <table>
-        <thead>
-          <tr>
-            <th>Código</th>
-            <th>Data</th>
-            <th>Processo</th>
-            <th>Órgão</th>
-            <th>Unidade Gestora</th>
-            <th>Observação</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (p of pagamentos; track p.codigo_pagamento) {
-            <tr class="linha" (click)="abrirModal(p, 'pagamento')">
-              <td>{{ p.codigo_pagamento }}</td>
-              <td>{{ p.data_emissao }}</td>
-              <td>{{ p.processo }}</td>
-              <td>{{ p.orgao }}</td>
-              <td>{{ p.unidade_gestora }}</td>
-              <td class="obs">{{ p.observacao }}</td>
-              <td>R$ {{ p.valor | number:'1.2-2':'pt-BR' }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-      <div class="paginacao">
-        <button [disabled]="paginaPagamentos === 0" (click)="mudarPaginaPagamentos(paginaPagamentos - 1)">‹</button>
-        <span>{{ paginaPagamentos + 1 }} / {{ totalPaginasPagamentos }}</span>
-        <button [disabled]="paginaPagamentos >= totalPaginasPagamentos - 1" (click)="mudarPaginaPagamentos(paginaPagamentos + 1)">›</button>
-      </div>
-    } @else {
-      <p class="vazio">Nenhum pagamento encontrado</p>
-    }
-  </div>
-</div>
-
-@if (modalAberto) {
-  <div class="modal-backdrop" (click)="fechar()">
-    <div class="modal" (click)="$event.stopPropagation()">
-      <h3>
-        @if (tipoModal === 'empenho') { Detalhes do Empenho }
-        @if (tipoModal === 'liquidacao') { Detalhes da Liquidação }
-        @if (tipoModal === 'pagamento') { Detalhes do Pagamento }
-      </h3>
-
-      <div class="modal-infos">
-        @if (tipoModal === 'empenho') {
-          <div class="modal-info-item">
-            <label>Código</label>
-            <span>{{ itemSelecionado?.codigo_empenho }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Data</label>
-            <span>{{ itemSelecionado?.data_emissao }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Tipo</label>
-            <span>{{ itemSelecionado?.tipo_empenho }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Elemento de Despesa</label>
-            <span>{{ itemSelecionado?.elemento_despesa }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Código Órgão</label>
-            <span>{{ itemSelecionado?.codigo_orgao }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Unidade Gestora</label>
-            <span>{{ itemSelecionado?.codigo_unidade_gestora }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Favorecido</label>
-            <span>{{ itemSelecionado?.favorecido }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Valor</label>
-            <span>R$ {{ itemSelecionado?.valor | number:'1.2-2':'pt-BR' }}</span>
-          </div>
-          <div class="modal-info-item modal-info-item--full">
-            <label>Observação</label>
-            <span>{{ itemSelecionado?.observacao }}</span>
-          </div>
-        }
-
-        @if (tipoModal === 'liquidacao') {
-          <div class="modal-info-item">
-            <label>Código</label>
-            <span>{{ itemSelecionado?.codigo_liquidacao }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Data</label>
-            <span>{{ itemSelecionado?.data_emissao }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Código Órgão</label>
-            <span>{{ itemSelecionado?.codigo_orgao }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Unidade Gestora</label>
-            <span>{{ itemSelecionado?.codigo_unidade_gestora }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Favorecido</label>
-            <span>{{ itemSelecionado?.favorecido }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Elemento de Despesa</label>
-            <span>{{ itemSelecionado?.codigo_elemento_despesa }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Valor</label>
-            <span>R$ {{ itemSelecionado?.valor | number:'1.2-2':'pt-BR' }}</span>
-          </div>
-          <div class="modal-info-item modal-info-item--full">
-            <label>Observação</label>
-            <span>{{ itemSelecionado?.observacao }}</span>
-          </div>
-        }
-
-        @if (tipoModal === 'pagamento') {
-          <div class="modal-info-item">
-            <label>Código</label>
-            <span>{{ itemSelecionado?.codigo_pagamento }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Data</label>
-            <span>{{ itemSelecionado?.data_emissao }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Processo</label>
-            <span>{{ itemSelecionado?.processo }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Órgão</label>
-            <span>{{ itemSelecionado?.orgao }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Código Órgão</label>
-            <span>{{ itemSelecionado?.codigo_orgao }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Unidade Gestora</label>
-            <span>{{ itemSelecionado?.unidade_gestora }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Favorecido</label>
-            <span>{{ itemSelecionado?.favorecido }}</span>
-          </div>
-          <div class="modal-info-item">
-            <label>Valor</label>
-            <span>R$ {{ itemSelecionado?.valor | number:'1.2-2':'pt-BR' }}</span>
-          </div>
-          <div class="modal-info-item modal-info-item--full">
-            <label>Observação</label>
-            <span>{{ itemSelecionado?.observacao }}</span>
-          </div>
-        }
-      </div>
-
-      <button (click)="fechar()">Fechar</button>
+<section class="finance" aria-labelledby="finance-title">
+  <header class="section-heading">
+    <div>
+      <span class="section-kicker">Visão financeira</span>
+      <h3 id="finance-title">Fluxo das despesas públicas</h3>
     </div>
+    <p>Selecione uma etapa para explorar os registros em detalhes.</p>
+  </header>
+
+  <div class="cards" role="tablist" aria-label="Tipos de despesa">
+    @for (tipo of ['empenho', 'liquidacao', 'pagamento']; track tipo; let index = $index) {
+      <button
+        type="button"
+        role="tab"
+        class="card"
+        [class.active]="tipoAtivo() === tipo"
+        [attr.aria-selected]="tipoAtivo() === tipo"
+        (click)="selecionarTipo($any(tipo))"
+      >
+        <span class="card-top"
+          ><i>{{ index + 1 }}</i
+          >{{
+            tipo === 'empenho' ? 'Empenhado' : tipo === 'liquidacao' ? 'Liquidado' : 'Pago'
+          }}</span
+        >
+        @if (carregandoResumo()) {
+          <span class="value-placeholder"></span>
+        } @else {
+          <strong>{{ soma($any(tipo)) | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</strong>
+        }
+        <small
+          >{{ total($any(tipo)) }}
+          @if (total($any(tipo)) === 1) {
+            registro
+          } @else {
+            registros
+          }
+        </small>
+      </button>
+    }
+  </div>
+
+  <div class="records-panel" role="tabpanel">
+    <header class="records-heading">
+      <div>
+        <span class="section-kicker">Registros encontrados</span>
+        <h4>
+          @if (tipoAtivo() === 'empenho') {
+            Empenhos
+          } @else if (tipoAtivo() === 'liquidacao') {
+            Liquidações
+          } @else {
+            Pagamentos
+          }
+        </h4>
+      </div>
+      <span class="record-count">{{ total(tipoAtivo()) }} no total</span>
+    </header>
+
+    @if (erro()) {
+      <div class="table-state table-state--error" role="alert">
+        <p>{{ erro() }}</p>
+        <button type="button" (click)="tentarNovamente()">Tentar novamente</button>
+      </div>
+    } @else if (carregandoTabela()) {
+      <div class="table-state" aria-live="polite">
+        <span class="spinner"></span>
+        <p>Carregando registros...</p>
+      </div>
+    } @else {
+      <div
+        class="table-scroll"
+        tabindex="0"
+        aria-label="Tabela de registros com rolagem horizontal"
+      >
+        @if (tipoAtivo() === 'empenho' && empenhos().length) {
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Elemento</th>
+                <th>Observação</th>
+                <th class="numeric">Valor</th>
+                <th><span class="sr-only">Ações</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of empenhos(); track item.codigo_empenho) {
+                <tr>
+                  <td class="code">{{ item.codigo_empenho }}</td>
+                  <td>{{ item.data_emissao | date: 'dd/MM/yyyy' }}</td>
+                  <td>{{ item.tipo_empenho || '—' }}</td>
+                  <td>{{ item.elemento_despesa || '—' }}</td>
+                  <td class="truncate" [title]="item.observacao || ''">
+                    {{ item.observacao || 'Sem observação' }}
+                  </td>
+                  <td class="numeric value">
+                    {{ +item.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      class="details"
+                      (click)="abrirModal(item, 'empenho')"
+                      [attr.aria-label]="'Ver detalhes do empenho ' + item.codigo_empenho"
+                    >
+                      Detalhes
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else if (tipoAtivo() === 'liquidacao' && liquidacoes().length) {
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Data</th>
+                <th>Elemento</th>
+                <th>Observação</th>
+                <th class="numeric">Valor</th>
+                <th><span class="sr-only">Ações</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of liquidacoes(); track item.codigo_liquidacao) {
+                <tr>
+                  <td class="code">{{ item.codigo_liquidacao }}</td>
+                  <td>{{ item.data_emissao | date: 'dd/MM/yyyy' }}</td>
+                  <td>{{ item.codigo_elemento_despesa || '—' }}</td>
+                  <td class="truncate" [title]="item.observacao || ''">
+                    {{ item.observacao || 'Sem observação' }}
+                  </td>
+                  <td class="numeric value">
+                    {{ +item.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      class="details"
+                      (click)="abrirModal(item, 'liquidacao')"
+                      [attr.aria-label]="'Ver detalhes da liquidação ' + item.codigo_liquidacao"
+                    >
+                      Detalhes
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else if (tipoAtivo() === 'pagamento' && pagamentos().length) {
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Data</th>
+                <th>Órgão</th>
+                <th>Observação</th>
+                <th class="numeric">Valor</th>
+                <th><span class="sr-only">Ações</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of pagamentos(); track item.codigo_pagamento) {
+                <tr>
+                  <td class="code">{{ item.codigo_pagamento }}</td>
+                  <td>{{ item.data_emissao | date: 'dd/MM/yyyy' }}</td>
+                  <td>{{ item.orgao || item.unidade_gestora || '—' }}</td>
+                  <td class="truncate" [title]="item.observacao || ''">
+                    {{ item.observacao || 'Sem observação' }}
+                  </td>
+                  <td class="numeric value">
+                    {{ +item.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      class="details"
+                      (click)="abrirModal(item, 'pagamento')"
+                      [attr.aria-label]="'Ver detalhes do pagamento ' + item.codigo_pagamento"
+                    >
+                      Detalhes
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <div class="table-state">
+            <span class="empty-icon" aria-hidden="true">—</span>
+            <p>Nenhum registro encontrado nesta etapa.</p>
+          </div>
+        }
+      </div>
+
+      <app-pagination
+        [pagina]="paginaAtual()"
+        [totalPaginas]="totalPaginas()"
+        (paginaChange)="mudarPagina($event)"
+      />
+    }
+  </div>
+</section>
+
+@if (modalAberto()) {
+  <div class="modal-backdrop" (click)="fechar()">
+    <section
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="modal-header">
+        <div>
+          <span class="section-kicker">Registro público</span>
+          <h3 id="modal-title">
+            Detalhes
+            @if (tipoModal() === 'empenho') {
+              do empenho
+            } @else if (tipoModal() === 'liquidacao') {
+              da liquidação
+            } @else {
+              do pagamento
+            }
+          </h3>
+        </div>
+        <button type="button" class="close" (click)="fechar()" aria-label="Fechar detalhes">
+          ×
+        </button>
+      </header>
+
+      <dl class="modal-grid">
+        @if (empenhoSelecionado; as item) {
+          <div>
+            <dt>Código</dt>
+            <dd>{{ item.codigo_empenho }}</dd>
+          </div>
+          <div>
+            <dt>Data</dt>
+            <dd>{{ item.data_emissao | date: 'dd/MM/yyyy' }}</dd>
+          </div>
+          <div>
+            <dt>Tipo</dt>
+            <dd>{{ item.tipo_empenho || 'Não informado' }}</dd>
+          </div>
+          <div>
+            <dt>Elemento de despesa</dt>
+            <dd>{{ item.elemento_despesa || 'Não informado' }}</dd>
+          </div>
+          <div>
+            <dt>Órgão</dt>
+            <dd>{{ item.codigo_orgao || 'Não informado' }}</dd>
+          </div>
+          <div>
+            <dt>Unidade gestora</dt>
+            <dd>{{ item.codigo_unidade_gestora || 'Não informada' }}</dd>
+          </div>
+          <div>
+            <dt>Favorecido</dt>
+            <dd>{{ item.favorecido || 'Não informado' }}</dd>
+          </div>
+          <div class="highlight">
+            <dt>Valor</dt>
+            <dd>{{ +item.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+          </div>
+          <div class="full">
+            <dt>Observação</dt>
+            <dd>{{ item.observacao || 'Sem observação' }}</dd>
+          </div>
+        }
+        @if (liquidacaoSelecionada; as item) {
+          <div>
+            <dt>Código</dt>
+            <dd>{{ item.codigo_liquidacao }}</dd>
+          </div>
+          <div>
+            <dt>Data</dt>
+            <dd>{{ item.data_emissao | date: 'dd/MM/yyyy' }}</dd>
+          </div>
+          <div>
+            <dt>Elemento de despesa</dt>
+            <dd>{{ item.codigo_elemento_despesa || 'Não informado' }}</dd>
+          </div>
+          <div>
+            <dt>Órgão</dt>
+            <dd>{{ item.codigo_orgao || 'Não informado' }}</dd>
+          </div>
+          <div>
+            <dt>Unidade gestora</dt>
+            <dd>{{ item.codigo_unidade_gestora || 'Não informada' }}</dd>
+          </div>
+          <div>
+            <dt>Favorecido</dt>
+            <dd>{{ item.favorecido || 'Não informado' }}</dd>
+          </div>
+          <div class="highlight">
+            <dt>Valor</dt>
+            <dd>{{ +item.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+          </div>
+          <div class="full">
+            <dt>Observação</dt>
+            <dd>{{ item.observacao || 'Sem observação' }}</dd>
+          </div>
+        }
+        @if (pagamentoSelecionado; as item) {
+          <div>
+            <dt>Código</dt>
+            <dd>{{ item.codigo_pagamento }}</dd>
+          </div>
+          <div>
+            <dt>Data</dt>
+            <dd>{{ item.data_emissao | date: 'dd/MM/yyyy' }}</dd>
+          </div>
+          <div>
+            <dt>Processo</dt>
+            <dd>{{ item.processo || 'Não informado' }}</dd>
+          </div>
+          <div>
+            <dt>Órgão</dt>
+            <dd>{{ item.orgao || item.codigo_orgao || 'Não informado' }}</dd>
+          </div>
+          <div>
+            <dt>Unidade gestora</dt>
+            <dd>{{ item.unidade_gestora || item.codigo_unidade_gestora || 'Não informada' }}</dd>
+          </div>
+          <div>
+            <dt>Favorecido</dt>
+            <dd>{{ item.favorecido || 'Não informado' }}</dd>
+          </div>
+          <div class="highlight">
+            <dt>Valor</dt>
+            <dd>{{ +item.valor | currency: 'BRL' : 'symbol' : '1.2-2' : 'pt-BR' }}</dd>
+          </div>
+          <div class="full">
+            <dt>Observação</dt>
+            <dd>{{ item.observacao || 'Sem observação' }}</dd>
+          </div>
+        }
+      </dl>
+    </section>
   </div>
 }
